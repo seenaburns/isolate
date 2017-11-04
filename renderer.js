@@ -57,7 +57,7 @@ function setDirsNav(dirs) {
     dirs_container.appendChild(renderDir('../', '../'))
   }
   dirs.forEach(d => {
-    dirs_container.appendChild(renderDir(d, join(pwd,d)))
+    dirs_container.appendChild(renderDir(d, d))
   })
 
   document.querySelectorAll('#dirs a').forEach(a => {
