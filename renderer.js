@@ -8,7 +8,24 @@ let pwd = ''
 let root = electron.remote.getGlobal('global').root_dir
 
 function join(a,b) {
-  return a + '/' + b
+  return removeDuplicateSlash(a + '/' + b)
+}
+
+function removeLeadingSlash(path) {
+  if (path.length > 0 && path[0] == '/') {
+    return path.slice(1,path.length)
+  } else {
+    return path
+  }
+}
+
+function removeDuplicateSlash(path) {
+  return path.replace('//', '/')
+}
+
+function up(path) {
+  let parts = path.split('/')
+  return parts.slice(0,parts.length-1).join('')
 }
 
 function isDir(f) {
@@ -24,16 +41,27 @@ function isImage(f) {
 }
 
 function setDirsNav(dirs) {
-  let renderDir = function (d) {
+  let renderDir = function (d, path) {
     let l = document.createElement('li')
-    l.innerHTML = '<a href="#">' + d + '</a>'
+    let a = document.createElement('a')
+    a.href = '#'
+    a.setAttribute('path', path)
+    a.innerHTML = d
+    l.appendChild(a)
     return l
   }
 
   let dirs_container = document.querySelector('#dirs ul')
   dirs_container.innerHTML = ""
+  if (pwd != '') {
+    dirs_container.appendChild(renderDir('../', '../'))
+  }
   dirs.forEach(d => {
-    dirs_container.appendChild(renderDir(d))
+    dirs_container.appendChild(renderDir(d, join(pwd,d)))
+  })
+
+  document.querySelectorAll('#dirs a').forEach(a => {
+    a.onclick = e => cd(a.getAttribute('path'))
   })
 }
 
@@ -58,9 +86,21 @@ function setImages(images) {
   })
 }
 
-let files = fs.readdirSync(join(root,pwd))
-setPwd(pwd)
-setDirsNav(files.filter(f => isDir(f)))
-setImages(files.filter(f => isImage(f) && isFile(f)))
+function render() {
+  let files = fs.readdirSync(join(root,pwd)).map(f => join(pwd, f))
+  setPwd(pwd)
+  setDirsNav(files.filter(f => isDir(f)))
+  setImages(files.filter(f => isImage(f) && isFile(f)))
+}
 
-console.log(electron.remote.getGlobal('global').root_dir)
+function cd(relpath) {
+  if (relpath == '../') {
+    pwd = up(pwd)
+  } else {
+    pwd = removeLeadingSlash(relpath)
+  }
+  console.log('cd ' + pwd)
+  render()
+}
+
+cd('')
