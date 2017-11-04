@@ -1,0 +1,35 @@
+body {
+  font-family: 'Inconsolata', monospace;
+  font-size: 16px;
+  line-height: 1.4em;
+  background: #fff;
+  color: #000;
+  padding: 30px;
+}
+
+a {
+  color: #000
+}
+
+header {
+  padding: 0px 10px 30px;
+}
+
+header h3 {
+  margin: 0;
+  padding: 0px 0px 30px;
+}
+
+nav ul {
+  max-height: 100px;
+  display:flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+nav li {
+}
+
