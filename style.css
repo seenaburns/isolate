@@ -33,3 +33,15 @@ nav ul {
 nav li {
 }
 
+#images {
+  column-count: 4;
+  column-gap: 0;
+}
+
+.iw {
+  width: 100%;
+}
+
+#images img {
+  width: 100%;
+}

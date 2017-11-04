@@ -11,8 +11,16 @@ function join(a,b) {
   return a + '/' + b
 }
 
-function filterDirs(files) {
-  return files.filter(f => fs.lstatSync(join(root, f)).isDirectory())
+function isDir(f) {
+  return fs.lstatSync(join(root, f)).isDirectory()
+}
+
+function isFile(f) {
+  return fs.lstatSync(join(root,f)).isFile()
+}
+
+function isImage(f) {
+  return ['jpeg', 'jpg', 'png'].some(ext => f.split('.').pop() == ext)
 }
 
 function setDirsNav(dirs) {
@@ -27,16 +35,32 @@ function setDirsNav(dirs) {
   dirs.forEach(d => {
     dirs_container.appendChild(renderDir(d))
   })
-  // dirs_container.innerHTML += "</ul>"
 }
 
 function setPwd(path) {
   document.querySelector('#pwd').innerHTML = '/' + pwd
 }
 
-let files = fs.readdirSync(join(root,pwd))
-setDirsNav(filterDirs(files))
+function setImages(images) {
+  let renderImage = function(path) {
+    let iw = document.createElement('div')
+    iw.className = "iw"
+    let i = document.createElement('img')
+    i.src = 'file://' + join(root, path)
+    iw.appendChild(i)
+    return iw
+  }
 
+  let images_container = document.querySelector('#images')
+  images_container.innerHTML = ""
+  images.forEach(i => {
+    images_container.appendChild(renderImage(i))
+  })
+}
+
+let files = fs.readdirSync(join(root,pwd))
 setPwd(pwd)
+setDirsNav(files.filter(f => isDir(f)))
+setImages(files.filter(f => isImage(f) && isFile(f)))
 
 console.log(electron.remote.getGlobal('global').root_dir)
