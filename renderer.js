@@ -11,9 +11,32 @@ function join(a,b) {
   return a + '/' + b
 }
 
-fs.readdirSync(join(root,pwd)).forEach(file => {
-  let dirs = document.querySelector('#dirs')
-  dirs.innerHTML += '<p>' + file + '</p>'
-})
+function filterDirs(files) {
+  return files.filter(f => fs.lstatSync(join(root, f)).isDirectory())
+}
+
+function setDirsNav(dirs) {
+  let renderDir = function (d) {
+    let l = document.createElement('li')
+    l.innerHTML = '<a href="#">' + d + '</a>'
+    return l
+  }
+
+  let dirs_container = document.querySelector('#dirs ul')
+  dirs_container.innerHTML = ""
+  dirs.forEach(d => {
+    dirs_container.appendChild(renderDir(d))
+  })
+  // dirs_container.innerHTML += "</ul>"
+}
+
+function setPwd(path) {
+  document.querySelector('#pwd').innerHTML = '/' + pwd
+}
+
+let files = fs.readdirSync(join(root,pwd))
+setDirsNav(filterDirs(files))
+
+setPwd(pwd)
 
 console.log(electron.remote.getGlobal('global').root_dir)
