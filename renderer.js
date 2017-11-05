@@ -103,5 +103,14 @@ function cd(relpath) {
 }
 
 document.querySelector('#close-modal').onclick = e => closeModal()
+document.addEventListener('keydown', e => {
+  switch (e.key) {
+    case 'Escape':
+      closeModal()
+      break;
+    default:
+      return
+  }
+})
 
 cd('')
