@@ -2,13 +2,10 @@ const electron = require('electron')
 const fs = require('fs')
 
 const path = require('./lib/path')
+const modal = require('./lib/modal')
 
 let pwd = ''
 let root = electron.remote.getGlobal('global').root_dir
-
-let modal = document.getElementById('modal')
-let modal_content = document.getElementById('modal-content')
-let body = document.querySelector('body')
 
 function isImage(f) {
   return ['jpeg', 'jpg', 'png'].some(ext => f.split('.').pop() == ext)
@@ -53,8 +50,8 @@ function setImages(images) {
     iw.className = "iw"
     let i = document.createElement('img')
     i.onclick = e => {
-      setModal(e.toElement.src)
-      openModal()
+      modal.setModal(e.toElement.src)
+      modal.openModal()
     }
     i.src = imgUrl(relpath)
     iw.appendChild(i)
@@ -75,23 +72,6 @@ function render() {
   setImages(files.filter(f => isImage(f) && path.isFile(path.join(root, f))))
 }
 
-function setModal(imageUrl) {
-  let i = document.createElement('img')
-  i.src = imageUrl
-  modal_content.innerHTML = ''
-  modal_content.appendChild(i)
-}
-
-function openModal() {
-  modal.style.display = 'block'
-  body.style.overflow = 'hidden'
-}
-
-function closeModal() {
-  modal.style.display = 'none';
-  body.style.overflow = 'visible'
-}
-
 function cd(relpath) {
   if (relpath == '../') {
     pwd = path.up(pwd)
@@ -102,11 +82,11 @@ function cd(relpath) {
   render()
 }
 
-document.querySelector('#close-modal').onclick = e => closeModal()
+document.querySelector('#close-modal').onclick = e => modal.closeModal()
 document.addEventListener('keydown', e => {
   switch (e.key) {
     case 'Escape':
-      closeModal()
+      modal.closeModal()
       break;
     default:
       return
