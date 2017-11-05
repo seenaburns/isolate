@@ -6,6 +6,10 @@ const path = require('./lib/path')
 let pwd = ''
 let root = electron.remote.getGlobal('global').root_dir
 
+let modal = document.getElementById('modal')
+let modal_content = document.getElementById('modal-content')
+let body = document.querySelector('body')
+
 function isImage(f) {
   return ['jpeg', 'jpg', 'png'].some(ext => f.split('.').pop() == ext)
 }
@@ -39,12 +43,20 @@ function setPwd(path) {
   document.querySelector('#pwd').innerHTML = '/' + pwd
 }
 
+function imgUrl(relpath) {
+  return 'file://' + path.join(root, relpath)
+}
+
 function setImages(images) {
   let renderImage = function(relpath) {
     let iw = document.createElement('div')
     iw.className = "iw"
     let i = document.createElement('img')
-    i.src = 'file://' + path.join(root, relpath)
+    i.onclick = e => {
+      setModal(e.toElement.src)
+      openModal()
+    }
+    i.src = imgUrl(relpath)
     iw.appendChild(i)
     return iw
   }
@@ -63,6 +75,23 @@ function render() {
   setImages(files.filter(f => isImage(f) && path.isFile(path.join(root, f))))
 }
 
+function setModal(imageUrl) {
+  let i = document.createElement('img')
+  i.src = imageUrl
+  modal_content.innerHTML = ''
+  modal_content.appendChild(i)
+}
+
+function openModal() {
+  modal.style.display = 'block'
+  body.style.overflow = 'hidden'
+}
+
+function closeModal() {
+  modal.style.display = 'none';
+  body.style.overflow = 'visible'
+}
+
 function cd(relpath) {
   if (relpath == '../') {
     pwd = path.up(pwd)
@@ -72,5 +101,7 @@ function cd(relpath) {
   console.log('cd ' + pwd)
   render()
 }
+
+document.querySelector('#close-modal').onclick = e => closeModal()
 
 cd('')
