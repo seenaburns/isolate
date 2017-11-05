@@ -1,40 +1,10 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
 const electron = require('electron')
 const fs = require('fs')
 
+const path = require('./lib/path')
+
 let pwd = ''
 let root = electron.remote.getGlobal('global').root_dir
-
-function join(a,b) {
-  return removeDuplicateSlash(a + '/' + b)
-}
-
-function removeLeadingSlash(path) {
-  if (path.length > 0 && path[0] == '/') {
-    return path.slice(1,path.length)
-  } else {
-    return path
-  }
-}
-
-function removeDuplicateSlash(path) {
-  return path.replace('//', '/')
-}
-
-function up(path) {
-  let parts = path.split('/')
-  return parts.slice(0,parts.length-1).join('')
-}
-
-function isDir(f) {
-  return fs.lstatSync(join(root, f)).isDirectory()
-}
-
-function isFile(f) {
-  return fs.lstatSync(join(root,f)).isFile()
-}
 
 function isImage(f) {
   return ['jpeg', 'jpg', 'png'].some(ext => f.split('.').pop() == ext)
@@ -70,11 +40,11 @@ function setPwd(path) {
 }
 
 function setImages(images) {
-  let renderImage = function(path) {
+  let renderImage = function(relpath) {
     let iw = document.createElement('div')
     iw.className = "iw"
     let i = document.createElement('img')
-    i.src = 'file://' + join(root, path)
+    i.src = 'file://' + path.join(root, relpath)
     iw.appendChild(i)
     return iw
   }
@@ -87,17 +57,17 @@ function setImages(images) {
 }
 
 function render() {
-  let files = fs.readdirSync(join(root,pwd)).map(f => join(pwd, f))
+  let files = fs.readdirSync(path.join(root,pwd)).map(f => path.join(pwd, f))
   setPwd(pwd)
-  setDirsNav(files.filter(f => isDir(f)))
-  setImages(files.filter(f => isImage(f) && isFile(f)))
+  setDirsNav(files.filter(f => path.isDir(path.join(root, f))))
+  setImages(files.filter(f => isImage(f) && path.isFile(path.join(root, f))))
 }
 
 function cd(relpath) {
   if (relpath == '../') {
-    pwd = up(pwd)
+    pwd = path.up(pwd)
   } else {
-    pwd = removeLeadingSlash(relpath)
+    pwd = path.removeLeadingSlash(relpath)
   }
   console.log('cd ' + pwd)
   render()
