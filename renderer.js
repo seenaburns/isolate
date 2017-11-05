@@ -83,6 +83,11 @@ function cd(relpath) {
 }
 
 document.querySelector('#close-modal').onclick = e => modal.closeModal()
+window.onclick = e => {
+    if (e.target == modal.modal) {
+        modal.closeModal()
+    }
+}
 document.addEventListener('keydown', e => {
   switch (e.key) {
     case 'Escape':
