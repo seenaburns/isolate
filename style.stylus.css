@@ -96,21 +96,22 @@ nav ul {
   text-decoration: none;
 }
 
-/* The Close Button */
-.close {
+.modal-controls {
   position: fixed;
   right: 50px;
   top: 10px;
   color: #aaa;
-  float: right;
   font-size: 2em;
   font-weight: bold;
-}
 
-.close:hover,
-.close:focus {
-  cursor: pointer;
-  color: #fff;
-  text-decoration: none;
-}
+  span {
+    float: right
+    padding-left: 10px;
+  }
 
+  span:hover, span:focus {
+    cursor: pointer;
+    color: #fff;
+    text-decoration: none;
+  }
+}

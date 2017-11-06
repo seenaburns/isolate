@@ -82,7 +82,7 @@ function cd(relpath) {
   render()
 }
 
-document.querySelector('#close-modal').onclick = e => modal.closeModal()
+document.querySelector('#modal-controls #close').onclick = e => modal.closeModal()
 window.onclick = e => {
     console.log(e.target)
     if (e.target == modal.modal_container) {
