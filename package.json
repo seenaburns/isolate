@@ -5,11 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron . "
+    "build": "cat style.stylus.css | $(npm bin)/stylus > compiled/style.css",
+    "start": "npm run build && electron . "
   },
   "keywords": [],
   "author": "Seena Burns",
   "devDependencies": {
-    "electron": "1.7.9"
+    "electron": "1.7.9",
+    "stylus": "^0.54.5"
   }
 }

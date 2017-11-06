@@ -12,7 +12,7 @@ body {
 }
 
 a {
-  color: #000
+  color: #000;
 }
 
 .main-header {
@@ -26,15 +26,12 @@ a {
 
 nav ul {
   max-height: 100px;
-  display:flex;
+  display: flex;
   flex-direction: column;
   flex-wrap: wrap;
   margin: 0;
   padding: 0;
   list-style: none;
-}
-
-nav li {
 }
 
 .images-container {
@@ -59,34 +56,24 @@ nav li {
   width: 100%;
   height: 100%;
   overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.90); /* Black w/ opacity */
+  background-color: #000; /* Fallback color */
+  background-color: rgba(0,0,0,0.9); /* Black w/ opacity */
 }
 
-.modal-container {
-  /* height: 100%; */
-  /* display: flex; */
-  /* align-items: center; */
-  /* justify-content: center; */
-  /* overflow-x: auto; */
-
-}
 .modal-content {
-  /* position: relative; */
-  /* margin: auto; */
-
+/* position: relative; */
+/* margin: auto; */
   display: flex;
-  /* align-items: center; */
-  /* justify-content: center; */
-  /* overflow-x: auto; */
-
+/* align-items: center; */
+/* justify-content: center; */
+/* overflow-x: auto; */
   padding: 50px;
   width: 100vw;
   height: 100vh;
 }
 
 .modal-content img {
-  /* position: relative; */
+/* position: relative; */
   margin: auto;
   background: url("checker-square.png");
   max-width: 100%;
@@ -97,7 +84,6 @@ nav li {
   z-index: 2; /* Sit on top */
   position: fixed;
   left: 100px;
-
   height: 2em;
   padding: 1em;
   color: #bbb;
@@ -115,7 +101,6 @@ nav li {
   position: fixed;
   right: 50px;
   top: 10px;
-
   color: #aaa;
   float: right;
   font-size: 2em;
@@ -128,3 +113,4 @@ nav li {
   color: #fff;
   text-decoration: none;
 }
+
