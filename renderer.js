@@ -84,11 +84,13 @@ function cd(relpath) {
 
 document.querySelector('#close-modal').onclick = e => modal.closeModal()
 window.onclick = e => {
-    if (e.target == modal.modal) {
+    console.log(e.target)
+    if (e.target == modal.modal_container) {
         modal.closeModal()
     }
 }
 document.addEventListener('keydown', e => {
+    console.log(e.key)
   switch (e.key) {
     case 'Escape':
       modal.closeModal()
@@ -97,5 +99,11 @@ document.addEventListener('keydown', e => {
       return
   }
 })
+
+// Make viewer-src open in another window
+document.querySelector('#viewer-src a').onclick = e => {
+  e.preventDefault();
+  electron.shell.openExternal(e.target.href);
+}
 
 cd('')

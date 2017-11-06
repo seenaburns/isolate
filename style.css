@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: 'Inconsolata', monospace;
   font-size: 16px;
@@ -11,11 +15,11 @@ a {
   color: #000
 }
 
-header {
+.main-header {
   padding: 0px 10px 30px;
 }
 
-header h3 {
+.main-header h3 {
   margin: 0;
   padding: 0px 0px 30px;
 }
@@ -47,43 +51,80 @@ nav li {
 }
 
 .modal-back {
-	display: none; /* Hidden by default */
-	position: fixed; /* Stay in place */
-	z-index: 1; /* Sit on top */
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	overflow: auto; /* Enable scroll if needed */
-	background-color: rgb(0,0,0); /* Fallback color */
-	background-color: rgba(0,0,0,0.90); /* Black w/ opacity */
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.90); /* Black w/ opacity */
 }
 
 .modal-container {
-	margin: 5% auto;
-	padding: 0px;
-	max-width: calc(100% - 40px - 100px);
-  max-height: calc(100% - 40px - 100px);
-  display: table;
+  /* height: 100%; */
+  /* display: flex; */
+  /* align-items: center; */
+  /* justify-content: center; */
+  /* overflow-x: auto; */
+
+}
+.modal-content {
+  /* position: relative; */
+  /* margin: auto; */
+
+  display: flex;
+  /* align-items: center; */
+  /* justify-content: center; */
+  /* overflow-x: auto; */
+
+  padding: 50px;
+  width: 100vw;
+  height: 100vh;
 }
 
 .modal-content img {
-  min-height: calc(70vh); /* make images fill screen if too small */
-  max-height: calc(100vh - 200px);
-  background: #fff;
+  /* position: relative; */
+  margin: auto;
+  background: url("checker-square.png");
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.modal-container header {
+  z-index: 2; /* Sit on top */
+  position: fixed;
+  left: 100px;
+
+  height: 2em;
+  padding: 1em;
+  color: #bbb;
+  font-size: 12px;
+  line-height: 14px;
+}
+
+.modal-container header a {
+  color: inherit;
+  text-decoration: none;
 }
 
 /* The Close Button */
 .close {
-	color: #aaa;
-	float: right;
-	font-size: 28px;
-	font-weight: bold;
+  position: fixed;
+  right: 50px;
+  top: 10px;
+
+  color: #aaa;
+  float: right;
+  font-size: 2em;
+  font-weight: bold;
 }
 
 .close:hover,
 .close:focus {
-	color: black;
-	text-decoration: none;
-	cursor: pointer;
-} 
+  cursor: pointer;
+  color: #fff;
+  text-decoration: none;
+}
