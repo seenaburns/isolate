@@ -72,7 +72,7 @@ nav ul {
 .modal-content img {
 /* position: relative; */
   margin: auto;
-  background: url("checker-square.png");
+  background: url("../checker-square.png");
 }
 
 .modal-zoomed {
