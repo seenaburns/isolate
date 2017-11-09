@@ -4,6 +4,7 @@ const fs = require('fs')
 const path = require('./lib/path')
 const modal = require('./lib/modal')
 const db = require('./lib/db')
+const util = require('./lib/util')
 
 let pwd = ''
 let root = electron.remote.getGlobal('global').root_dir
@@ -16,10 +17,8 @@ function isImage(f) {
 function setDirsNav(dirs) {
   let renderDir = function (d, path) {
     let l = document.createElement('li')
-    let a = document.createElement('a')
-    a.href = '#'
+    let a = util.link('#', d)
     a.setAttribute('path', path)
-    a.innerHTML = d
     l.appendChild(a)
     return l
   }
@@ -113,11 +112,5 @@ document.addEventListener('keydown', e => {
       return
   }
 })
-
-// Make viewer-src open in another window
-document.querySelector('#viewer-src a').onclick = e => {
-  e.preventDefault();
-  electron.shell.openExternal(e.target.href);
-}
 
 cd('')

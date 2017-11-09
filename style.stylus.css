@@ -120,6 +120,10 @@ nav ul {
 .viewer-metadata {
   width: 500px;
   margin-left: 75px;
+
+  .tag::before {
+    content: "#";
+  }
 }
 
 .modal-controls {
@@ -137,6 +141,5 @@ nav ul {
   span:hover, span:focus {
     cursor: pointer;
     color: #fff;
-    text-decoration: none;
   }
 }
