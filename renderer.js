@@ -3,9 +3,11 @@ const fs = require('fs')
 
 const path = require('./lib/path')
 const modal = require('./lib/modal')
+const db = require('./lib/db')
 
 let pwd = ''
 let root = electron.remote.getGlobal('global').root_dir
+let global_db = electron.remote.getGlobal('global').db
 
 function isImage(f) {
   return ['jpeg', 'jpg', 'png'].some(ext => f.split('.').pop() == ext)
@@ -50,7 +52,15 @@ function setImages(images) {
     iw.className = "iw"
     let i = document.createElement('img')
     i.onclick = e => {
-      modal.setModal(e.toElement.src)
+      console.log(relpath)
+      let metadata = db.metadataForPath(global_db, relpath)
+      console.log(metadata)
+      modal.setModal(
+        e.toElement.src,
+        metadata.source,
+        metadata.description,
+        metadata.tags
+      )
       modal.openModal()
     }
     i.src = imgUrl(relpath)
