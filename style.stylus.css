@@ -34,6 +34,19 @@ nav ul {
   list-style: none;
 }
 
+.search {
+  float: right;
+  font-size: inherit;
+  font-family: inherit;
+  border: none;
+  border-bottom: 1px solid #000;
+  outline: none;
+}
+
+.search::placeholder {
+  color: #ccc;
+}
+
 .images-container {
   column-count: 4;
   column-gap: 8px;

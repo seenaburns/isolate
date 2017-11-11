@@ -9,6 +9,7 @@ const util = require('./lib/util')
 let pwd = ''
 let root = electron.remote.getGlobal('global').root_dir
 let global_db = electron.remote.getGlobal('global').db
+let global_db_to_path_mapping = electron.remote.getGlobal('global').db_to_path_mapping
 
 function isImage(f) {
   return ['jpeg', 'jpg', 'png'].some(ext => f.split('.').pop() == ext)
@@ -81,6 +82,14 @@ function render() {
   setImages(files.filter(f => isImage(f) && path.isFile(path.join(root, f))))
 }
 
+function search(term) {
+  console.log("Search: " + term)
+  let results = db.searchDb(global_db, term)
+    .map(md => global_db_to_path_mapping.get(md.path))
+  console.log(results)
+  setImages(results.map(x => x.replace(root, '')))
+}
+
 function cd(relpath) {
   if (relpath == '../') {
     pwd = path.up(pwd)
@@ -100,7 +109,6 @@ window.onclick = e => {
     }
 }
 document.addEventListener('keydown', e => {
-    console.log(e.key)
   switch (e.key) {
     case 'Escape':
       modal.closeModal()
@@ -110,6 +118,14 @@ document.addEventListener('keydown', e => {
       break;
     default:
       return
+  }
+})
+
+let search_input = document.querySelector("#search")
+search_input.addEventListener("keyup", e => {
+  if (e.keyCode === 13) {
+    e.preventDefault()
+    search(search_input.value)
   }
 })
 

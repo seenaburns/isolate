@@ -14,8 +14,8 @@ const path2 = require('./lib/path')
 let win
 global.global = {
   root_dir: '',
-  db: [],
-  db_to_path_mapping: [],
+  // db: [],
+  // db_to_path_mapping: {},
 }
 
 function error(e) {
@@ -36,7 +36,7 @@ function createWindow () {
   }))
 
   // Open the DevTools.
-  // win.webContents.openDevTools()
+  win.webContents.openDevTools()
 
   // Emitted when the window is closed.
   win.on('closed', function () {
