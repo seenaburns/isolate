@@ -14,8 +14,9 @@ const path2 = require('./lib/path')
 let win
 global.global = {
   root_dir: '',
-  // db: [],
-  // db_to_path_mapping: {},
+  db: [],
+  db_to_path_mapping: {},
+  files: [],
 }
 
 function error(e) {
@@ -61,6 +62,7 @@ function init() {
     let mapping = db.idToPathMapping(files, dbdata.map(item => item.path))
     global.global.db = dbdata
     global.global.db_to_path_mapping = mapping
+    global.global.files = files
   })
 
   createWindow()

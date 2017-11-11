@@ -7,9 +7,11 @@ const db = require('./lib/db')
 const util = require('./lib/util')
 
 let pwd = ''
-let root = electron.remote.getGlobal('global').root_dir
-let global_db = electron.remote.getGlobal('global').db
-let global_db_to_path_mapping = electron.remote.getGlobal('global').db_to_path_mapping
+let global = electron.remote.getGlobal('global')
+let root = global.root_dir
+let global_db = global.db
+let global_db_to_path_mapping = global.db_to_path_mapping
+let global_files = global.files
 
 function isImage(f) {
   return ['jpeg', 'jpg', 'png'].some(ext => f.split('.').pop() == ext)
@@ -86,6 +88,9 @@ function search(term) {
   console.log("Search: " + term)
   let results = db.searchDb(global_db, term)
     .map(md => global_db_to_path_mapping.get(md.path))
+    .filter(x => x != undefined)
+    .map(x => db.filePathToImages(global_files, x))
+    .reduce((a,b) => a.concat(b))
   console.log(results)
   setImages(results.map(x => x.replace(root, '')))
 }
