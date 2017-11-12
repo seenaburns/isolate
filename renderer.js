@@ -11,6 +11,13 @@ let global = electron.remote.getGlobal('global')
 let root = global.root_dir
 let global_db = global.db
 
+let ui = {
+  'dirs': document.querySelector('#dirs'),
+  'pwd': document.querySelector('#pwd'),
+  'images': document.querySelector('#images'),
+  'search': document.querySelector('#search'),
+}
+
 function isImage(f) {
   return ['jpeg', 'jpg', 'png'].some(ext => f.split('.').pop() == ext)
 }
@@ -39,7 +46,7 @@ function setDirsNav(dirs) {
 }
 
 function setPwd(path) {
-  document.querySelector('#pwd').innerHTML = '/' + pwd
+  ui.pwd.innerHTML = '/' + pwd
 }
 
 function imgUrl(relpath) {
@@ -68,10 +75,9 @@ function setImages(images) {
     return iw
   }
 
-  let images_container = document.querySelector('#images')
-  images_container.innerHTML = ""
+  ui.images.innerHTML = ""
   images.forEach(i => {
-    images_container.appendChild(renderImage(i))
+    ui.images.appendChild(renderImage(i))
   })
 }
 
@@ -87,6 +93,8 @@ function search(term) {
   let results = db.convertToFiles(global_db, db.searchDB(global_db, term))
   console.log(results)
   setImages(results.map(x => x.replace(root, '')))
+  ui.dirs.style.display = 'none'
+  ui.dirs.style.display = 'none'
 }
 
 function cd(relpath) {
@@ -120,11 +128,10 @@ document.addEventListener('keydown', e => {
   }
 })
 
-let search_input = document.querySelector("#search")
-search_input.addEventListener("keyup", e => {
+ui.search.addEventListener("keyup", e => {
   if (e.keyCode === 13) {
     e.preventDefault()
-    search(search_input.value)
+    search(ui.search.value)
   }
 })
 
