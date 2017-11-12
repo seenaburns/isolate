@@ -57,13 +57,7 @@ function init() {
 
   // Load db
   dbfile = path2.join(root_dir, 'db.json')
-  db.loadDBFromFile(dbfile, dbdata => {
-    let files = path2.directoryWalk(root_dir, 5)
-    let mapping = db.idToPathMapping(files, dbdata.map(item => item.path))
-    global.global.db = dbdata
-    global.global.db_to_path_mapping = mapping
-    global.global.files = files
-  })
+  db.loadDB(dbfile, root_dir, global.global)
 
   createWindow()
 }

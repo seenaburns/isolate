@@ -10,8 +10,6 @@ let pwd = ''
 let global = electron.remote.getGlobal('global')
 let root = global.root_dir
 let global_db = global.db
-let global_db_to_path_mapping = global.db_to_path_mapping
-let global_files = global.files
 
 function isImage(f) {
   return ['jpeg', 'jpg', 'png'].some(ext => f.split('.').pop() == ext)
@@ -86,11 +84,7 @@ function render() {
 
 function search(term) {
   console.log("Search: " + term)
-  let results = db.searchDb(global_db, term)
-    .map(md => global_db_to_path_mapping.get(md.path))
-    .filter(x => x != undefined)
-    .map(x => db.filePathToImages(global_files, x))
-    .reduce((a,b) => a.concat(b))
+  let results = db.convertToFiles(global_db, db.searchDB(global_db, term))
   console.log(results)
   setImages(results.map(x => x.replace(root, '')))
 }
