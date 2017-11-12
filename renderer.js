@@ -81,6 +81,14 @@ function setImages(images) {
   })
 }
 
+function hide(elem) {
+  elem.style.display = 'none'
+}
+
+function show(elem) {
+  elem.style.display = 'block'
+}
+
 function render() {
   let files = fs.readdirSync(path.join(root,pwd)).map(f => path.join(pwd, f))
   setPwd(pwd)
@@ -93,8 +101,9 @@ function search(term) {
   let results = db.convertToFiles(global_db, db.searchDB(global_db, term))
   console.log(results)
   setImages(results.map(x => x.replace(root, '')))
-  ui.dirs.style.display = 'none'
-  ui.dirs.style.display = 'none'
+  hide(ui.pwd)
+  hide(ui.dirs)
+  show(document.querySelector('#search-controls'))
 }
 
 function cd(relpath) {
@@ -134,5 +143,12 @@ ui.search.addEventListener("keyup", e => {
     search(ui.search.value)
   }
 })
+
+document.querySelector('#search-controls a').onclick = e => {
+  hide(document.querySelector('#search-controls'))
+  show(ui.pwd)
+  show(ui.dirs)
+  cd(pwd)
+}
 
 cd('')

@@ -47,6 +47,10 @@ nav ul {
   color: #ccc;
 }
 
+.search-controls {
+  display: none;
+}
+
 .images-container {
   column-count: 4;
   column-gap: 8px;
