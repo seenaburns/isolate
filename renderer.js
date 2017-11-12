@@ -98,7 +98,7 @@ function render() {
 
 function search(term) {
   console.log("Search: " + term)
-  let results = db.convertToFiles(global_db, db.searchDB(global_db, term))
+  let results = db.searchDB(global_db, term).filter(isImage)
   console.log(results)
   setImages(results.map(x => x.replace(root, '')))
   hide(ui.pwd)
