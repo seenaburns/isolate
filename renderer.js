@@ -53,7 +53,7 @@ function setImages(images) {
     let i = document.createElement('img')
     i.onclick = e => {
       console.log(relpath)
-      let metadata = db.metadataForPath(global_db, relpath)
+      let metadata = db.itemForPath(global_db, relpath)
       console.log(metadata)
       modal.setModal(
         e.toElement.src,
