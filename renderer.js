@@ -119,8 +119,7 @@ function cd(relpath) {
 document.querySelector('#modal-controls #close').onclick = e => modal.closeModal()
 document.querySelector('#modal-controls #zoom').onclick = e => modal.toggleModalZoom()
 window.onclick = e => {
-    console.log(e.target)
-    if (e.target == modal.modal_container) {
+    if (e.target == modal.modal.content) {
         modal.closeModal()
     }
 }
