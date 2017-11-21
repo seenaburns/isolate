@@ -10,6 +10,7 @@ let pwd = ''
 let global = electron.remote.getGlobal('global')
 let root = global.root_dir
 let global_db = global.db
+let image_list = []
 
 let ui = {
   'dirs': document.querySelector('#dirs'),
@@ -75,6 +76,7 @@ function setImages(images) {
     return iw
   }
 
+  image_list = images.map(x => imgUrl(x))
   ui.images.innerHTML = ""
   images.forEach(i => {
     ui.images.appendChild(renderImage(i))
@@ -130,6 +132,12 @@ document.addEventListener('keydown', e => {
       break;
     case 'z':
       modal.toggleModalZoom()
+      break;
+    case 'ArrowRight':
+      modal.advance(image_list, true)
+      break;
+    case 'ArrowLeft':
+      modal.advance(image_list, false)
       break;
     default:
       return
