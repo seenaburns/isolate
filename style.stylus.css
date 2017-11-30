@@ -84,6 +84,7 @@ nav ul {
 /* align-items: center; */
 /* justify-content: center; */
 /* overflow-x: auto; */
+  outline: none;
 }
 
 .modal-content img {
