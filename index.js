@@ -27,7 +27,14 @@ function error(e) {
 function createWindow () {
 
   // Create the browser window.
-  win = new BrowserWindow({width: 1000, height: 600, center: true, titleBarStyle: 'hiddenInset'})
+  win = new BrowserWindow({
+    width: 1000,
+    height: 600,
+    minWidth: 600,
+    minHeight: 400,
+    center: true,
+    titleBarStyle: 'hiddenInset'
+  })
 
   // and load the index.html of the app.
   win.loadURL(url.format({
