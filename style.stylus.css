@@ -98,6 +98,12 @@ nav ul {
     color: rgba(0,0,0,0)
   }
 
+  .modal-content {
+    padding: 0px;
+    width: 100vw;
+    height: 100vh;
+  }
+
   header:hover {
     color: #bbb;
   }
