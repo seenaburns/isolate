@@ -46,8 +46,8 @@ function setDirsNav(dirs) {
   })
 }
 
-function setPwd(path) {
-  ui.pwd.innerHTML = '/' + pwd
+function setPwd(path, image_count) {
+  ui.pwd.innerHTML = '/' + pwd + ' (' + image_count + ')'
 }
 
 function imgUrl(relpath) {
@@ -93,9 +93,10 @@ function show(elem) {
 
 function render() {
   let files = fs.readdirSync(path.join(root,pwd)).map(f => path.join(pwd, f))
-  setPwd(pwd)
+  let images = files.filter(f => isImage(f) && path.isFile(path.join(root, f)))
+  setPwd(pwd, images.length)
   setDirsNav(files.filter(f => path.isDir(path.join(root, f))))
-  setImages(files.filter(f => isImage(f) && path.isFile(path.join(root, f))))
+  setImages(images)
 }
 
 function search(term) {
