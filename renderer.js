@@ -59,7 +59,7 @@ function setImages(images) {
     iw.className = "iw"
     let i = document.createElement('img')
     i.onclick = e => {
-      modal.setModal(e.toElement.src, "", "", [])
+      modal.setModal(e.toElement.src, relpath)
       modal.openModal()
     }
     i.src = imgUrl(relpath)
