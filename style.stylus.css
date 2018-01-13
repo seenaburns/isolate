@@ -1,3 +1,11 @@
+fg = #000
+bg = #fff
+colw = 200px
+body-padding = 0px
+header-padding = 40px 40px 30px
+images-padding = 0px
+image-gap = 4px
+
 * {
   box-sizing: border-box;
 }
@@ -6,17 +14,18 @@ body {
   font-family: 'Inconsolata', monospace;
   font-size: 16px;
   line-height: 1.4em;
-  background: #fff;
-  color: #000;
-  padding: 30px;
+  background: bg;
+  color: fg;
+  padding: body-padding;
+  text-rendering: geometricPrecision;
 }
 
 a {
-  color: #000;
+  color: fg;
 }
 
 .main-header {
-  padding: 0px 10px 30px;
+  padding: header-padding;
 }
 
 .main-header h3 {
@@ -39,7 +48,7 @@ nav ul {
   font-size: inherit;
   font-family: inherit;
   border: none;
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid fg;
   outline: none;
 }
 
@@ -52,17 +61,20 @@ nav ul {
 }
 
 .images-container {
+  padding: images-padding;
   column-count: auto;
-  column-width: 250px;
-  column-gap: 4px;
+  column-width: colw;
+  column-gap: image-gap;
 }
 
 .iw {
   width: 100%;
+  margin-bottom: image-gap;
 }
 
 .images-container img {
   width: 100%;
+  display: block; // remove padding below image
 }
 
 .modal-back {
