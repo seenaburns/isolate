@@ -26,11 +26,11 @@ a {
 
 .main-header {
   padding: header-padding;
-}
 
-.main-header h3 {
-  margin: 0;
-  padding: 0px 0px 30px;
+  h3 {
+    margin: 0;
+    padding: 0px 0px 30px;
+  }
 }
 
 nav ul {
