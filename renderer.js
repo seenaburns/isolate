@@ -3,13 +3,12 @@ const fs = require('fs')
 
 const path = require('./lib/path')
 const modal = require('./lib/modal')
-const db = require('./lib/db')
 const util = require('./lib/util')
 
 let pwd = ''
 let global = electron.remote.getGlobal('global')
 let root = global.root_dir
-let global_db = global.db
+let files = []
 let image_list = []
 
 let ui = {
@@ -60,15 +59,7 @@ function setImages(images) {
     iw.className = "iw"
     let i = document.createElement('img')
     i.onclick = e => {
-      console.log(relpath)
-      let metadata = db.itemForPath(global_db, relpath)
-      console.log(metadata)
-      modal.setModal(
-        e.toElement.src,
-        metadata.source,
-        metadata.description,
-        metadata.tags
-      )
+      modal.setModal(e.toElement.src, "", "", [])
       modal.openModal()
     }
     i.src = imgUrl(relpath)
@@ -99,9 +90,20 @@ function render() {
   setImages(images)
 }
 
+function loadFiles() {
+  return path.directoryWalk(root, 5)
+}
+
 function search(term) {
   console.log("Search: " + term)
-  let results = db.searchDB(global_db, term).filter(isImage)
+
+  if (files.length == 0) {
+   files = loadFiles()
+  }
+
+  let results = files
+    .filter(x => x.includes(term))
+    .filter(isImage)
   console.log(results)
   setImages(results.map(x => x.replace(root, '')))
   hide(ui.pwd)

@@ -6,16 +6,11 @@ const path = require('path')
 const fs = require('fs')
 const url = require('url')
 
-const db = require('./lib/db')
 const path2 = require('./lib/path')
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
 let win
 global.global = {
   root_dir: '',
-  db: [],
-  db_to_path_mapping: {},
   files: [],
 }
 
@@ -61,10 +56,6 @@ function init() {
   }
   root_dir = process.argv[2]
   global.global.root_dir = root_dir
-
-  // Load db
-  dbfile = path2.join(root_dir, 'db.json')
-  db.loadDB(dbfile, root_dir, global.global)
 
   createWindow()
 }
