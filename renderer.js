@@ -1,4 +1,5 @@
 const electron = require('electron')
+const {webFrame} = require('electron')
 const fs = require('fs')
 
 const path = require('./lib/path')
@@ -94,6 +95,13 @@ function loadFiles() {
   return path.directoryWalk(root, 5)
 }
 
+function clearWebframeCache() {
+  // Chromium seems to hold a copy of every image in the webframe cache. This can cause the memory
+  // used to balloon, looking alarming to users.
+  // webFrame.clearCache() unloads these images, dropping memory at the cost of directory load time.
+  webFrame.clearCache()
+}
+
 function search(term) {
   console.log("Search: " + term)
 
@@ -117,6 +125,7 @@ function cd(relpath) {
   } else {
     pwd = path.removeLeadingSlash(relpath)
   }
+  clearWebframeCache()
   console.log('cd ' + pwd)
   render()
 }
