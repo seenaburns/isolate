@@ -3,3 +3,4 @@ package-lock.json
 compiled/
 other
 .DS_Store
+build/
