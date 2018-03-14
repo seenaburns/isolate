@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cat style.stylus.css | $(npm bin)/stylus > compiled/style.css",
+    "build": "cat src/style.stylus.css | $(npm bin)/stylus > build/style.css",
     "start": "npm run build && electron . "
   },
   "keywords": [],

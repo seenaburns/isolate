@@ -2,9 +2,9 @@ const electron = require('electron')
 const {webFrame} = require('electron')
 const fs = require('fs')
 
-const path = require('./lib/path')
-const modal = require('./lib/modal')
-const util = require('./lib/util')
+const path = require('./path')
+const modal = require('./modal')
+const util = require('./util')
 
 let pwd = ''
 let global = electron.remote.getGlobal('global')

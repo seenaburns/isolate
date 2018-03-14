@@ -6,7 +6,7 @@ const path = require('path')
 const fs = require('fs')
 const url = require('url')
 
-const path2 = require('./lib/path')
+const path2 = require('./src/path')
 
 let win
 global.global = {
