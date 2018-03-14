@@ -2,8 +2,9 @@ const electron = require('electron')
 const {webFrame} = require('electron')
 const fs = require('fs')
 
-const path = require('./path')
 const modal = require('./modal')
+const path = require('./path')
+const userData = require('./userData')
 const util = require('./util')
 
 let pwd = ''
@@ -17,6 +18,7 @@ let ui = {
   'pwd': document.querySelector('#pwd'),
   'images': document.querySelector('#images'),
   'search': document.querySelector('#search'),
+  'dragndrop': document.querySelector('#dragndrop'),
 }
 
 function isImage(f) {
@@ -81,6 +83,16 @@ function hide(elem) {
 
 function show(elem) {
   elem.style.display = 'block'
+}
+
+function showDragNDrop() {
+  hide(ui['search'])
+  show(ui['dragndrop'])
+}
+
+function hideDragNDrop() {
+  show(ui['search'])
+  hide(ui['dragndrop'])
 }
 
 function render() {
@@ -170,4 +182,28 @@ document.querySelector('#search-controls a').onclick = e => {
   cd(pwd)
 }
 
-cd('')
+function onDropFile(ev) {
+}
+
+document.ondragover = (ev) => {
+  console.log("dragover")
+  ev.preventDefault()
+}
+
+document.ondrop = document.body.ondrop = (ev) => {
+  console.log("ondrop")
+  ev.preventDefault()
+
+  p = ev.dataTransfer.files[0].path
+  console.log(p)
+  root = p
+  userData.Set({"root_dir": root}, "settings.json")
+  hideDragNDrop()
+  cd('')
+}
+
+if (root != "") {
+  cd('')
+} else {
+  showDragNDrop()
+}

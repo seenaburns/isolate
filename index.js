@@ -5,8 +5,10 @@ const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const fs = require('fs')
 const url = require('url')
+const os = require('os')
 
 const path2 = require('./src/path')
+const userData = require('./src/userData')
 
 let win
 global.global = {
@@ -20,7 +22,6 @@ function error(e) {
 }
 
 function createWindow () {
-
   // Create the browser window.
   win = new BrowserWindow({
     width: 1000,
@@ -51,10 +52,11 @@ function createWindow () {
 }
 
 function init() {
-  if (process.argv.length < 3) {
-    error("No root_dir given " + process.argv)
+  config = userData.Get("settings.json")
+  root_dir = config["root_dir"]
+  if (root_dir == undefined) {
+    root_dir = ""
   }
-  root_dir = process.argv[2]
   global.global.root_dir = root_dir
 
   createWindow()
