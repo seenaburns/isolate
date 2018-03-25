@@ -21,6 +21,6 @@
     "icon": "assets/logo.icns"
   },
   "linux": {
-    "icon": "assets/logo.icns"
+    "icon": "assets/logo.iconset/icon_256x256.png"
   }
 }
