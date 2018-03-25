@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "pack": "electron-builder --config build.json --dir",
+    "dist": "npm run build && electron-builder --config build.json",
     "build": "cat src/style.stylus.css | $(npm bin)/stylus > build/style.css",
     "start": "npm run build && electron . "
   },
@@ -12,6 +14,7 @@
   "author": "Seena Burns",
   "devDependencies": {
     "electron": "1.8.4",
+    "electron-builder": "^19.52.1",
     "stylus": "^0.54.5"
   }
 }
