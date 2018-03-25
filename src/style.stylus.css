@@ -6,12 +6,28 @@ header-padding = 40px 40px 30px
 images-padding = 0px
 image-gap = 4px
 
+// Fonts
+
+@font-face {
+    font-family: 'inconsolata_packaged';
+    src: url('../assets/fonts/Inconsolata/Inconsolata-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'inconsolata_packaged';
+    src: url('../assets/fonts/Inconsolata/Inconsolata-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
-  font-family: 'Inconsolata', monospace;
+  font-family: 'inconsolata_packaged', Inconsolata, monospace;
   font-size: 16px;
   line-height: 1.4em;
   background: bg;
