@@ -2,7 +2,7 @@
 
 ![isolate](https://user-images.githubusercontent.com/2801344/37867291-3e42732c-2f53-11e8-8394-d7dfbddec2b1.png)
 
-Isolate is a lightweight image browser for local files.
+Isolate is a minimalistic image browser for local files.
 
 Isolate works off of your local file system: you get started by dragging and dropping a folder onto the application window. After that, you can navigate to subfolders, search for filenames and open images in full res. Not having to go over the internet [keeps things much faster than other tools like Pinterest.](https://twitter.com/seenaburns/status/950054230852694016)
 
