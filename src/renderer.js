@@ -22,7 +22,7 @@ let ui = {
 }
 
 function isImage(f) {
-  return ['jpeg', 'jpg', 'png'].some(ext => f.split('.').pop() == ext)
+  return ['jpeg', 'jpg', 'png', 'gif', 'svg'].some(ext => f.split('.').pop() == ext)
 }
 
 function setDirsNav(dirs) {
