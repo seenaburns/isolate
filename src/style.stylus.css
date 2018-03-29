@@ -1,8 +1,8 @@
 fg = #000
 bg = #fff
 colw = 200px
-body-padding = 0px
-header-padding = 40px 40px 30px
+body-padding = 50px 0 0 0
+header-padding = 0 40px 30px
 images-padding = 0px
 image-gap = 4px
 
@@ -24,15 +24,20 @@ image-gap = 4px
 
 * {
   box-sizing: border-box;
+  -webkit-app-region: no-drag;
 }
 
+/* Frameless Electron windows aren’t draggable. Here we make everything undraggable, and then explicitly allow dragging on the body. This results in only the top bar (where the traffic light buttons are) being used as a drag handle for the entire window */
+
 body {
+  -webkit-app-region: drag;
   font-family: 'inconsolata_packaged', Inconsolata, monospace;
   font-size: 16px;
   line-height: 1.4em;
   background: bg;
   color: fg;
   padding: body-padding;
+  margin-top: 0;
   text-rendering: geometricPrecision;
 }
 
