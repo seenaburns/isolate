@@ -5,6 +5,7 @@
     "index.js",
     "src/**/*",
     "assets/icon_512x512.png",
+    "assets/checker-square.png",
     "assets/fonts/Inconsolata/*.ttf",
     "build/style.css"
   ],
