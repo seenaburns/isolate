@@ -3,6 +3,13 @@ fg-faded = #ccc
 modal-fg = #bbb
 modal-fg-bright = #fff
 bg = #fff
+
+darkmode-fg = #fff
+darkmode-fg-faded = #ccc
+darkmode-modal-fg = #bbb
+darkmode-modal-fg-bright = #fff
+darkmode-bg = #1c1c21
+
 colw = 200px
 body-padding = 50px 0 0 0
 header-padding = 0 40px 30px
@@ -37,15 +44,90 @@ body {
   font-family: 'inconsolata_packaged', Inconsolata, monospace;
   font-size: 16px;
   line-height: 1.4em;
-  background: bg;
-  color: fg;
   padding: body-padding;
   margin-top: 0;
   text-rendering: geometricPrecision;
 }
 
-a {
+/* Light/Dark mode handled by a class ontop of body, define all colors here */
+body {
+  background: bg;
   color: fg;
+
+  a {
+    color: fg;
+  }
+
+  .search {
+    background: bg;
+    color: fg;
+  }
+
+  .search::placeholder {
+    color: fg-faded;
+    border-bottom: 1px solid fg;
+  }
+
+  .modal-zoomed {
+    header {
+      color: rgba(0,0,0,0)
+    }
+    header:hover {
+      color: modal-fg;
+    }
+  }
+
+  .modal-unzoomed {
+    header {
+      color: modal-fg;
+    }
+  }
+
+  .modal-controls {
+    span:hover, span:focus {
+      color: modal-fg-bright;
+    }
+  }
+}
+
+body.darkmode {
+  background: darkmode-bg;
+  color: darkmode-fg;
+
+  a {
+    color: darkmode-fg;
+  }
+
+  .search {
+    background: darkmode-bg;
+    color: darkmode-fg;
+    border-bottom: 1px solid darkmode-fg;
+  }
+
+  .search::placeholder {
+    color: darkmode-fg-faded;
+  }
+
+  .modal-zoomed {
+    header {
+      color: rgba(0,0,0,0)
+    }
+    header:hover {
+      color: darkmode-modal-fg;
+    }
+  }
+
+  .modal-unzoomed {
+    header {
+      color: darkmode-modal-fg;
+    }
+  }
+
+  .modal-controls {
+    span:hover, span:focus {
+      color: darkmode-modal-fg-bright;
+    }
+  }
 }
 
 .main-header {
@@ -72,15 +154,8 @@ nav ul {
   font-size: inherit;
   font-family: inherit;
   border: none;
-  border-bottom: 1px solid fg;
   outline: none;
-  background: bg;
-  color: fg;
   text-rendering: geometricPrecision;
-}
-
-.search::placeholder {
-  color: fg-faded;
 }
 
 .search-controls {
@@ -134,18 +209,10 @@ nav ul {
 }
 
 .modal-zoomed {
-  header {
-    color: rgba(0,0,0,0)
-  }
-
   .modal-content {
     padding: 0px;
     width: 100vw;
     height: 100vh;
-  }
-
-  header:hover {
-    color: modal-fg;
   }
 
   #unzoom {
@@ -157,10 +224,6 @@ nav ul {
 }
 
 .modal-unzoomed {
-  header {
-    color: modal-fg;
-  }
-
   .modal-content {
     padding: 50px;
     width: 100vw;
@@ -218,7 +281,6 @@ nav ul {
 
   span:hover, span:focus {
     cursor: pointer;
-    color: modal-fg-bright;
   }
 }
 

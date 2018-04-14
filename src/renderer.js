@@ -142,6 +142,10 @@ function cd(relpath) {
   render()
 }
 
+function toggleDarkMode() {
+  document.querySelector('body').classList.toggle('darkmode')
+}
+
 document.querySelector('#modal-controls #close').onclick = e => modal.closeModal()
 document.querySelector('#modal-controls #zoom').onclick = e => modal.toggleModalZoom()
 document.querySelector('#modal-controls #unzoom').onclick = e => modal.toggleModalZoom()
@@ -163,6 +167,9 @@ document.addEventListener('keydown', e => {
       break;
     case 'ArrowLeft':
       modal.advance(image_list, false)
+      break;
+    case 'n':
+      toggleDarkMode()
       break;
     default:
       return
