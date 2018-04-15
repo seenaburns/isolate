@@ -4,6 +4,7 @@ const fs = require('fs')
 
 const menu = require('./menu')
 const modal = require('./modal')
+const scrollbar = require('./scrollbar')
 const path = require('./path')
 const userData = require('./userData')
 const util = require('./util')
@@ -225,6 +226,10 @@ function setNightMode(b) {
     ui.body.classList.remove('nightmode')
   }
 
+  if (platform == 'win32') {
+    scrollbar.SetNightmode(b)
+  }
+
   menu.Options.NightMode = b
   menu.UpdateMenu()
 
@@ -256,6 +261,10 @@ nightModeSetting = userData.Get("settings.json")["night_mode"]
 nightMode = nightModeSetting != undefined && nightModeSetting
 if (nightMode) {
   setNightMode(true)
+}
+
+if (platform == 'win32') {
+  scrollbar.Init(nightMode)
 }
 
 menu.Functions.Copy = copyMenu
