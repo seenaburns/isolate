@@ -85,5 +85,7 @@ app.on('activate', function () {
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+const {Menu} = require('electron')
+app.inject_menu = function(m) {
+  Menu.setApplicationMenu(Menu.buildFromTemplate(m));
+}

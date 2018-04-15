@@ -18,6 +18,8 @@ var modal_zoom = false
 let curr_img = ""
 
 module.exports = {
+  isModalOpen: isModalOpen,
+  currentImage: currentImage,
   closeModal: closeModal,
   openModal: openModal,
   setModal: setModal,
@@ -37,6 +39,14 @@ function setModal(imageUrl, relpath="") {
   modal.metadata.description.innerHTML = ''
   modal.metadata.tags.innerHTML = ''
   curr_img = imageUrl
+}
+
+function isModalOpen() {
+  return modal.modal.style.display == 'block'
+}
+
+function currentImage() {
+  return curr_img
 }
 
 function openModal() {

@@ -2,6 +2,7 @@ const electron = require('electron')
 const {webFrame} = require('electron')
 const fs = require('fs')
 
+const menu = require('./menu')
 const modal = require('./modal')
 const path = require('./path')
 const userData = require('./userData')
@@ -209,6 +210,8 @@ document.ondrop = document.body.ondrop = (ev) => {
   hideDragNDrop()
   cd('')
 }
+
+menu.SetMenu()
 
 if (root != "") {
   cd('')
