@@ -51,7 +51,7 @@ function currentImage() {
 }
 
 function openModal() {
-  menu.Options.CopyEnabled = true
+  menu.Options.ModalOpen = true
   menu.UpdateMenu()
 
   modal.modal.style.display = 'block'
@@ -59,7 +59,7 @@ function openModal() {
 }
 
 function closeModal() {
-  menu.Options.CopyEnabled = false
+  menu.Options.ModalOpen = false
   menu.UpdateMenu()
 
   modal.modal.style.display = 'none';

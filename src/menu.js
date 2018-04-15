@@ -1,5 +1,5 @@
 options = {
-  CopyEnabled: false,
+  ModalOpen: false,
   NightMode: false,
 }
 
@@ -8,6 +8,7 @@ options = {
 functions = {
   Copy: function() {},
   NightMode: function() {},
+  OpenLocation: function () {},
 }
 
 module.exports = {
@@ -30,7 +31,8 @@ function UpdateMenu() {
       ]}, {
       label: "Edit",
       submenu: [
-          { label: "Copy", accelerator: "CmdOrCtrl+C", click: functions.Copy, enabled: options.CopyEnabled },
+          { label: "Show Image in Finder", accelerator: "CmdOrCtrl+Shift+O", click: functions.OpenLocation, enabled: options.ModalOpen },
+          { label: "Copy", accelerator: "CmdOrCtrl+C", click: functions.Copy, enabled: options.ModalOpen },
       ]}
   ]
   )

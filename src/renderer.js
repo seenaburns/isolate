@@ -231,8 +231,16 @@ function nightModeMenu(menuItem, browserWindow, event) {
   menu.UpdateMenu()
 }
 
+function openLocationMenu(menuItem, browserWindow, event) {
+  if (modal.isModalOpen()) {
+    imageUrl = modal.currentImage().replace('file://', '')
+    electron.shell.showItemInFolder(imageUrl)
+  }
+}
+
 menu.Functions.Copy = copyMenu
 menu.Functions.NightMode = nightModeMenu
+menu.Functions.OpenLocation = openLocationMenu
 menu.Options.NightMode = nightModeEnabled()
 menu.UpdateMenu()
 
