@@ -1,3 +1,4 @@
+const menu = require('./menu')
 const util = require('./util')
 
 let modal = {
@@ -50,11 +51,17 @@ function currentImage() {
 }
 
 function openModal() {
+  menu.Options.copyEnabled = true
+  menu.UpdateMenu()
+
   modal.modal.style.display = 'block'
   body.style.overflow = 'hidden'
 }
 
 function closeModal() {
+  menu.Options.copyEnabled = false
+  menu.UpdateMenu()
+
   modal.modal.style.display = 'none';
   body.style.overflow = 'visible'
   setModalZoom(false)

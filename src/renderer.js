@@ -211,7 +211,7 @@ document.ondrop = document.body.ondrop = (ev) => {
   cd('')
 }
 
-menu.SetMenu()
+menu.UpdateMenu()
 
 if (root != "") {
   cd('')

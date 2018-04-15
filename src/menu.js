@@ -1,10 +1,15 @@
+options = {
+  copyEnabled: false,
+}
+
+module.exports = {
+  UpdateMenu: UpdateMenu,
+  Options: options,
+}
+
 const {clipboard, nativeImage} = require('electron')
 
 const modal = require('./modal')
-
-module.exports = {
-  SetMenu: SetMenu,
-}
 
 function copyMenu(menuItem, browserWindow, event) {
   if (modal.isModalOpen()) {
@@ -14,7 +19,7 @@ function copyMenu(menuItem, browserWindow, event) {
 }
 
 app = require('electron').remote.app;
-function SetMenu() {
+function UpdateMenu() {
   app.inject_menu(
   [{
       label: "Application",
@@ -23,7 +28,7 @@ function SetMenu() {
       ]}, {
       label: "Edit",
       submenu: [
-          { label: "Copy", accelerator: "CmdOrCtrl+C", click: copyMenu },
+          { label: "Copy", accelerator: "CmdOrCtrl+C", click: copyMenu, enabled: options.copyEnabled },
       ]}
   ]
   )
