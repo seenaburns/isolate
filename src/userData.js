@@ -3,12 +3,20 @@ const path = require('path');
 const fs = require('fs');
 
 module.exports = {
-  Set: Set,
+  SetKey: SetKey,
   Get: Get
 }
 
-// Write data to userData/filename
-function Set(data, filename) {
+// Updates json data at userData/filename with key: value, then writes
+function SetKey(key, value, filename) {
+  existing = Get(filename)
+  existing[key] = value
+  setRaw(existing, filename)
+}
+
+// Overwrites existing json with new json
+// Use Set to only update one key
+function setRaw(data, filename) {
   filepath = userDataPath(filename)
   fs.writeFileSync(filepath, JSON.stringify(data));
 }

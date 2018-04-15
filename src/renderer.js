@@ -200,7 +200,7 @@ document.ondrop = document.body.ondrop = (ev) => {
   p = ev.dataTransfer.files[0].path
   console.log(p)
   root = p
-  userData.Set({"root_dir": root}, "settings.json")
+  userData.SetKey("root_dir", root, "settings.json")
   hideDragNDrop()
   cd('')
 }
@@ -218,6 +218,11 @@ function setNightMode(b) {
   } else {
     ui.body.classList.remove('nightmode')
   }
+
+  menu.Options.NightMode = b
+  menu.UpdateMenu()
+
+  userData.SetKey("night_mode", b, "settings.json")
 }
 
 function nightModeEnabled() {
@@ -227,8 +232,6 @@ function nightModeEnabled() {
 function nightModeMenu(menuItem, browserWindow, event) {
   curr = nightModeEnabled()
   setNightMode(!curr)
-  menu.Options.NightMode = !curr
-  menu.UpdateMenu()
 }
 
 function openLocationMenu(menuItem, browserWindow, event) {
@@ -236,6 +239,12 @@ function openLocationMenu(menuItem, browserWindow, event) {
     imageUrl = modal.currentImage().replace('file://', '')
     electron.shell.showItemInFolder(imageUrl)
   }
+}
+
+nightModeSetting = userData.Get("settings.json")["night_mode"]
+nightMode = nightModeSetting != undefined && nightModeSetting
+if (nightMode) {
+  setNightMode(true)
 }
 
 menu.Functions.Copy = copyMenu
