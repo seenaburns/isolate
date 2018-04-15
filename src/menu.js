@@ -32,7 +32,7 @@ function UpdateMenu() {
       label: "Edit",
       submenu: [
           { label: "Show Image in Finder", accelerator: "CmdOrCtrl+Shift+O", click: functions.OpenLocation, enabled: options.ModalOpen },
-          { label: "Copy", accelerator: "CmdOrCtrl+C", click: functions.Copy, enabled: options.ModalOpen },
+          { label: "Copy Image", accelerator: "CmdOrCtrl+C", click: functions.Copy, enabled: options.ModalOpen },
       ]}
   ]
   )

@@ -208,7 +208,7 @@ document.ondrop = document.body.ondrop = (ev) => {
 function copyMenu(menuItem, browserWindow, event) {
   if (modal.isModalOpen()) {
     imageUrl = modal.currentImage().replace('file://', '')
-    clipboard.writeImage(nativeImage.createFromPath(fullpath))
+    electron.clipboard.writeImage(electron.nativeImage.createFromPath(imageUrl))
   }
 }
 
