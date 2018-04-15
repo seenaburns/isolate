@@ -1,22 +1,22 @@
 options = {
-  copyEnabled: false,
+  CopyEnabled: false,
+  NightMode: false,
+}
+
+// Functions initialized to nothing
+// Other modules should inject appropriate functions
+functions = {
+  Copy: function() {},
+  NightMode: function() {},
 }
 
 module.exports = {
   UpdateMenu: UpdateMenu,
   Options: options,
+  Functions: functions,
 }
 
 const {clipboard, nativeImage} = require('electron')
-
-const modal = require('./modal')
-
-function copyMenu(menuItem, browserWindow, event) {
-  if (modal.isModalOpen()) {
-    imageUrl = modal.currentImage().replace('file://', '')
-    clipboard.writeImage(nativeImage.createFromPath(fullpath))
-  }
-}
 
 app = require('electron').remote.app;
 function UpdateMenu() {
@@ -24,11 +24,13 @@ function UpdateMenu() {
   [{
       label: "Application",
       submenu: [
+        { label: "Night Mode", type: "checkbox", accelerator: "N", checked: options.NightMode, click: functions.NightMode },
+        { type: "separator" },
           { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
       ]}, {
       label: "Edit",
       submenu: [
-          { label: "Copy", accelerator: "CmdOrCtrl+C", click: copyMenu, enabled: options.copyEnabled },
+          { label: "Copy", accelerator: "CmdOrCtrl+C", click: functions.Copy, enabled: options.CopyEnabled },
       ]}
   ]
   )

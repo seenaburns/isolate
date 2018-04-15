@@ -4,11 +4,11 @@ modal-fg = #bbb
 modal-fg-bright = #fff
 bg = #fff
 
-darkmode-fg = #fff
-darkmode-fg-faded = #ccc
-darkmode-modal-fg = #bbb
-darkmode-modal-fg-bright = #fff
-darkmode-bg = #1c1c21
+nightmode-fg = #fff
+nightmode-fg-faded = #ccc
+nightmode-modal-fg = #bbb
+nightmode-modal-fg-bright = #fff
+nightmode-bg = #1c1c21
 
 colw = 200px
 body-padding = 50px 0 0 0
@@ -90,22 +90,22 @@ body {
   }
 }
 
-body.darkmode {
-  background: darkmode-bg;
-  color: darkmode-fg;
+body.nightmode {
+  background: nightmode-bg;
+  color: nightmode-fg;
 
   a {
-    color: darkmode-fg;
+    color: nightmode-fg;
   }
 
   .search {
-    background: darkmode-bg;
-    color: darkmode-fg;
-    border-bottom: 1px solid darkmode-fg;
+    background: nightmode-bg;
+    color: nightmode-fg;
+    border-bottom: 1px solid nightmode-fg;
   }
 
   .search::placeholder {
-    color: darkmode-fg-faded;
+    color: nightmode-fg-faded;
   }
 
   .modal-zoomed {
@@ -113,19 +113,19 @@ body.darkmode {
       color: rgba(0,0,0,0)
     }
     header:hover {
-      color: darkmode-modal-fg;
+      color: nightmode-modal-fg;
     }
   }
 
   .modal-unzoomed {
     header {
-      color: darkmode-modal-fg;
+      color: nightmode-modal-fg;
     }
   }
 
   .modal-controls {
     span:hover, span:focus {
-      color: darkmode-modal-fg-bright;
+      color: nightmode-modal-fg-bright;
     }
   }
 }

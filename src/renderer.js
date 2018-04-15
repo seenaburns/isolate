@@ -15,6 +15,7 @@ let files = []
 let image_list = []
 
 let ui = {
+  'body': document.querySelector('body'),
   'dirs': document.querySelector('#dirs'),
   'pwd': document.querySelector('#pwd'),
   'images': document.querySelector('#images'),
@@ -143,10 +144,6 @@ function cd(relpath) {
   render()
 }
 
-function toggleDarkMode() {
-  document.querySelector('body').classList.toggle('darkmode')
-}
-
 document.querySelector('#modal-controls #close').onclick = e => modal.closeModal()
 document.querySelector('#modal-controls #zoom').onclick = e => modal.toggleModalZoom()
 document.querySelector('#modal-controls #unzoom').onclick = e => modal.toggleModalZoom()
@@ -168,9 +165,6 @@ document.addEventListener('keydown', e => {
       break;
     case 'ArrowLeft':
       modal.advance(image_list, false)
-      break;
-    case 'n':
-      toggleDarkMode()
       break;
     default:
       return
@@ -211,6 +205,35 @@ document.ondrop = document.body.ondrop = (ev) => {
   cd('')
 }
 
+function copyMenu(menuItem, browserWindow, event) {
+  if (modal.isModalOpen()) {
+    imageUrl = modal.currentImage().replace('file://', '')
+    clipboard.writeImage(nativeImage.createFromPath(fullpath))
+  }
+}
+
+function setNightMode(b) {
+  if (b) {
+    ui.body.classList.add('nightmode')
+  } else {
+    ui.body.classList.remove('nightmode')
+  }
+}
+
+function nightModeEnabled() {
+  return ui.body.classList.contains('nightmode')
+}
+
+function nightModeMenu(menuItem, browserWindow, event) {
+  curr = nightModeEnabled()
+  setNightMode(!curr)
+  menu.Options.NightMode = !curr
+  menu.UpdateMenu()
+}
+
+menu.Functions.Copy = copyMenu
+menu.Functions.NightMode = nightModeMenu
+menu.Options.NightMode = nightModeEnabled()
 menu.UpdateMenu()
 
 if (root != "") {
