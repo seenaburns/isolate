@@ -89,3 +89,9 @@ const {Menu} = require('electron')
 app.inject_menu = function(m) {
   Menu.setApplicationMenu(Menu.buildFromTemplate(m));
 }
+
+// Windows will open explorer in the background if showItemInFolder is not executed in the main
+// process, so add a simple wrapper on app
+app.showItemInFolder = function(path) {
+  electron.shell.showItemInFolder(path)
+}

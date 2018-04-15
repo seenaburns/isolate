@@ -13,6 +13,7 @@ let global = electron.remote.getGlobal('global')
 let root = global.root_dir
 let files = []
 let image_list = []
+let platform = process.platform
 
 let ui = {
   'body': document.querySelector('body'),
@@ -208,6 +209,11 @@ document.ondrop = document.body.ondrop = (ev) => {
 function copyMenu(menuItem, browserWindow, event) {
   if (modal.isModalOpen()) {
     imageUrl = modal.currentImage().replace('file://', '')
+
+    if (platform == 'win32') {
+      imageUrl = path.toWindowsPath(imageUrl)
+    }
+
     electron.clipboard.writeImage(electron.nativeImage.createFromPath(imageUrl))
   }
 }
@@ -237,7 +243,12 @@ function nightModeMenu(menuItem, browserWindow, event) {
 function openLocationMenu(menuItem, browserWindow, event) {
   if (modal.isModalOpen()) {
     imageUrl = modal.currentImage().replace('file://', '')
-    electron.shell.showItemInFolder(imageUrl)
+
+    if (platform == 'win32') {
+      imageUrl = path.toWindowsPath(imageUrl)
+    }
+
+    app.showItemInFolder(imageUrl)
   }
 }
 

@@ -7,7 +7,8 @@ module.exports = {
   join: join,
   removeDuplicateSlash: removeDuplicateSlash,
   removeLeadingSlash: removeLeadingSlash,
-  up: up
+  up: up,
+  toWindowsPath: toWindowsPath,
 }
 
 function join(a,b) {
@@ -57,3 +58,16 @@ function isFile(path) {
   return fs.lstatSync(path).isFile()
 }
 
+// Hacky function to convert unix paths to windows paths
+// img elements in the ui still work with unix paths on windows, but
+// - showItemInFolder and copy both need the leading slash removed
+// - showItemInFolder will not highlight the item in the folder if there are forward slashes in the
+//   path
+//
+// Translates /C:/path/like/this.png -> C:\path\like\this.png
+function toWindowsPath(path) {
+    if (path.length > 0 && path[0] == '/') {
+      path = path.substr(1)
+    }
+    return path.replace(/\//g, '\\')
+}
