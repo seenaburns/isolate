@@ -22,15 +22,25 @@ function error(e) {
 }
 
 function createWindow () {
+  // Avoid flashing if nightmode is active by reading setting, setting background color before
+  // window is even created
+  bg = '#ffffff'
+  nightModeSetting = userData.Get("settings.json")["night_mode"]
+  nightMode = nightModeSetting != undefined && nightModeSetting
+  if (nightMode) {
+    bg = '#1c1c21'
+  }
+
   // Create the browser window.
   win = new BrowserWindow({
     width: 1000,
     height: 600,
     minWidth: 600,
     minHeight: 400,
+    backgroundColor: bg,
     center: true,
     titleBarStyle: 'hiddenInset',
-    frame: false
+    frame: false,
   })
 
   // and load the index.html of the app.
