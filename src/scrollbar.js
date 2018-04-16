@@ -24,7 +24,11 @@ function Init(nightmode) {
   document.querySelector('head #scrollbar-style').innerHTML = `
     ::-webkit-scrollbar {
       background: none;
-      width: 16px;
+      width: 14px;
+      height: 14px;
+    }
+    ::-webkit-scrollbar-corner {
+      display: none;
     }
     ::-webkit-scrollbar-track {
       background: none;
