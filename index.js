@@ -40,7 +40,8 @@ function createWindow () {
     backgroundColor: bg,
     center: true,
     titleBarStyle: 'hiddenInset',
-    frame: false,
+    // Removes title bar in windows
+    // frame: false,
   })
 
   // and load the index.html of the app.
