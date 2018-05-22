@@ -241,6 +241,9 @@ function nightModeEnabled() {
 }
 
 function nightModeMenu(menuItem, browserWindow, event) {
+  if (document.activeElement == ui.body.search) {
+    return
+  }
   curr = nightModeEnabled()
   setNightMode(!curr)
 }
