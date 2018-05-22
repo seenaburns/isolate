@@ -215,7 +215,7 @@ function copyMenu(menuItem, browserWindow, event) {
       imageUrl = path.toWindowsPath(imageUrl)
     }
 
-    electron.clipboard.writeImage(electron.nativeImage.createFromPath(imageUrl))
+    electron.clipboard.writeImage(imageUrl)
   }
 }
 
