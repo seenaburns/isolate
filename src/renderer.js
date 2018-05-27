@@ -276,6 +276,19 @@ menu.Functions.OpenLocation = openLocationMenu
 menu.Options.NightMode = nightModeEnabled()
 menu.UpdateMenu()
 
+const contextMenu = new electron.remote.Menu()
+menu.EditSubMenu().forEach(a => {
+  a.enabled = true
+  contextMenu.append(new electron.remote.MenuItem(a))
+})
+
+window.addEventListener('contextmenu', e => {
+  if (modal.isModalOpen()) {
+    e.preventDefault()
+    contextMenu.popup({window: electron.remote.getCurrentWindow()})
+  }
+}, false)
+
 if (root != "") {
   cd('')
 } else {

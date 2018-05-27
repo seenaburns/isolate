@@ -17,6 +17,7 @@ module.exports = {
   UpdateMenu: UpdateMenu,
   Options: options,
   Functions: functions,
+  EditSubMenu: EditSubMenu,
 }
 
 app = require('electron').remote.app;
@@ -33,10 +34,14 @@ function UpdateMenu() {
     },
     {
       label: "Edit",
-      submenu: [
-        { label: "Show Image in Finder", accelerator: "CmdOrCtrl+Shift+O", click: functions.OpenLocation, enabled: options.ModalOpen },
-        { label: "Copy Image", accelerator: "CmdOrCtrl+C", click: functions.Copy, enabled: options.ModalOpen },
-      ]
+      submenu: EditSubMenu()
     }
   ])
+}
+
+function EditSubMenu() {
+  return [
+    { label: "Show Image in Finder", accelerator: "CmdOrCtrl+Shift+O", click: functions.OpenLocation, enabled: options.ModalOpen },
+    { label: "Copy Image", accelerator: "CmdOrCtrl+C", click: functions.Copy, enabled: options.ModalOpen },
+  ]
 }
