@@ -215,7 +215,7 @@ function copyMenu(menuItem, browserWindow, event) {
       imageUrl = path.toWindowsPath(imageUrl)
     }
 
-    electron.clipboard.writeImage(electron.nativeImage.createFromPath(imageUrl))
+    electron.clipboard.writeImage(imageUrl)
   }
 }
 
@@ -241,6 +241,9 @@ function nightModeEnabled() {
 }
 
 function nightModeMenu(menuItem, browserWindow, event) {
+  if (document.activeElement == ui.body.search) {
+    return
+  }
   curr = nightModeEnabled()
   setNightMode(!curr)
 }
@@ -272,6 +275,19 @@ menu.Functions.NightMode = nightModeMenu
 menu.Functions.OpenLocation = openLocationMenu
 menu.Options.NightMode = nightModeEnabled()
 menu.UpdateMenu()
+
+const contextMenu = new electron.remote.Menu()
+menu.EditSubMenu().forEach(a => {
+  a.enabled = true
+  contextMenu.append(new electron.remote.MenuItem(a))
+})
+
+window.addEventListener('contextmenu', e => {
+  if (modal.isModalOpen()) {
+    e.preventDefault()
+    contextMenu.popup({window: electron.remote.getCurrentWindow()})
+  }
+}, false)
 
 if (root != "") {
   cd('')
