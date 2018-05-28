@@ -57,7 +57,7 @@ function setPwd(path, image_count) {
 }
 
 function imgUrl(relpath) {
-  return 'file://' + path.join(root, relpath)
+  return 'file://' + escape(path.join(root, relpath))
 }
 
 function setImages(images) {
