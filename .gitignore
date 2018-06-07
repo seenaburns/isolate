@@ -4,3 +4,5 @@ compiled/
 other
 .DS_Store
 build/
+lib/bs/
+*.bs.js

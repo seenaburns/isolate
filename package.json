@@ -7,14 +7,17 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack": "electron-builder --config build.json --dir",
     "dist": "npm run build && electron-builder --config build.json",
-    "build": "mkdir -p build; cat src/style.stylus.css | $(npm bin)/stylus > build/style.css",
+    "build": "./build.sh",
     "start": "npm run build && electron . "
   },
   "keywords": [],
   "author": "Seena Burns",
   "devDependencies": {
+    "bs-platform": "^3.1.5",
     "electron": "1.8.4",
     "electron-builder": "^19.52.1",
+    "reason-react": "^0.4.2",
     "stylus": "^0.54.5"
-  }
+  },
+  "dependencies": {}
 }
