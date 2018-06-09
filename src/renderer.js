@@ -3,11 +3,12 @@ const {webFrame} = require('electron')
 const fs = require('fs')
 
 const menu = require('./menu')
-const modal = require('./modal')
 const scrollbar = require('./scrollbar')
 const path = require('./path')
 const userData = require('./userData')
 const util = require('./util')
+
+const reason = require('./main.bs')
 
 let pwd = ''
 let global = electron.remote.getGlobal('global')
@@ -66,8 +67,8 @@ function setImages(images) {
     iw.className = "iw"
     let i = document.createElement('img')
     i.onclick = e => {
-      modal.setModal(e.toElement.src, images.map(x => imgUrl(x)))
-      modal.openModal()
+      reason.setModal(e.toElement.src, images.map(x => imgUrl(x)))
+      reason.openModal()
     }
     i.src = imgUrl(relpath)
     iw.appendChild(i)
@@ -181,8 +182,8 @@ document.ondrop = document.body.ondrop = (ev) => {
 }
 
 function copyMenu(menuItem, browserWindow, event) {
-  if (modal.isModalOpen()) {
-    imageUrl = modal.currentImage().replace('file://', '')
+  if (reason.isModalOpen()) {
+    imageUrl = reason.currentImage().replace('file://', '')
 
     if (platform == 'win32') {
       imageUrl = path.toWindowsPath(imageUrl)
@@ -222,8 +223,8 @@ function nightModeMenu(menuItem, browserWindow, event) {
 }
 
 function openLocationMenu(menuItem, browserWindow, event) {
-  if (modal.isModalOpen()) {
-    imageUrl = modal.currentImage().replace('file://', '')
+  if (reason.isModalOpen()) {
+    imageUrl = reason.currentImage().replace('file://', '')
 
     if (platform == 'win32') {
       imageUrl = path.toWindowsPath(imageUrl)
@@ -256,7 +257,7 @@ menu.EditSubMenu().forEach(a => {
 })
 
 window.addEventListener('contextmenu', e => {
-  if (modal.isModalOpen()) {
+  if (reason.isModalOpen()) {
     e.preventDefault()
     contextMenu.popup({window: electron.remote.getCurrentWindow()})
   }
