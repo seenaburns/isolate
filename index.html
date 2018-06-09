@@ -21,36 +21,6 @@
   <p>Drag &amp; drop a folder to get started</p>
 </div>
 
-<div id="modal" class="modal-back">
-  <div id="modal-container" class="modal-container modal-unzoomed">
-    <header>
-      <div id="modal-controls" class="modal-controls">
-        <span id="close">
-<svg fill="none" stroke="currentColor" width="24" height="24" viewBox="0 0 24 24"stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </span>
-        <span id="zoom">
-<svg fill="none" stroke="currentColor" width="22" height="22" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
-        </span>
-        <span id="unzoom">
-<svg fill="none" stroke="currentColor" width="22" height="22" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
-        </span>
-      </div>
-
-      <div class="viewer-metadata">
-        <span id="viewer-description"></span>
-        </br>
-        <span id="viewer-src">
-          <a href=""></a>
-        </span>
-        <span id="viewer-tags"></span>
-      </div>
-    </header>
-
-    <div id="modal-content" class="modal-content">
-    </div>
-  </div>
-</div>
-
 <header class="main-header">
   <input type="text" id="search" class="search" placeholder="Search..">
   <h3 id="pwd"></h3>
@@ -68,8 +38,8 @@
 
 <script>
   // You can also require other files to run in this process
-  require('./src/renderer.js')
   require('./src/main.bs.js')
+  require('./src/renderer.js')
 </script>
 </body>
 </html>

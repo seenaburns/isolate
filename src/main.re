@@ -21,6 +21,8 @@ module Modal = {
 
   let readOnlyState: ref(option(state)) = ref(None)
 
+  let str = ReasonReact.string;
+
   let component = ReasonReact.reducerComponent("Modal");
   let make = (setSendAction, _children) => {
       ...component,
@@ -38,10 +40,16 @@ module Modal = {
       didMount: self => {
         setSendAction(self.send);
       },
-      didUpdate: ({_oldSelf, newSelf}) => {
+      didUpdate: ({oldSelf, newSelf}) => {
         readOnlyState := Some(newSelf.state);
       },
 
+      /*
+       * TODO: set menu on open/close
+       * TODO: set body.style.overflow on open/close
+       * TODO: set context.tabIndex and content.focus on zoom
+       * TODO: Prev/Next
+      */
       reducer: (action: action, state) =>
         switch (action) {
         | Open       => ReasonReact.Update({...state, active:true})
@@ -52,11 +60,40 @@ module Modal = {
         | _ => ReasonReact.NoUpdate
         },
 
+      /* TODO: handle zoom */
       render: self => {
-        let message: string = "Active: " ++ self.state.current;
-        <div>
-          (ReasonReact.string(message))
-        </div>
+        if (self.state.active) {
+          <div id="modal" className="modal-back">
+            <div id="modal-container" className="modal-container modal-unzoomed">
+              <header>
+                <div id="modal-controls" className="modal-controls">
+                  <span id="close">
+                    (str("close"))
+                  </span>
+                  <span id="zoom">
+                    (str("zoom"))
+                  </span>
+                  <span id="unzoom">
+                    (str("unzoom"))
+                  </span>
+                </div>
+
+                <div className="viewer-metadata">
+                  <span id="viewer-description"></span>
+                  <span id="viewer-src">
+                    <a href=""></a>
+                  </span>
+                </div>
+              </header>
+
+              <div id="modal-content" className="modal-content">
+                <img src={self.state.current} />
+              </div>
+            </div>
+          </div>
+        } else {
+          ReasonReact.null
+        }
       },
   };
 };
@@ -92,20 +129,20 @@ let getState = () => {
   }
 };
 
-let setModal_Reason = (image: string) => sendAction(Modal.Set(image));
-let isModalOpen_Reason = (): bool => getState().active;
-let currentImage_Reason = (): string => getState().current;
-let openModal_Reason = () => sendAction(Modal.Open);
-let closeModal_Reason = () => sendAction(Modal.Close);
-let setModalZoom_Reason = (zoom: bool): unit => {
+let setModal = (image: string) => sendAction(Modal.Set(image));
+let isModalOpen = (): bool => getState().active;
+let currentImage = (): string => getState().current;
+let openModal = () => sendAction(Modal.Open);
+let closeModal = () => sendAction(Modal.Close);
+let setModalZoom = (zoom: bool): unit => {
   if (zoom) {
     sendAction(Modal.ZoomIn)
   } else {
     sendAction(Modal.ZoomOut)
   }
 };
-let toggleModalZoom_Reason = (): unit => {
-  setModalZoom_Reason(getState().zoomed)
+let toggleModalZoom = (): unit => {
+  setModalZoom(getState().zoomed)
 };
 
 let rec findIndex = (a: list('a), x: 'a, index: int): int => {
@@ -121,7 +158,7 @@ let rec findIndex = (a: list('a), x: 'a, index: int): int => {
   }
 };
 
-let advance_Reason = (images: array(string), forward: bool): unit => {
+let advance = (images: array(string), forward: bool): unit => {
   let currentIndex = findIndex(Array.to_list(images), getState().current, 0);
   if (forward && currentIndex < Array.length(images) -1) {
     sendAction(Modal.Set(images[currentIndex + 1]));

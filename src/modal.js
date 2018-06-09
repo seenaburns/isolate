@@ -1,6 +1,8 @@
 const menu = require('./menu')
 const util = require('./util')
 
+const reason = require('./main.bs')
+
 let modal = {
   'modal': document.getElementById('modal'),
   'container': document.getElementById('modal-container'),
@@ -30,73 +32,41 @@ module.exports = {
 }
 
 function setModal(imageUrl, relpath="") {
-  let i = document.createElement('img')
-  i.src = imageUrl
-  util.setHTML(modal.content, i)
-
-  // Render metadata
-  src = imageUrl.replace('file://', '')
-  util.setHTML(modal.metadata.src, util.externalLinkToLocation(src,src))
-  modal.metadata.description.innerHTML = ''
-  modal.metadata.tags.innerHTML = ''
-  curr_img = imageUrl
+  console.log("setModal")
+  reason.setModal(imageUrl)
 }
 
 function isModalOpen() {
-  return modal.modal.style.display == 'block'
+  console.log("isModalOpen")
+  return reason.isModalOpen()
 }
 
 function currentImage() {
-  return curr_img
+  console.log("currentImage")
+  return reason.currentImage()
 }
 
 function openModal() {
-  menu.Options.ModalOpen = true
-  menu.UpdateMenu()
-
-  modal.modal.style.display = 'block'
-  body.style.overflow = 'hidden'
+  console.log("openModal")
+  reason.openModal()
 }
 
 function closeModal() {
-  menu.Options.ModalOpen = false
-  menu.UpdateMenu()
-
-  modal.modal.style.display = 'none';
-  body.style.overflow = 'visible'
-  setModalZoom(false)
+  console.log("closeModal")
+  reason.closeModal()
 }
 
 function setModalZoom(bool) {
-  if (bool) {
-    modal.container.className = zoomed_classname
-  } else {
-    modal.container.className = unzoomed_classname
-  }
-
-  // Set focus
-  modal.content.tabIndex = 0
-  modal.content.focus()
-
-  modal_zoom = bool
+  console.log("setModalZoom")
+  reason.setModalZoom(bool)
 }
 
 function toggleModalZoom() {
-  setModalZoom(!modal_zoom)
+  console.log("toggleModalZoom")
+  reason.toggleModalZoom()
 }
 
 function advance(images, forward) {
-  if (modal_zoom) {
-    return;
-  }
-
-  current_index = images.findIndex(i => i == curr_img)
-  let next = current_index
-  if (forward && next < images.length - 1) {
-    next = current_index + 1
-  } else if (!forward && next > 0) {
-    next = current_index - 1
-  }
-
-  setModal(images[next])
+  console.log("advance")
+  reason.advance(images, forward)
 }
