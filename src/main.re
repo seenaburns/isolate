@@ -60,22 +60,34 @@ module Modal = {
         | _ => ReasonReact.NoUpdate
         },
 
-      /* TODO: handle zoom */
       render: self => {
+        let containerClasses = {
+          let default = "modal-container";
+          let zoomClass =
+            switch (self.state.zoomed) {
+            | true => "modal-zoomed"
+            | false => "modal-unzoomed"
+            };
+          default ++ " " ++ zoomClass
+        };
+
         if (self.state.active) {
           <div id="modal" className="modal-back">
-            <div id="modal-container" className="modal-container modal-unzoomed">
+            <div id="modal-container" className={containerClasses}>
               <header>
                 <div id="modal-controls" className="modal-controls">
-                  <span id="close">
+                  <span id="close" onClick={(e) => self.send(Close)}>
                     (str("close"))
                   </span>
-                  <span id="zoom">
-                    (str("zoom"))
-                  </span>
-                  <span id="unzoom">
-                    (str("unzoom"))
-                  </span>
+                  {if (self.state.zoomed) {
+                    <span id="unzoom" onClick={(e) => self.send(ZoomOut)}>
+                      (str("unzoom"))
+                    </span>
+                  } else {
+                    <span id="zoom" onClick={(e) => self.send(ZoomIn)}>
+                      (str("zoom"))
+                    </span>
+                  }}
                 </div>
 
                 <div className="viewer-metadata">
