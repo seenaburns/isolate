@@ -151,24 +151,6 @@ window.onclick = e => {
         modal.closeModal()
     }
 }
-document.addEventListener('keydown', e => {
-  switch (e.key) {
-    case 'Escape':
-      modal.closeModal()
-      break;
-    case 'z':
-      modal.toggleModalZoom()
-      break;
-    case 'ArrowRight':
-      modal.advance(image_list, true)
-      break;
-    case 'ArrowLeft':
-      modal.advance(image_list, false)
-      break;
-    default:
-      return
-  }
-})
 
 ui.search.addEventListener("keyup", e => {
   if (e.keyCode === 13) {

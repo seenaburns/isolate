@@ -2,6 +2,7 @@
 [@bs.val] external process: 'jsModule = "process";
 let electron = require("electron");
 external unsafeCast: 'A => 'B = "%identity";
+[@bs.val] external document: 'jsModule = "document";
 
 module Modal = {
   type state = {
@@ -15,6 +16,7 @@ module Modal = {
     | Close
     | ZoomIn
     | ZoomOut
+    | ZoomToggle
     | Next
     | Prev
     | Set(string)
@@ -25,6 +27,18 @@ module Modal = {
 
   let component = ReasonReact.reducerComponent("Modal");
   let make = (setSendAction, _children) => {
+      let keydown = (self: ReasonReact.self('a, 'b, 'c)) => (e) => {
+        Js.log(e##key);
+        switch (e##key) {
+        | "Escape" => self.send(Close)
+        | "z" => self.send(ZoomToggle)
+        | "ArrowRight" => Js.log("advance forward")
+        | "ArrowLeft" => Js.log("advance back")
+        | _ => ()
+        }
+      };
+
+      {
       ...component,
       initialState: () =>
       {
@@ -38,6 +52,7 @@ module Modal = {
        * setSendAction)
        */
       didMount: self => {
+        document##addEventListener("keydown", keydown(self));
         setSendAction(self.send);
       },
       didUpdate: ({oldSelf, newSelf}) => {
@@ -56,6 +71,7 @@ module Modal = {
         | Close      => ReasonReact.Update({...state, active:false})
         | ZoomIn     => ReasonReact.Update({...state, zoomed:true})
         | ZoomOut    => ReasonReact.Update({...state, zoomed:false})
+        | ZoomToggle => ReasonReact.Update({...state, zoomed:!state.zoomed})
         | Set(image) => ReasonReact.Update({...state, current:image})
         | _ => ReasonReact.NoUpdate
         },
@@ -107,6 +123,7 @@ module Modal = {
           ReasonReact.null
         }
       },
+      }
   };
 };
 
