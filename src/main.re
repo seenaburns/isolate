@@ -3,6 +3,7 @@
 let electron = require("electron");
 external unsafeCast: 'A => 'B = "%identity";
 [@bs.val] external document: 'jsModule = "document";
+[@bs.val] external window: 'jsModule = "window";
 
 module Modal = {
   type state = {
@@ -147,7 +148,7 @@ module Modal = {
                 </div>
               </header>
 
-              <div id="modal-content" className="modal-content">
+              <div id="modal-content" className="modal-content" onClick={(e) => self.send(Close)}>
                 <img src={self.state.current} />
               </div>
             </div>

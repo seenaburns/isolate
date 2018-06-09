@@ -146,12 +146,6 @@ function cd(relpath) {
   render()
 }
 
-window.onclick = e => {
-    if (e.target == modal.modal.content) {
-        modal.closeModal()
-    }
-}
-
 ui.search.addEventListener("keyup", e => {
   if (e.keyCode === 13) {
     e.preventDefault()
