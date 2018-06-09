@@ -9,6 +9,7 @@ module Modal = {
     active: bool,
     zoomed: bool,
     current: string,
+    imageList: array(string),
   }
 
   type action =
@@ -17,13 +18,37 @@ module Modal = {
     | ZoomIn
     | ZoomOut
     | ZoomToggle
-    | Next
-    | Prev
+    | Advance(bool) /* true if advance forward */
     | Set(string)
+    | SetImages(array(string))
 
   let readOnlyState: ref(option(state)) = ref(None)
 
   let str = ReasonReact.string;
+
+  let rec findIndex = (a: list('a), x: 'a, index: int): int => {
+    switch (a) {
+    | [] => -1
+    | [h, ...t] => {
+        if (h == x) {
+          index
+        } else {
+          findIndex(t, x, index + 1)
+        }
+      }
+    }
+  };
+
+  let advance = (current: string, images: array(string), forward: bool): option(string) => {
+    let currentIndex = findIndex(Array.to_list(images), current, 0);
+    if (forward && currentIndex < Array.length(images) -1) {
+      Some(images[currentIndex + 1]);
+    } else if (!forward && currentIndex > 0) {
+      Some(images[currentIndex - 1]);
+    } else {
+      None
+    }
+  };
 
   let component = ReasonReact.reducerComponent("Modal");
   let make = (setSendAction, _children) => {
@@ -32,8 +57,8 @@ module Modal = {
         switch (e##key) {
         | "Escape" => self.send(Close)
         | "z" => self.send(ZoomToggle)
-        | "ArrowRight" => Js.log("advance forward")
-        | "ArrowLeft" => Js.log("advance back")
+        | "ArrowRight" => self.send(Advance(true))
+        | "ArrowLeft" => self.send(Advance(false))
         | _ => ()
         }
       };
@@ -45,6 +70,7 @@ module Modal = {
         active: true,
         zoomed: false,
         current: "",
+        imageList: [||],
       },
 
       /* Temporary while migrating to ReasonReact,
@@ -63,16 +89,23 @@ module Modal = {
        * TODO: set menu on open/close
        * TODO: set body.style.overflow on open/close
        * TODO: set context.tabIndex and content.focus on zoom
-       * TODO: Prev/Next
       */
       reducer: (action: action, state) =>
         switch (action) {
-        | Open       => ReasonReact.Update({...state, active:true})
-        | Close      => ReasonReact.Update({...state, active:false})
-        | ZoomIn     => ReasonReact.Update({...state, zoomed:true})
-        | ZoomOut    => ReasonReact.Update({...state, zoomed:false})
-        | ZoomToggle => ReasonReact.Update({...state, zoomed:!state.zoomed})
-        | Set(image) => ReasonReact.Update({...state, current:image})
+        | Open          => ReasonReact.Update({...state, active:true})
+        | Close         => ReasonReact.Update({...state, active:false})
+        | ZoomIn        => ReasonReact.Update({...state, zoomed:true})
+        | ZoomOut       => ReasonReact.Update({...state, zoomed:false})
+        | ZoomToggle    => ReasonReact.Update({...state, zoomed:!state.zoomed})
+        | Advance(forward) => {
+          let next = advance(state.current, state.imageList, forward);
+          switch (next) {
+          | None => ReasonReact.NoUpdate
+          | Some(i) => ReasonReact.Update({...state, current:i})
+          }
+        }
+        | Set(image)    => ReasonReact.Update({...state, current:image})
+        | SetImages(is) => ReasonReact.Update({...state, imageList:is})
         | _ => ReasonReact.NoUpdate
         },
 
@@ -152,6 +185,7 @@ let getState = () => {
       active: false,
       zoomed: false,
       current: "",
+      imageList: [||],
     }
   }
   | Some(s) => s
@@ -163,35 +197,4 @@ let isModalOpen = (): bool => getState().active;
 let currentImage = (): string => getState().current;
 let openModal = () => sendAction(Modal.Open);
 let closeModal = () => sendAction(Modal.Close);
-let setModalZoom = (zoom: bool): unit => {
-  if (zoom) {
-    sendAction(Modal.ZoomIn)
-  } else {
-    sendAction(Modal.ZoomOut)
-  }
-};
-let toggleModalZoom = (): unit => {
-  setModalZoom(getState().zoomed)
-};
-
-let rec findIndex = (a: list('a), x: 'a, index: int): int => {
-  switch (a) {
-  | [] => -1
-  | [h, ...t] => {
-      if (h == x) {
-        index
-      } else {
-        findIndex(t, x, index + 1)
-      }
-    }
-  }
-};
-
-let advance = (images: array(string), forward: bool): unit => {
-  let currentIndex = findIndex(Array.to_list(images), getState().current, 0);
-  if (forward && currentIndex < Array.length(images) -1) {
-    sendAction(Modal.Set(images[currentIndex + 1]));
-  } else if (!forward && currentIndex > 0) {
-    sendAction(Modal.Set(images[currentIndex - 1]));
-  }
-};
+let setImageList = (images: array(string)) => sendAction(Modal.SetImages(images));

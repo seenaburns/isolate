@@ -27,13 +27,12 @@ module.exports = {
   openModal: openModal,
   setModal: setModal,
   modal: modal,
-  toggleModalZoom: toggleModalZoom,
-  advance: advance
 }
 
-function setModal(imageUrl, relpath="") {
+function setModal(imageUrl, images) {
   console.log("setModal")
   reason.setModal(imageUrl)
+  reason.setImageList(images)
 }
 
 function isModalOpen() {
@@ -54,19 +53,4 @@ function openModal() {
 function closeModal() {
   console.log("closeModal")
   reason.closeModal()
-}
-
-function setModalZoom(bool) {
-  console.log("setModalZoom")
-  reason.setModalZoom(bool)
-}
-
-function toggleModalZoom() {
-  console.log("toggleModalZoom")
-  reason.toggleModalZoom()
-}
-
-function advance(images, forward) {
-  console.log("advance")
-  reason.advance(images, forward)
 }
