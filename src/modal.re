@@ -66,6 +66,13 @@ let make = (setSendAction, _children) => {
         [%bs.raw {| document.getElementById("modal-content").focus() |}];
     };
 
+
+    let setBodyOverflow = (hidden: bool): unit =>
+      switch (hidden) {
+        | false => [%bs.raw {| document.querySelector("body").style.overflow = "visible" |}];
+        | true => [%bs.raw {| document.querySelector("body").style.overflow = "hidden" |}];
+      };
+
     {
     ...component,
     initialState: () =>
@@ -90,12 +97,11 @@ let make = (setSendAction, _children) => {
 
     /*
      * TODO: set menu on open/close
-     * TODO: set body.style.overflow on open/close
     */
     reducer: (action: action, state) =>
       switch (action) {
-      | Open          => ReasonReact.Update({...state, active:true})
-      | Close         => ReasonReact.Update({...state, active:false})
+      | Open          => ReasonReact.UpdateWithSideEffects({...state, active:true}, _ => setBodyOverflow(true))
+      | Close         => ReasonReact.UpdateWithSideEffects({...state, active:false}, _ => setBodyOverflow(false))
       | ZoomIn        => ReasonReact.UpdateWithSideEffects({...state, zoomed:true}, _ => setFocus())
       | ZoomOut       => ReasonReact.Update({...state, zoomed:false})
       | ZoomToggle    => ReasonReact.UpdateWithSideEffects({...state, zoomed:!state.zoomed}, _ => setFocus())
