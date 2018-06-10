@@ -49,7 +49,6 @@ let advance = (current: string, images: array(string), forward: bool): option(st
 let component = ReasonReact.reducerComponent("Modal");
 let make = (setSendAction, _children) => {
     let keydown = (self: ReasonReact.self('a, 'b, 'c)) => (e) => {
-      Js.log(e##key);
       switch (e##key) {
       | "Escape" => self.send(Close)
       | "z" => self.send(ZoomToggle)
@@ -57,6 +56,14 @@ let make = (setSendAction, _children) => {
       | "ArrowLeft" => self.send(Advance(false))
       | _ => ()
       }
+    };
+
+    /* Set modal-content to focused element so arrow keys immediately scroll the image, not the
+     * background
+     */
+    let setFocus = () => {
+        [%bs.raw {| document.getElementById("modal-content").tabIndex = 0 |}];
+        [%bs.raw {| document.getElementById("modal-content").focus() |}];
     };
 
     {
@@ -84,16 +91,15 @@ let make = (setSendAction, _children) => {
     /*
      * TODO: set menu on open/close
      * TODO: set body.style.overflow on open/close
-     * TODO: set context.tabIndex and content.focus on zoom
     */
     reducer: (action: action, state) =>
       switch (action) {
       | Open          => ReasonReact.Update({...state, active:true})
       | Close         => ReasonReact.Update({...state, active:false})
-      | ZoomIn        => ReasonReact.Update({...state, zoomed:true})
+      | ZoomIn        => ReasonReact.UpdateWithSideEffects({...state, zoomed:true}, _ => setFocus())
       | ZoomOut       => ReasonReact.Update({...state, zoomed:false})
-      | ZoomToggle    => ReasonReact.Update({...state, zoomed:!state.zoomed})
-      | Advance(forward) => {
+      | ZoomToggle    => ReasonReact.UpdateWithSideEffects({...state, zoomed:!state.zoomed}, _ => setFocus())
+      | Advance(forward) when !state.zoomed => {
         let next = advance(state.current, state.imageList, forward);
         switch (next) {
         | None => ReasonReact.NoUpdate
