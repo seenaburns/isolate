@@ -1,5 +1,6 @@
 [@bs.val] external document: 'jsModule = "document";
 [@bs.val] external window: 'jsModule = "window";
+/* let coerce = (a: 'a): 'b => Obj.magic(a); */
 
 type state = {
   active: bool,
@@ -21,6 +22,10 @@ type action =
 let readOnlyState: ref(option(state)) = ref(None)
 
 let str = ReasonReact.string;
+
+let svg_close = {| <svg fill="none" stroke="currentColor" width="24" height="24" viewBox="0 0 24 24"stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> |};
+let svg_zoom = {| <svg fill="none" stroke="currentColor" width="22" height="22" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg> |};
+let svg_unzoom = {| <svg fill="none" stroke="currentColor" width="22" height="22" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg> |};
 
 let rec findIndex = (a: list('a), x: 'a, index: int): int => {
   switch (a) {
@@ -133,16 +138,22 @@ let make = (setSendAction, _children) => {
           <div id="modal-container" className={containerClasses}>
             <header>
               <div id="modal-controls" className="modal-controls">
-                <span id="close" onClick={(e) => self.send(Close)}>
-                  (str("close"))
+                <span
+                  id="close"
+                  dangerouslySetInnerHTML=[%bs.raw {| {__html: svg_close } |}]
+                  onClick={(e) => self.send(Close)}>
                 </span>
                 {if (self.state.zoomed) {
-                  <span id="unzoom" onClick={(e) => self.send(ZoomOut)}>
-                    (str("unzoom"))
+                  <span
+                    id="unzoom"
+                    dangerouslySetInnerHTML=[%bs.raw {| {__html: svg_unzoom } |}]
+                    onClick={(e) => self.send(ZoomOut)}>
                   </span>
                 } else {
-                  <span id="zoom" onClick={(e) => self.send(ZoomIn)}>
-                    (str("zoom"))
+                  <span
+                    id="zoom"
+                    dangerouslySetInnerHTML=[%bs.raw {| {__html: svg_zoom } |}]
+                    onClick={(e) => self.send(ZoomIn)}>
                   </span>
                 }}
               </div>
