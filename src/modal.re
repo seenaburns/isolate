@@ -82,7 +82,7 @@ let make = (setSendAction, _children) => {
     ...component,
     initialState: () =>
     {
-      active: true,
+      active: false,
       zoomed: false,
       current: "",
       imageList: [||],
