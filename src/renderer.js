@@ -62,6 +62,8 @@ function imgUrl(relpath) {
 }
 
 function setImages(images) {
+  reason.setMain(images.map(x => path.join(root, x)))
+
   let renderImage = function(relpath) {
     let iw = document.createElement('div')
     iw.className = "iw"
