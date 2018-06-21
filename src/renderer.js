@@ -22,7 +22,6 @@ let ui = {
   'dirs': document.querySelector('#dirs'),
   'pwd': document.querySelector('#pwd'),
   'images': document.querySelector('#images'),
-  'search': document.querySelector('#search'),
   'dragndrop': document.querySelector('#dragndrop'),
 }
 
@@ -95,12 +94,12 @@ function show(elem) {
 }
 
 function showDragNDrop() {
-  hide(ui['search'])
+  // hide(ui['search'])
   show(ui['dragndrop'])
 }
 
 function hideDragNDrop() {
-  show(ui['search'])
+  // show(ui['search'])
   hide(ui['dragndrop'])
 }
 
@@ -123,22 +122,6 @@ function clearWebframeCache() {
   webFrame.clearCache()
 }
 
-function search(term) {
-  console.log("Search: " + term)
-
-  if (files.length == 0) {
-   files = loadFiles()
-  }
-
-  let results = files
-    .filter(x => x.includes(term))
-    .filter(isImage)
-  console.log(results)
-  setImages(results.map(x => x.replace(root, '')))
-  hide(ui.pwd)
-  hide(ui.dirs)
-  show(document.querySelector('#search-controls'))
-}
 
 function cd(relpath) {
   if (relpath == '../') {
@@ -149,20 +132,6 @@ function cd(relpath) {
   clearWebframeCache()
   console.log('cd ' + pwd)
   render()
-}
-
-ui.search.addEventListener("keyup", e => {
-  if (e.keyCode === 13) {
-    e.preventDefault()
-    search(ui.search.value)
-  }
-})
-
-document.querySelector('#search-controls a').onclick = e => {
-  hide(document.querySelector('#search-controls'))
-  show(ui.pwd)
-  show(ui.dirs)
-  cd(pwd)
 }
 
 function onDropFile(ev) {

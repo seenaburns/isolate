@@ -112,3 +112,27 @@ let renderable = (path: base, pwd: base, root: base): string => {
   }
 }
 
+/* Load all the images up to N levels deep starting from given path */
+let rec directoryWalk = (basepath: base, remainingDepth): array(absolute) => {
+  if (remainingDepth <= 0) {
+    [||]
+  } else {
+    let paths = Array.map(asRelative, readdirSync(fs, basepath.path));
+    Array.fold_left(
+      (files: array(absolute), p: relative): array(absolute) => {
+        let abs = makeAbsolute(basepath, p);
+        if (isDir(abs)) {
+          Array.append(files, directoryWalk(asBase(abs.path), remainingDepth-1))
+        } else if (isImage(abs)) {
+          Array.append(files, [|abs|])
+        } else {
+          files
+        }
+      },
+      [||],
+      paths
+    )
+  }
+}
+let isFile = (path: absolute): bool => lstatIsFile(lstatSync(fs, path.path));
+let isDir = (path: absolute): bool => lstatIsDirectory(lstatSync(fs, path.path));

@@ -165,6 +165,7 @@ module Main {
       <div>
       <Modal state={self.state.modal} sendAction={(a: Modal.action) => self.send(ModalAction(a))} />
       <header className="main-header">
+        <Search root={self.state.root} pwd={self.state.pwd} setImages={(images) => self.send(SetImages(images))} />
         <h3>{ReasonReact.string(pwd)}</h3>
         <Directories paths={Array.of_list(dirs)} root={self.state.root} pwd={self.state.pwd} setPwd={setPwd} />
       </header>

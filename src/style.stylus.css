@@ -158,10 +158,6 @@ nav ul {
   text-rendering: geometricPrecision;
 }
 
-.search-controls {
-  display: none;
-}
-
 .images-container {
   padding: images-padding;
   column-count: auto;
