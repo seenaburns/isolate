@@ -26,6 +26,8 @@ let ui = {
   'dragndrop': document.querySelector('#dragndrop'),
 }
 
+reason.setRoot(root)
+
 function isImage(f) {
   return ['jpeg', 'jpg', 'png', 'gif', 'svg'].some(ext => f.split('.').pop() == ext)
 }
