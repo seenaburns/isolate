@@ -31,40 +31,20 @@ let search = (root: Path.base, query: string): array(Path.absolute) => {
   }
 }
 
-type state = {
-  /* Active tracks if a search has been made, and the image grid is showing search results */
-  active: bool,
-}
-
-type action =
-  | SetActive(bool)
-
-/* TODO: hide PWD on search
- * TODO: hide dirs on search
- */
-let component = ReasonReact.reducerComponent("Search");
-let make = (~root, ~pwd, ~setImages, _children) => {
+let component = ReasonReact.statelessComponent("Search");
+let make = (~active, ~root, ~pwd, ~setImages, ~setSearchActive, _children) => {
   ...component,
-
-  initialState: () => {
-    active: false,
-  },
-
-  reducer: (action: action, _state) => switch(action) {
-    | SetActive(b) => ReasonReact.Update({active: b})
-  },
 
   render: self => {
     let back = (_event, self) => {
-      /* Annotating send to appease the type checking */
-      self.ReasonReact.send(SetActive(false));
+      setSearchActive(false);
       setImages(Path.images(pwd))
     };
 
     let onkeydown = (e, self) => {
       if (e##key == "Enter") {
         e##preventDefault();
-        self.ReasonReact.send(SetActive(true));
+        setSearchActive(true);
         setImages(search(root, e##target##value))
       }
     }
@@ -80,7 +60,7 @@ let make = (~root, ~pwd, ~setImages, _children) => {
       [||]
     );
 
-    let controls = if (self.state.active) {
+    let controls = if (active) {
       <a href="#" onClick={self.handle(back)}>{ReasonReact.string("Back")}</a>
     } else {
       ReasonReact.null

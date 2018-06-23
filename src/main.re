@@ -57,6 +57,7 @@ module Main {
   type state = {
     root: Path.base,
     pwd: Path.base,
+    search: bool,
     images: array(Path.absolute),
     modal: Modal.state,
   }
@@ -65,6 +66,7 @@ module Main {
     | SetRoot(Path.base)
     | SetPwd(Path.base)
     | SetImages(array(Path.absolute))
+    | SetSearchActive(bool)
     | ModalAction(Modal.action)
 
   let readOnlyState: ref(option(state)) = ref(None);
@@ -87,6 +89,7 @@ module Main {
     initialState: () => {
       root: Path.asBase("/"),
       pwd: Path.asBase("/"),
+      search: false,
       images: [||],
       modal: Modal.{
         active: false,
@@ -103,8 +106,8 @@ module Main {
       document##addEventListener("keydown", keydown(self));
       setSendAction(self.send)
     },
-    didUpdate: ({oldSelf, newSelf}) => {
-      readOnlyState := Some(newSelf.state);
+    didUpdate: (s) => {
+      readOnlyState := Some(s.newSelf.state);
     },
 
     /*
@@ -124,7 +127,7 @@ module Main {
         | SetRoot(path) => ReasonReact.Update({...state, root: path})
         | SetPwd(path) => ReasonReact.Update({...state, pwd: path})
         | SetImages(images) => ReasonReact.Update({...state, images: images})
-        /* Let modal.re define the state transitions for now */
+        | SetSearchActive(enabled) => ReasonReact.Update({...state, search: enabled})
         | ModalAction(m) => switch (m) {
           | SetActive(active) =>
             ReasonReact.UpdateWithSideEffects(
@@ -162,14 +165,41 @@ module Main {
       let imageCount = Array.length(self.state.images)
       let pwd = {j|$(pwdPath) ($(imageCount))|j};
 
+      let header = {
+        <header className="main-header">
+          <Search
+            active={self.state.search}
+            root={self.state.root}
+            pwd={self.state.pwd}
+            setSearchActive={(enabled) => self.send(SetSearchActive(enabled))}
+            setImages={(images) => self.send(SetImages(images))}
+          />
+          {if (!self.state.search) {
+            <div>
+              <h3>{ReasonReact.string(pwd)}</h3>
+              <Directories
+                paths={Array.of_list(dirs)}
+                root={self.state.root}
+                pwd={self.state.pwd}
+                setPwd={setPwd}
+              />
+            </div>
+          } else {
+            ReasonReact.null
+          }}
+        </header>
+      };
+
       <div>
-      <Modal state={self.state.modal} sendAction={(a: Modal.action) => self.send(ModalAction(a))} />
-      <header className="main-header">
-        <Search root={self.state.root} pwd={self.state.pwd} setImages={(images) => self.send(SetImages(images))} />
-        <h3>{ReasonReact.string(pwd)}</h3>
-        <Directories paths={Array.of_list(dirs)} root={self.state.root} pwd={self.state.pwd} setPwd={setPwd} />
-      </header>
-      <ImageGrid images={self.state.images} openModal={openModal} />
+        <Modal
+          state={self.state.modal}
+          sendAction={(a: Modal.action) => self.send(ModalAction(a))}
+        />
+        {header}
+        <ImageGrid
+          images={self.state.images}
+          openModal={openModal}
+        />
       </div>
     }
   }
@@ -206,6 +236,7 @@ let getState = () => {
       root: Path.asBase(""),
       pwd: Path.asBase(""),
       images: [||],
+      search: false,
       modal: Modal.{
         active: false,
         zoomed: false,
