@@ -1,12 +1,6 @@
-const fs = require('fs')
-
 module.exports = {
-  isDir: isDir,
-  isFile: isFile,
   join: join,
-  removeDuplicateSlash: removeDuplicateSlash,
   removeLeadingSlash: removeLeadingSlash,
-  up: up,
   toWindowsPath: toWindowsPath,
 }
 
@@ -20,23 +14,6 @@ function removeLeadingSlash(path) {
   } else {
     return path
   }
-}
-
-function removeDuplicateSlash(path) {
-  return path.replace('//', '/')
-}
-
-function up(path) {
-  let parts = path.split('/')
-  return parts.slice(0,parts.length-1).join('/')
-}
-
-function isDir(path) {
-  return fs.lstatSync(path).isDirectory()
-}
-
-function isFile(path) {
-  return fs.lstatSync(path).isFile()
 }
 
 // Hacky function to convert unix paths to windows paths

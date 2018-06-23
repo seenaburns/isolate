@@ -31,60 +31,6 @@ function isImage(f) {
   return ['jpeg', 'jpg', 'png', 'gif', 'svg'].some(ext => f.split('.').pop() == ext)
 }
 
-function setDirsNav(dirs) {
-  let renderDir = function (d, path) {
-    let l = document.createElement('li')
-    let a = util.link('#', d)
-    a.setAttribute('path', path)
-    l.appendChild(a)
-    return l
-  }
-
-  let dirs_container = document.querySelector('#dirs ul')
-  dirs_container.innerHTML = ""
-  if (pwd != '') {
-    dirs_container.appendChild(renderDir('../', '../'))
-  }
-  dirs.forEach(d => {
-    dirs_container.appendChild(renderDir(d, d))
-  })
-
-  document.querySelectorAll('#dirs a').forEach(a => {
-    a.onclick = e => cd(a.getAttribute('path'))
-  })
-}
-
-function setPwd(path, image_count) {
-  ui.pwd.innerHTML = '/' + pwd + ' (' + image_count + ')'
-}
-
-function imgUrl(relpath) {
-  return 'file://' + path.join(root, relpath)
-}
-
-function setImages(images) {
-  reason.setMain(images.map(x => path.join(root, x)))
-
-  let renderImage = function(relpath) {
-    let iw = document.createElement('div')
-    iw.className = "iw"
-    let i = document.createElement('img')
-    i.onclick = e => {
-      reason.setModal(e.toElement.src)
-      reason.openModal()
-    }
-    i.src = imgUrl(relpath)
-    iw.appendChild(i)
-    return iw
-  }
-
-  image_list = images.map(x => imgUrl(x))
-  ui.images.innerHTML = ""
-  images.forEach(i => {
-    ui.images.appendChild(renderImage(i))
-  })
-}
-
 function hide(elem) {
   elem.style.display = 'none'
 }
@@ -94,25 +40,11 @@ function show(elem) {
 }
 
 function showDragNDrop() {
-  // hide(ui['search'])
   show(ui['dragndrop'])
 }
 
 function hideDragNDrop() {
-  // show(ui['search'])
   hide(ui['dragndrop'])
-}
-
-function render() {
-  let files = fs.readdirSync(path.join(root,pwd)).map(f => path.join(pwd, f))
-  let images = files.filter(f => isImage(f) && path.isFile(path.join(root, f)))
-  setPwd(pwd, images.length)
-  setDirsNav(files.filter(f => path.isDir(path.join(root, f))))
-  setImages(images)
-}
-
-function loadFiles() {
-  return path.directoryWalk(root, 5)
 }
 
 function clearWebframeCache() {

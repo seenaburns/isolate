@@ -4,8 +4,6 @@ module.exports = {
   link: link,
   externalLink: externalLink,
   externalLinkToLocation: externalLinkToLocation,
-  setHTML: setHTML,
-  error: error
 }
 
 function link(url, html) {
@@ -31,14 +29,4 @@ function externalLinkToLocation(src, html) {
     result = electron.shell.showItemInFolder(src);
   }
   return a
-}
-
-function setHTML(node, element) {
-  node.innerHTML = ''
-  node.appendChild(element)
-}
-
-function error(e) {
-  console.error('\x1b[31m%s\x1b[0m', e)
-  process.exit(1)
 }
