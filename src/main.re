@@ -1,4 +1,6 @@
 [@bs.val] external document: 'jsModule = "document";
+let electron: 'jsModule = [%bs.raw {| require("electron") |}];
+
 
 module Directories {
   let component = ReasonReact.statelessComponent("Directories");
@@ -125,7 +127,15 @@ module Main {
 
       switch (action) {
         | SetRoot(path) => ReasonReact.Update({...state, root: path})
-        | SetPwd(path) => ReasonReact.Update({...state, pwd: path})
+        | SetPwd(path) => ReasonReact.UpdateWithSideEffects(
+          {...state, pwd: path},
+          /*
+           * Chromium seems to hold a copy of every image in the webframe cache. This can cause the
+           * memory used to balloon, looking alarming to users.  webFrame.clearCache() unloads these
+           * images, dropping memory at the cost of directory load time.
+           */
+          _ => electron##webFrame##clearCache()
+        )
         | SetImages(images) => ReasonReact.Update({...state, images: images})
         | SetSearchActive(enabled) => ReasonReact.Update({...state, search: enabled})
         | ModalAction(m) => switch (m) {

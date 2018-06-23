@@ -47,21 +47,12 @@ function hideDragNDrop() {
   hide(ui['dragndrop'])
 }
 
-function clearWebframeCache() {
-  // Chromium seems to hold a copy of every image in the webframe cache. This can cause the memory
-  // used to balloon, looking alarming to users.
-  // webFrame.clearCache() unloads these images, dropping memory at the cost of directory load time.
-  webFrame.clearCache()
-}
-
-
 function cd(relpath) {
   if (relpath == '../') {
     pwd = path.up(pwd)
   } else {
     pwd = path.removeLeadingSlash(relpath)
   }
-  clearWebframeCache()
   console.log('cd ' + pwd)
   render()
 }
