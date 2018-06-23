@@ -1,5 +1,6 @@
 [@bs.val] external document: 'jsModule = "document";
 let electron: 'jsModule = [%bs.raw {| require("electron") |}];
+let menu: 'jsModule = [%bs.raw {| require("./menu") |}];
 
 module Directories {
   let component = ReasonReact.statelessComponent("Directories");
@@ -142,7 +143,10 @@ module Main {
           | SetActive(active) =>
             ReasonReact.UpdateWithSideEffects(
               {...state, modal: {...state.modal, active: active}},
-              _ => Modal.setBodyOverflow(active)
+              _ => {
+                Modal.setBodyOverflow(active);
+                menu##setModalOpen(active)
+              }
             )
           | SetZoom(zoomed) => setZoom(zoomed)
           | ZoomToggle => setZoom(!state.modal.zoomed)
@@ -286,3 +290,4 @@ let setRoot = (s: string) => {
   sendAction(SetRoot(p));
   sendAction(SetImages(Path.images(p)));
 }
+let crossPlatform = Path.crossPlatform;

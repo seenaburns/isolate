@@ -18,6 +18,12 @@ module.exports = {
   Options: options,
   Functions: functions,
   EditSubMenu: EditSubMenu,
+  setModalOpen: setModalOpen,
+}
+
+function setModalOpen(b) {
+  options.ModalOpen = b
+  UpdateMenu()
 }
 
 app = require('electron').remote.app;

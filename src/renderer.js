@@ -35,7 +35,7 @@ document.ondrop = document.body.ondrop = (ev) => {
 function copyMenu(menuItem, browserWindow, event) {
   if (reason.isModalOpen()) {
     p = reason.currentImage()
-    p = reason.Path$Isolate.crossPlatform(p)
+    p = reason.crossPlatform(p)
     p = p.replace('file://', '')
     electron.clipboard.writeImage(p)
   }
