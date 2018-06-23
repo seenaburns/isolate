@@ -105,7 +105,10 @@ let make = (~state: state, ~sendAction: (action) => unit, _children) => {
               <span id="viewer-src">
                 <a
                   href="#"
-                  onClick={_ => electron##shell##showItemInFolder(state.current.path)}>
+                  onClick={_ => {
+                    let p = Path.crossPlatform(state.current.path);
+                    electron##shell##showItemInFolder(p)
+                  }}>
                   {ReasonReact.string(state.current.path)}
                 </a>
               </span>

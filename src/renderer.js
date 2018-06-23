@@ -35,13 +35,10 @@ document.ondrop = document.body.ondrop = (ev) => {
 
 function copyMenu(menuItem, browserWindow, event) {
   if (reason.isModalOpen()) {
-    imageUrl = reason.currentImage().replace('file://', '')
-
-    if (platform == 'win32') {
-      imageUrl = path.toWindowsPath(imageUrl)
-    }
-
-    electron.clipboard.writeImage(imageUrl)
+    p = reason.currentImage()
+    p = reason.Path$Isolate.crossPlatform(p)
+    p = p.replace('file://', '')
+    electron.clipboard.writeImage(p)
   }
 }
 

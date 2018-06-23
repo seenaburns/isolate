@@ -140,3 +140,33 @@ let rec directoryWalk = (basepath: base, remainingDepth): array(absolute) => {
 }
 let isFile = (path: absolute): bool => lstatIsFile(lstatSync(fs, path.path));
 let isDir = (path: absolute): bool => lstatIsDirectory(lstatSync(fs, path.path));
+
+/*
+ * Hacky function to convert unix paths to windows paths
+ * img elements in the ui still work with unix paths on windows, but
+ * - showItemInFolder and copy both need the leading slash removed
+ * - showItemInFolder will not highlight the item in the folder if there are forward slashes
+ *   in the path
+ *
+ * Translates /C:/path/like/this.png -> C:\path\like\this.png
+ */
+let toWindowsPath: (string) => string = [%bs.raw
+  {|
+    function toWindowsPath(path) {
+        if (path.length > 0 && path[0] == '/') {
+          path = path.substr(1)
+        }
+        return path.replace(/\//g, '\\')
+    }
+  |}
+];
+
+let crossPlatform = (p: string): (string) => {
+  let windows: bool = [%bs.raw {| process.platform == 'win32' |}];
+  if (windows) {
+    toWindowsPath(p)
+  } else {
+    p
+  }
+}
+
