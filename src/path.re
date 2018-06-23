@@ -92,7 +92,6 @@ let up = (path: base): base => {
 /* Renders an absolute path to a directory as what is diplayed to the user
  * TODO: not very robust, with a better Path module, this could look at path parts/segments
  * instead, but this will do for now
- * TODO: does not validate length(root) <= length(pwd)
  *
  * Examples:
  *   path: /a/b, pwd: /a/b/c, root: / = ../

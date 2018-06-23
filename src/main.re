@@ -112,9 +112,6 @@ module Main {
       readOnlyState := Some(s.newSelf.state);
     },
 
-    /*
-     * TODO: set menu on modal open/close
-    */
     reducer: (action: action, state) => {
       let setZoom = (zoomed: bool) => {
         let newState = {...state, modal: {...state.modal, zoomed: zoomed}};
