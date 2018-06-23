@@ -1,5 +1,6 @@
 [@bs.val] external document: 'jsModule = "document";
 [@bs.val] external window: 'jsModule = "window";
+let electron: 'jsModule = [%bs.raw {| require("electron") |}];
 
 /* Set modal-content to focused element so arrow keys immediately scroll the image, not the
  * background
@@ -102,7 +103,11 @@ let make = (~state: state, ~sendAction: (action) => unit, _children) => {
             <div className="viewer-metadata">
               <span id="viewer-description"></span>
               <span id="viewer-src">
-                <a href=""></a>
+                <a
+                  href="#"
+                  onClick={_ => electron##shell##showItemInFolder(state.current.path)}>
+                  {ReasonReact.string(state.current.path)}
+                </a>
               </span>
             </div>
           </header>
