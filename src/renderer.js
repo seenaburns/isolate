@@ -2,7 +2,6 @@ const electron = require('electron')
 
 const menu = require('./menu')
 const scrollbar = require('./scrollbar')
-const path = require('./path')
 const userData = require('./userData')
 
 const reason = require('./main.bs')
