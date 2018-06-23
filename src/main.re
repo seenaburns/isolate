@@ -7,7 +7,6 @@ module Directories {
   let make = (~paths: array(Path.base), ~pwd: Path.base, ~root: Path.base, ~setPwd, _children) => {
     ...component,
     render: _self => {
-      /* TODO: hide ../ when pwd = root  */
       let directories = Array.map((p: Path.base) => {
         <li>
           <a href="#" onClick={setPwd(p)}>{ReasonReact.string(Path.renderable(p, pwd, root))}</a>
@@ -183,7 +182,14 @@ module Main {
           <p>{ReasonReact.string("Drag & drop a folder to get started")}</p>
         </div>
       } else {
-        let dirs = [Path.up(self.state.pwd), ...Array.to_list(Path.subdirs(self.state.pwd))];
+        let dirs = {
+          let subdirs = Array.to_list(Path.subdirs(self.state.pwd));
+          if (self.state.pwd != self.state.root) {
+            [Path.up(self.state.pwd), ...subdirs]
+          } else {
+            subdirs
+          }
+        };
         let pwdPath = Path.renderable(self.state.pwd, self.state.pwd, self.state.root);
         let imageCount = Array.length(self.state.images)
         let pwd = {j|$(pwdPath) ($(imageCount))|j};
