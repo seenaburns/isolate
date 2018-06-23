@@ -1,57 +1,33 @@
 const electron = require('electron')
-const {webFrame} = require('electron')
-const fs = require('fs')
 
 const menu = require('./menu')
 const scrollbar = require('./scrollbar')
 const path = require('./path')
 const userData = require('./userData')
-const util = require('./util')
 
 const reason = require('./main.bs')
 
-let pwd = ''
 let global = electron.remote.getGlobal('global')
 let root = global.root_dir
-let files = []
-let image_list = []
 let platform = process.platform
 
 let ui = {
   'body': document.querySelector('body'),
   'dirs': document.querySelector('#dirs'),
-  'pwd': document.querySelector('#pwd'),
   'images': document.querySelector('#images'),
   'dragndrop': document.querySelector('#dragndrop'),
 }
 
 reason.setRoot(root)
 
-function isImage(f) {
-  return ['jpeg', 'jpg', 'png', 'gif', 'svg'].some(ext => f.split('.').pop() == ext)
-}
-
-function cd(relpath) {
-  if (relpath == '../') {
-    pwd = path.up(pwd)
-  } else {
-    pwd = path.removeLeadingSlash(relpath)
-  }
-  console.log('cd ' + pwd)
-  render()
-}
-
 document.ondragover = (ev) => {
-  console.log("dragover")
   ev.preventDefault()
 }
 
 document.ondrop = document.body.ondrop = (ev) => {
-  console.log("ondrop")
   ev.preventDefault()
 
   p = ev.dataTransfer.files[0].path
-  console.log(p)
   root = p
   userData.SetKey("root_dir", root, "settings.json")
   reason.setRoot(p)
@@ -138,9 +114,3 @@ window.addEventListener('contextmenu', e => {
     contextMenu.popup({window: electron.remote.getCurrentWindow()})
   }
 }, false)
-
-if (root != "") {
-  cd('')
-} else {
-  showDragNDrop()
-}
