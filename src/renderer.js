@@ -12,9 +12,6 @@ let platform = process.platform
 
 let ui = {
   'body': document.querySelector('body'),
-  'dirs': document.querySelector('#dirs'),
-  'images': document.querySelector('#images'),
-  'dragndrop': document.querySelector('#dragndrop'),
 }
 
 reason.setRoot(root)
@@ -38,6 +35,15 @@ function copyMenu(menuItem, browserWindow, event) {
     p = reason.crossPlatform(p)
     p = p.replace('file://', '')
     electron.clipboard.writeImage(p)
+  }
+}
+
+function openLocationMenu(menuItem, browserWindow, event) {
+  if (reason.isModalOpen()) {
+    p = reason.currentImage()
+    p = reason.crossPlatform(p)
+    p = p.replace('file://', '')
+    app.showItemInFolder(imageUrl)
   }
 }
 
@@ -68,18 +74,6 @@ function nightModeMenu(menuItem, browserWindow, event) {
   }
   curr = nightModeEnabled()
   setNightMode(!curr)
-}
-
-function openLocationMenu(menuItem, browserWindow, event) {
-  if (reason.isModalOpen()) {
-    imageUrl = reason.currentImage().replace('file://', '')
-
-    if (platform == 'win32') {
-      imageUrl = path.toWindowsPath(imageUrl)
-    }
-
-    app.showItemInFolder(imageUrl)
-  }
 }
 
 nightModeSetting = userData.Get("settings.json")["night_mode"]
