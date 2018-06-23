@@ -31,22 +31,6 @@ function isImage(f) {
   return ['jpeg', 'jpg', 'png', 'gif', 'svg'].some(ext => f.split('.').pop() == ext)
 }
 
-function hide(elem) {
-  elem.style.display = 'none'
-}
-
-function show(elem) {
-  elem.style.display = 'block'
-}
-
-function showDragNDrop() {
-  show(ui['dragndrop'])
-}
-
-function hideDragNDrop() {
-  hide(ui['dragndrop'])
-}
-
 function cd(relpath) {
   if (relpath == '../') {
     pwd = path.up(pwd)
@@ -55,9 +39,6 @@ function cd(relpath) {
   }
   console.log('cd ' + pwd)
   render()
-}
-
-function onDropFile(ev) {
 }
 
 document.ondragover = (ev) => {
@@ -73,8 +54,7 @@ document.ondrop = document.body.ondrop = (ev) => {
   console.log(p)
   root = p
   userData.SetKey("root_dir", root, "settings.json")
-  hideDragNDrop()
-  cd('')
+  reason.setRoot(p)
 }
 
 function copyMenu(menuItem, browserWindow, event) {

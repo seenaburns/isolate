@@ -104,11 +104,15 @@ let renderable = (path: base, pwd: base, root: base): string => {
   } else if (path.path == root.path) {
     "/"
   } else {
-    String.sub(
-      path.path,
-      String.length(root.path),
-      String.length(path.path) - String.length(root.path)
-    )
+    let rootLen = String.length(root.path);
+    let pathLen = String.length(path.path);
+
+    if (rootLen < pathLen) {
+      /* Return path - root prefix */
+      String.sub(path.path, rootLen, pathLen-rootLen)
+    } else {
+      path.path
+    }
   }
 }
 
