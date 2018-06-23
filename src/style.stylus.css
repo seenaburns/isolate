@@ -158,10 +158,6 @@ nav ul {
   text-rendering: geometricPrecision;
 }
 
-.search-controls {
-  display: none;
-}
-
 .images-container {
   padding: images-padding;
   column-count: auto;
@@ -180,7 +176,6 @@ nav ul {
 }
 
 .modal-back {
-  display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
   left: 0;
@@ -285,7 +280,6 @@ nav ul {
 }
 
 .dragndrop {
-  display: none;
   position: absolute;
   top: 200px;
   left: 50%;

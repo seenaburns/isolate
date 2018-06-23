@@ -7,7 +7,6 @@ const fs = require('fs')
 const url = require('url')
 const os = require('os')
 
-const path2 = require('./src/path')
 const userData = require('./src/userData')
 
 let win
