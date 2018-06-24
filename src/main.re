@@ -44,12 +44,38 @@ module ImageGrid {
     ...component,
     render: _self => {
       let imageComponents = Array.map((i) => { <Image image={i} openModal={openModal} /> }, images);
+
+      let ncols = 4;
+      let columns = [||];
+      for (_ in 0 to ncols-1) {
+        Js.Array.push(ref([]), columns);
+      };
+      Array.iteri(
+        (i, img) => {
+          columns[i mod ncols] := [img, ...columns[i mod ncols]^];
+          Js.log4("cols", i, i mod ncols, List.length(columns[i mod ncols]^));
+        },
+        imageComponents
+      );
+      let columnDivs = Array.map(
+        (c) => {
+          ReasonReact.createDomElement(
+            "div",
+            ~props={"className": "image-column"},
+            Array.of_list(c^)
+          )
+        },
+        columns
+      );
+
+      Js.log(columns);
+
       /* cannot directly use <div>, see
        * https://reasonml.github.io/reason-react/docs/en/children.html#pitfall */
       ReasonReact.createDomElement(
         "div",
         ~props={"id": "react-images", "className": "images-container"},
-        imageComponents
+        columnDivs
       );
     }
   }

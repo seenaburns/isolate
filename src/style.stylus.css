@@ -160,9 +160,14 @@ nav ul {
 
 .images-container {
   padding: images-padding;
-  column-count: auto;
-  column-width: colw;
-  column-gap: image-gap;
+  display: flex;
+  flex-direction: row;
+}
+
+.image-column {
+  flex-basis: colw;
+  flex-grow: 1;
+  padding-left: image-gap;
 }
 
 .iw {
