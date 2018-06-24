@@ -1,6 +1,5 @@
 [@bs.val] external document : 'jsModule = "document";
 let electron: 'jsModule = [%bs.raw {| require("electron") |}];
-let menu: 'jsModule = [%bs.raw {| require("./menu") |}];
 
 module Main = {
   type state = {
@@ -58,24 +57,6 @@ module Main = {
       },
       didUpdate: s => readOnlyState := Some(s.newSelf.state),
       reducer: (action: action, state) => {
-        let setZoom = (zoomed: bool) => {
-          let newState = {
-            ...state,
-            modal: {
-              ...state.modal,
-              zoomed,
-            },
-          };
-          if (zoomed) {
-            ReasonReact.UpdateWithSideEffects(
-              newState,
-              _ => Modal.setFocus(),
-            );
-          } else {
-            ReasonReact.Update(newState);
-          };
-        };
-
         let setFullTimeout = self => {
           let _ =
             Js.Global.setTimeout(
@@ -112,47 +93,13 @@ module Main = {
         | SetSearchActive(enabled) =>
           ReasonReact.Update({...state, search: enabled})
         | ModalAction(m) =>
-          switch (m) {
-          | SetActive(active) =>
+          switch (Modal.reducer(m, state.modal, state.images)) {
+          | (Some(s), Some(se)) =>
             ReasonReact.UpdateWithSideEffects(
-              {
-                ...state,
-                modal: {
-                  ...state.modal,
-                  active,
-                },
-              },
-              (
-                _ => {
-                  Modal.setBodyOverflow(active);
-                  menu##setModalOpen(active);
-                }
-              ),
+              {...state, modal: s},
+              (_ => se()),
             )
-          | SetZoom(zoomed) => setZoom(zoomed)
-          | ZoomToggle => setZoom(! state.modal.zoomed)
-          | Advance(forward) when ! state.modal.zoomed =>
-            let next =
-              Modal.advance(state.modal.current, state.images, forward);
-            switch (next) {
-            | None => ReasonReact.NoUpdate
-            | Some(i) =>
-              ReasonReact.Update({
-                ...state,
-                modal: {
-                  ...state.modal,
-                  current: i,
-                },
-              })
-            };
-          | Set(image) =>
-            ReasonReact.Update({
-              ...state,
-              modal: {
-                ...state.modal,
-                current: image,
-              },
-            })
+          | (Some(s), None) => ReasonReact.Update({...state, modal: s})
           | _ => ReasonReact.NoUpdate
           }
         | SetShowFull(b) =>

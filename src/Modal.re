@@ -1,6 +1,7 @@
 [@bs.val] external document : 'jsModule = "document";
 [@bs.val] external window : 'jsModule = "window";
 let electron: 'jsModule = [%bs.raw {| require("electron") |}];
+let menu: 'jsModule = [%bs.raw {| require("./menu") |}];
 
 /* Set modal-content to focused element so arrow keys immediately scroll the image, not the
  * background
@@ -56,6 +57,43 @@ type action =
   | ZoomToggle
   | Advance(bool) /* true if advance forward */
   | Set(Path.absolute);
+
+let reducer =
+    (action, state, images)
+    : (option(state), option(unit => unit)) => {
+  let setZoom = (zoomed: bool) => {
+    let newState = {...state, zoomed};
+    if (zoomed) {
+      (Some(newState), Some(_ => setFocus()));
+    } else {
+      (Some(newState), None);
+    };
+  };
+
+  switch (action) {
+  | SetActive(active) => (
+      Some({...state, active}),
+      Some(
+        (
+          _ => {
+            setBodyOverflow(active);
+            menu##setModalOpen(active);
+          }
+        ),
+      ),
+    )
+  | SetZoom(zoomed) => setZoom(zoomed)
+  | ZoomToggle => setZoom(! state.zoomed)
+  | Advance(forward) when ! state.zoomed =>
+    let next = advance(state.current, images, forward);
+    switch (next) {
+    | None => (None, None)
+    | Some(i) => (Some({...state, current: i}), None)
+    };
+  | Set(image) => (Some({...state, current: image}), None)
+  | _ => (None, None)
+  };
+};
 
 let str = ReasonReact.string;
 
