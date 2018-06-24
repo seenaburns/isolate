@@ -34,7 +34,8 @@ module Main = {
     | SetShowFull(bool)
     | Resize(int)
     | SetMode(mode)
-    | Selection(selection);
+    | Selection(selection)
+    | ImageClick(Path.absolute);
 
   let initState = () => {
     root: Path.asBase(""),
@@ -82,6 +83,34 @@ module Main = {
               300,
             );
           ();
+        };
+
+        let selectionReducer = (action: selection) => {
+          let add = p =>
+            if (! Js.Array.includes(p, state.selected)) {
+              let newSelected = Js.Array.copy(state.selected);
+              let _ = Js.Array.push(p, newSelected);
+              ReasonReact.Update({...state, selected: newSelected});
+            } else {
+              ReasonReact.NoUpdate;
+            };
+          let remove = p =>
+            ReasonReact.Update({
+              ...state,
+              selected: Js.Array.filter(x => p != x, state.selected),
+            });
+
+          switch (action) {
+          | Add(p) => add(p)
+          | Remove(p) => remove(p)
+          | Toggle(p) =>
+            if (Js.Array.includes(p, state.selected)) {
+              remove(p);
+            } else {
+              add(p);
+            }
+          | Clear => ReasonReact.Update({...state, selected: [||]})
+          };
         };
 
         switch (action) {
@@ -135,31 +164,53 @@ module Main = {
           | Normal => ReasonReact.Update({...state, mode: m, selected: [||]})
           | Editting => ReasonReact.Update({...state, mode: m})
           }
-        | Selection(a) =>
-          let add = p =>
-            if (! Js.Array.includes(p, state.selected)) {
-              let newSelected = Js.Array.copy(state.selected);
-              let _ = Js.Array.push(p, newSelected);
-              ReasonReact.Update({...state, selected: newSelected});
-            } else {
-              ReasonReact.NoUpdate;
-            };
-          let remove = p =>
-            ReasonReact.Update({
-              ...state,
-              selected: Js.Array.filter(x => p != x, state.selected),
-            });
-          switch (a) {
-          | Add(p) => add(p)
-          | Remove(p) => remove(p)
-          | Toggle(p) =>
-            if (Js.Array.includes(p, state.selected)) {
-              remove(p);
-            } else {
-              add(p);
-            }
-          | Clear => ReasonReact.Update({...state, selected: [||]})
-          };
+        | Selection(a) => selectionReducer(a)
+        | ImageClick(path) =>
+          /* Move imageOnClick logic into reducer so it doesn't have to re-render on every mode
+           * change.
+           *
+           * This is super cumbersome without a way to send new actions in the reducer or a better
+           * way of composing.
+           *
+           * TODO: make this reuse logic
+           */
+          switch (state.mode) {
+          | Normal =>
+            let (s1, se1) =
+              Modal.reducer(
+                Modal.SetActive(true),
+                state.modal,
+                state.images,
+              );
+            let (s2, se2) =
+              Modal.reducer(
+                Modal.Set(path),
+                switch (s1) {
+                | None => state.modal
+                | Some(x) => x
+                },
+                state.images,
+              );
+            ReasonReact.UpdateWithSideEffects(
+              switch (s2) {
+              | None => state
+              | Some(x) => {...state, modal: x}
+              },
+              (
+                _ => {
+                  switch (se1) {
+                  | Some(f) => f()
+                  | None => ()
+                  };
+                  switch (se2) {
+                  | Some(f) => f()
+                  | None => ()
+                  };
+                }
+              ),
+            );
+          | Editting => selectionReducer(Toggle(path))
+          }
         };
       },
       render: self => {
@@ -169,13 +220,7 @@ module Main = {
         };
 
         let imageOnClick = (path: Path.absolute, _: ReactEventRe.Mouse.t) =>
-          switch (self.state.mode) {
-          | Normal =>
-            /* Open modal */
-            self.send(ModalAction(Modal.SetActive(true)));
-            self.send(ModalAction(Modal.Set(path)));
-          | Editting => self.send(Selection(Toggle(path)))
-          };
+          self.send(ImageClick(path));
 
         if (self.state.root.path == "") {
           /* Show drag and drop */
