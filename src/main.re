@@ -2,6 +2,8 @@
 let electron: 'jsModule = [%bs.raw {| require("electron") |}];
 let menu: 'jsModule = [%bs.raw {| require("./menu") |}];
 
+let preload = 40;
+
 module Directories {
   let component = ReasonReact.statelessComponent("Directories");
   let make = (~paths: array(Path.base), ~pwd: Path.base, ~root: Path.base, ~setPwd, _children) => {
@@ -38,34 +40,16 @@ module Image {
 }
 
 module ImageGrid {
-  type state = {
-    showFull: bool
-  };
-
-  type action =
-    | SetShowFull(bool)
-
-  let component = ReasonReact.reducerComponent("ImageGrid");
-  let make = (~images: array(Path.absolute), ~openModal, _children) => {
+  let component = ReasonReact.statelessComponent("ImageGrid");
+  let make = (~images: array(Path.absolute), ~showFull, ~ncols, ~openModal, _children) => {
     ...component,
-
-    initialState: () => {showFull: false},
-    reducer: (action: action, state) => {
-      switch (action) {
-      | SetShowFull(b) => ReasonReact.Update({showFull: b})
-      }
-    },
-
-    willReceiveProps: (self) => {
-      {showFull: false}
-    },
 
     render: (self) => {
       let shownImages =
-        if (self.state.showFull) {
+        if (showFull) {
           images
         } else {
-          Array.sub(images, 0, Pervasives.min(40, Array.length(images)))
+          Array.sub(images, 0, Pervasives.min(preload, Array.length(images)))
         };
       let imageComponents =
         Array.map(
@@ -73,13 +57,6 @@ module ImageGrid {
           shownImages
         );
 
-      if (!self.state.showFull) {
-        let _ = Js.Global.setTimeout(() => {
-          self.send(SetShowFull(true))
-        }, 300);
-      }
-
-      let ncols = 4;
       let columns = [||];
       for (_ in 0 to ncols-1) {
         Js.Array.push(ref([]), columns);
@@ -107,7 +84,7 @@ module ImageGrid {
        * https://reasonml.github.io/reason-react/docs/en/children.html#pitfall */
       ReasonReact.createDomElement(
         "div",
-        ~props={"id": "react-images", "className": "images-container"},
+        ~props={"id": "images", "className": "images-container"},
         columnDivs
       );
     }
@@ -121,6 +98,10 @@ module Main {
     search: bool,
     images: array(Path.absolute),
     modal: Modal.state,
+
+    /* Flag to track if ImageGrid should show all images or a subset */
+    showFull: bool,
+    ncols: int,
   }
 
   type action =
@@ -129,6 +110,8 @@ module Main {
     | SetImages(array(Path.absolute))
     | SetSearchActive(bool)
     | ModalAction(Modal.action)
+    | SetShowFull(bool)
+    | Resize(int)
 
   let readOnlyState: ref(option(state)) = ref(None);
 
@@ -156,7 +139,9 @@ module Main {
         active: false,
         zoomed: false,
         current: Path.asAbsolute(""),
-      }
+      },
+      showFull: false,
+      ncols: 4,
     },
 
     /* Temporary while migrating to ReasonReact,
@@ -181,16 +166,25 @@ module Main {
         }
       };
 
+      let setFullTimeout = self => {
+        let _ = Js.Global.setTimeout(() => {
+          self.ReasonReact.send(SetShowFull(true))
+        }, 300);
+      };
+
       switch (action) {
         | SetRoot(path) => ReasonReact.Update({...state, root: path})
         | SetPwd(path) => ReasonReact.UpdateWithSideEffects(
-          {...state, pwd: path},
-          /*
-           * Chromium seems to hold a copy of every image in the webframe cache. This can cause the
-           * memory used to balloon, looking alarming to users.  webFrame.clearCache() unloads these
-           * images, dropping memory at the cost of directory load time.
-           */
-          _ => electron##webFrame##clearCache()
+          {...state, pwd: path, showFull: false},
+          self => {
+            setFullTimeout(self);
+            /*
+             * Chromium seems to hold a copy of every image in the webframe cache. This can cause the
+             * memory used to balloon, looking alarming to users.  webFrame.clearCache() unloads these
+             * images, dropping memory at the cost of directory load time.
+             */
+            electron##webFrame##clearCache();
+          }
         )
         | SetImages(images) => {
           Array.sort(
@@ -221,6 +215,19 @@ module Main {
           | Set(image)    => ReasonReact.Update({...state, modal: {...state.modal, current:image}})
           | _ => ReasonReact.NoUpdate
         }
+        | SetShowFull(b) => {
+          if (b) {
+            ReasonReact.Update({...state, showFull: b})
+          } else {
+            ReasonReact.UpdateWithSideEffects(
+              {...state, showFull: b},
+              self => {
+                setFullTimeout(self);
+              }
+            )
+          }
+        }
+        | Resize(cols) => ReasonReact.Update({...state, ncols: cols})
       }
     },
 
@@ -287,6 +294,8 @@ module Main {
           {header}
           <ImageGrid
             images={self.state.images}
+            showFull={self.state.showFull}
+            ncols={self.state.ncols}
             openModal={openModal}
           />
         </div>
@@ -331,7 +340,9 @@ let getState = () => {
         active: false,
         zoomed: false,
         current: Path.asAbsolute(""),
-      }
+      },
+      showFull: false,
+      ncols: 4,
     }
   }
   | Some(s) => s
@@ -357,3 +368,27 @@ let setRoot = (s: string) => {
   sendAction(SetImages(Path.images(p)));
 }
 let crossPlatform = Path.crossPlatform;
+let setCols = (n: int) => {
+  sendAction(Resize(n));
+};
+
+let resizeTimeout = ref(None);
+let resize = () => {
+  let w = document##querySelector("#images")##clientWidth;
+  sendAction(Resize(w / 200))
+};
+let resizeThrottler = () => {
+  switch (resizeTimeout^) {
+  | None => {
+      resizeTimeout := Some(Js.Global.setTimeout(() => {
+        resizeTimeout := None;
+        resize()
+      }, 100))
+    }
+  | Some(_) => ()
+  }
+};
+
+[@bs.send] external addEventListener: ('a, string, 'b => 'c, bool) => unit = "addEventListener";
+let window = [%bs.raw {| window |}];
+addEventListener(window, "resize", resizeThrottler, false);
