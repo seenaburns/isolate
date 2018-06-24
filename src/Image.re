@@ -1,8 +1,15 @@
 let component = ReasonReact.statelessComponent("Image");
-let make = (~image: Path.absolute, ~openModal, _children) => {
+let make =
+    (
+      ~image: Path.absolute,
+      ~imageOnClick: (Path.absolute, ReactEventRe.Mouse.t) => unit,
+      ~selected: bool,
+      _children,
+    ) => {
   ...component,
   render: _self => {
     let url = Path.makeUrl(image).url;
-    <div className="iw"> <img src=url onClick=(openModal(image)) /> </div>;
+    let className = "iw" ++ (selected ? " selected" : "");
+    <div className> <img src=url onClick=(imageOnClick(image)) /> </div>;
   },
 };

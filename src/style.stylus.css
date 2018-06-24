@@ -158,6 +158,14 @@ nav ul {
   text-rendering: geometricPrecision;
 }
 
+.edit {
+  float: right;
+
+  a {
+    margin-right: 20px;
+  }
+}
+
 .images-container {
   padding: images-padding;
   display: flex;
@@ -173,6 +181,10 @@ nav ul {
 .iw {
   width: 100%;
   margin-bottom: image-gap;
+}
+
+.selected {
+  border: 10px solid #0F0;
 }
 
 .images-container img {

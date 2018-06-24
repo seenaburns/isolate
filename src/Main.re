@@ -2,6 +2,10 @@
 let electron: 'jsModule = [%bs.raw {| require("electron") |}];
 
 module Main = {
+  type mode =
+    | Normal
+    | Editting;
+
   type state = {
     root: Path.base,
     pwd: Path.base,
@@ -11,7 +15,15 @@ module Main = {
     /* Flag to track if ImageGrid should show all images or a subset */
     showFull: bool,
     ncols: int,
+    mode,
+    selected: Js.Array.t(Path.absolute),
   };
+
+  type selection =
+    | Add(Path.absolute)
+    | Remove(Path.absolute)
+    | Toggle(Path.absolute)
+    | Clear;
 
   type action =
     | SetRoot(Path.base)
@@ -20,7 +32,22 @@ module Main = {
     | SetSearchActive(bool)
     | ModalAction(Modal.action)
     | SetShowFull(bool)
-    | Resize(int);
+    | Resize(int)
+    | SetMode(mode)
+    | Selection(selection);
+
+  let initState = () => {
+    root: Path.asBase(""),
+    pwd: Path.asBase(""),
+    search: false,
+    images: [||],
+    modal:
+      Modal.{active: false, zoomed: false, current: Path.asAbsolute("")},
+    showFull: false,
+    ncols: 4,
+    mode: Normal,
+    selected: [||],
+  };
 
   let readOnlyState: ref(option(state)) = ref(None);
 
@@ -37,16 +64,7 @@ module Main = {
 
     {
       ...component,
-      initialState: () => {
-        root: Path.asBase(""),
-        pwd: Path.asBase(""),
-        search: false,
-        images: [||],
-        modal:
-          Modal.{active: false, zoomed: false, current: Path.asAbsolute("")},
-        showFull: false,
-        ncols: 4,
-      },
+      initialState: initState,
       /* Temporary while migrating to ReasonReact,
        * allows internal state to be visible (via Modal.readOnlyState) and set externally (via
        * setSendAction)
@@ -89,7 +107,7 @@ module Main = {
             (a: Path.absolute, b: Path.absolute) => compare(a.path, b.path),
             images,
           );
-          ReasonReact.Update({...state, images});
+          ReasonReact.Update({...state, images, selected: [||]});
         | SetSearchActive(enabled) =>
           ReasonReact.Update({...state, search: enabled})
         | ModalAction(m) =>
@@ -112,18 +130,52 @@ module Main = {
             );
           }
         | Resize(cols) => ReasonReact.Update({...state, ncols: cols})
+        | SetMode(m) =>
+          switch (m) {
+          | Normal => ReasonReact.Update({...state, mode: m, selected: [||]})
+          | Editting => ReasonReact.Update({...state, mode: m})
+          }
+        | Selection(a) =>
+          let add = p =>
+            if (! Js.Array.includes(p, state.selected)) {
+              let newSelected = Js.Array.copy(state.selected);
+              let _ = Js.Array.push(p, newSelected);
+              ReasonReact.Update({...state, selected: newSelected});
+            } else {
+              ReasonReact.NoUpdate;
+            };
+          let remove = p =>
+            ReasonReact.Update({
+              ...state,
+              selected: Js.Array.filter(x => p != x, state.selected),
+            });
+          switch (a) {
+          | Add(p) => add(p)
+          | Remove(p) => remove(p)
+          | Toggle(p) =>
+            if (Js.Array.includes(p, state.selected)) {
+              remove(p);
+            } else {
+              add(p);
+            }
+          | Clear => ReasonReact.Update({...state, selected: [||]})
+          };
         };
       },
       render: self => {
-        let openModal = (path: Path.absolute, _event) => {
-          self.send(ModalAction(Modal.SetActive(true)));
-          self.send(ModalAction(Modal.Set(path)));
-        };
-
         let setPwd = (path: Path.base, _event) => {
           self.send(SetPwd(path));
           self.send(SetImages(Path.images(path)));
         };
+
+        let imageOnClick = (path: Path.absolute, _: ReactEventRe.Mouse.t) =>
+          switch (self.state.mode) {
+          | Normal =>
+            /* Open modal */
+            self.send(ModalAction(Modal.SetActive(true)));
+            self.send(ModalAction(Modal.Set(path)));
+          | Editting => self.send(Selection(Toggle(path)))
+          };
 
         if (self.state.root.path == "") {
           /* Show drag and drop */
@@ -142,12 +194,31 @@ module Main = {
               subdirs;
             };
           };
+
+          /* Construct PWD */
           let pwdPath =
             Path.renderable(self.state.pwd, self.state.pwd, self.state.root);
           let imageCount = Array.length(self.state.images);
           let pwd = {j|$(pwdPath) ($(imageCount))|j};
 
-          let header =
+          let header = {
+            let edit =
+              switch (self.state.mode) {
+              | Normal =>
+                <div className="edit">
+                  <a href="#" onClick=(_ => self.send(SetMode(Editting)))>
+                    (ReasonReact.string("Edit"))
+                  </a>
+                </div>
+              | Editting =>
+                <div className="edit">
+                  <a href="#"> (ReasonReact.string("Move")) </a>
+                  <a href="#" onClick=(_ => self.send(SetMode(Normal)))>
+                    (ReasonReact.string("Esc"))
+                  </a>
+                </div>
+              };
+
             <header className="main-header">
               <Search
                 active=self.state.search
@@ -158,6 +229,7 @@ module Main = {
                 )
                 setImages=(images => self.send(SetImages(images)))
               />
+              edit
               (
                 if (! self.state.search) {
                   <div>
@@ -174,6 +246,7 @@ module Main = {
                 }
               )
             </header>;
+          };
 
           <div>
             <Modal
@@ -185,7 +258,8 @@ module Main = {
               images=self.state.images
               showFull=self.state.showFull
               ncols=self.state.ncols
-              openModal
+              imageOnClick
+              selectedList=self.state.selected
             />
           </div>;
         };
@@ -217,16 +291,7 @@ let getState = () =>
   switch (Main.readOnlyState^) {
   | None =>
     Js.log("Main.readOnlyState is None");
-    Main.{
-      root: Path.asBase(""),
-      pwd: Path.asBase(""),
-      images: [||],
-      search: false,
-      modal:
-        Modal.{active: false, zoomed: false, current: Path.asAbsolute("")},
-      showFull: false,
-      ncols: 4,
-    };
+    Main.initState();
   | Some(s) => s
   };
 
