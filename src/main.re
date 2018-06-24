@@ -39,11 +39,48 @@ module Image {
 }
 
 module ImageGrid {
-  let component = ReasonReact.statelessComponent("ImageGrid");
+  type state = {
+    showFull: bool
+  };
+
+  type action =
+    | SetShowFull(bool)
+
+  let component = ReasonReact.reducerComponent("ImageGrid");
   let make = (~images: array(Path.absolute), ~openModal, _children) => {
     ...component,
-    render: _self => {
-      let imageComponents = Array.map((i) => { <Image image={i} openModal={openModal} /> }, images);
+
+    initialState: () => {showFull: false},
+    reducer: (action: action, state) => {
+      switch (action) {
+      | SetShowFull(b) => ReasonReact.Update({showFull: b})
+      }
+    },
+
+    willReceiveProps: (self) => {
+      Js.log("SetShowFull(false)");
+      {showFull: false}
+    },
+
+    render: (self) => {
+      let shownImages =
+        if (self.state.showFull) {
+          images
+        } else {
+          Array.sub(images, 0, Pervasives.min(40, Array.length(images)))
+        };
+      let imageComponents =
+        Array.map(
+          (i) => { <Image image={i} openModal={openModal} /> },
+          shownImages
+        );
+
+      if (!self.state.showFull) {
+        let _ = Js.Global.setTimeout(() => {
+          Js.log("Timeout");
+          self.send(SetShowFull(true))
+        }, 300);
+      }
 
       let ncols = 4;
       let columns = [||];
@@ -57,6 +94,7 @@ module ImageGrid {
         },
         imageComponents
       );
+      Array.iter((c) => c := List.rev(c^), columns);
       let columnDivs = Array.map(
         (c) => {
           ReasonReact.createDomElement(
@@ -159,7 +197,13 @@ module Main {
            */
           _ => electron##webFrame##clearCache()
         )
-        | SetImages(images) => ReasonReact.Update({...state, images: images})
+        | SetImages(images) => {
+          Array.sort(
+            (a: Path.absolute, b: Path.absolute) => compare(a.path, b.path),
+            images
+          );
+          ReasonReact.Update({...state, images: images})
+        }
         | SetSearchActive(enabled) => ReasonReact.Update({...state, search: enabled})
         | ModalAction(m) => switch (m) {
           | SetActive(active) =>
