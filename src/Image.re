@@ -3,8 +3,6 @@ let make = (~image: Path.absolute, ~openModal, _children) => {
   ...component,
   render: _self => {
     let url = Path.makeUrl(image).url;
-    <div className="iw">
-      <img src={url} onClick={openModal(image)} />
-    </div>
-  }
-}
+    <div className="iw"> <img src=url onClick=(openModal(image)) /> </div>;
+  },
+};
