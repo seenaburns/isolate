@@ -30,7 +30,6 @@ module Image {
     ...component,
     render: _self => {
       let url = Path.makeUrl(image).url;
-      Js.log(url);
       <div className="iw">
         <img src={url} onClick={openModal(image)} />
       </div>
@@ -58,7 +57,6 @@ module ImageGrid {
     },
 
     willReceiveProps: (self) => {
-      Js.log("SetShowFull(false)");
       {showFull: false}
     },
 
@@ -77,7 +75,6 @@ module ImageGrid {
 
       if (!self.state.showFull) {
         let _ = Js.Global.setTimeout(() => {
-          Js.log("Timeout");
           self.send(SetShowFull(true))
         }, 300);
       }
@@ -90,7 +87,6 @@ module ImageGrid {
       Array.iteri(
         (i, img) => {
           columns[i mod ncols] := [img, ...columns[i mod ncols]^];
-          Js.log4("cols", i, i mod ncols, List.length(columns[i mod ncols]^));
         },
         imageComponents
       );
@@ -106,7 +102,6 @@ module ImageGrid {
         columns
       );
 
-      Js.log(columns);
 
       /* cannot directly use <div>, see
        * https://reasonml.github.io/reason-react/docs/en/children.html#pitfall */
@@ -239,8 +234,6 @@ module Main {
         self.send(SetPwd(path));
         self.send(SetImages(Path.images(path)));
       };
-
-      Js.log(self.state.root.path);
 
       if (self.state.root.path == "") {
         /* Show drag and drop */
