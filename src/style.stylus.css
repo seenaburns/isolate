@@ -308,3 +308,25 @@ nav ul {
     width: 128px;
   }
 }
+
+.moving-modal {
+  position: absolute;
+  top: 200px;
+  left: 50%;
+  margin-left: -200px;
+  background: #fff;
+  border: 1px solid #000;
+  color: #000;
+  padding: 20px;
+  width: 400px;
+
+  p {
+    margin: 0px;
+    padding: 0px;
+  }
+
+  a {
+    display: block;
+    color: #000 !important;
+  }
+}

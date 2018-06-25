@@ -3,7 +3,7 @@ let files: ref(option(array(Path.absolute))) = ref(None);
 
 let loadFiles = (root: Path.base) =>
   switch (files^) {
-  | None => files := Some(Path.directoryWalk(root, 5))
+  | None => files := Some(Path.directoryWalk(root, 5, true, false))
   | Some(_) => ()
   };
 

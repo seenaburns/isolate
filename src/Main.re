@@ -2,10 +2,6 @@
 let electron: 'jsModule = [%bs.raw {| require("electron") |}];
 
 module Main = {
-  type mode =
-    | Normal
-    | Editting;
-
   type state = {
     root: Path.base,
     pwd: Path.base,
@@ -15,7 +11,7 @@ module Main = {
     /* Flag to track if ImageGrid should show all images or a subset */
     showFull: bool,
     ncols: int,
-    mode,
+    mode: Edit.mode,
     selected: Js.Array.t(Path.absolute),
   };
 
@@ -33,9 +29,10 @@ module Main = {
     | ModalAction(Modal.action)
     | SetShowFull(bool)
     | Resize(int)
-    | SetMode(mode)
+    | SetMode(Edit.mode)
     | Selection(selection)
-    | ImageClick(Path.absolute);
+    | ImageClick(Path.absolute)
+    | Move(Path.base);
 
   let initState = () => {
     root: Path.asBase(""),
@@ -46,7 +43,7 @@ module Main = {
       Modal.{active: false, zoomed: false, current: Path.asAbsolute("")},
     showFull: false,
     ncols: 4,
-    mode: Normal,
+    mode: Edit.Normal,
     selected: [||],
   };
 
@@ -161,8 +158,9 @@ module Main = {
         | Resize(cols) => ReasonReact.Update({...state, ncols: cols})
         | SetMode(m) =>
           switch (m) {
-          | Normal => ReasonReact.Update({...state, mode: m, selected: [||]})
-          | Editting => ReasonReact.Update({...state, mode: m})
+          | Edit.Normal =>
+            ReasonReact.Update({...state, mode: m, selected: [||]})
+          | Edit.Editting => ReasonReact.Update({...state, mode: m})
           }
         | Selection(a) => selectionReducer(a)
         | ImageClick(path) =>
@@ -175,7 +173,7 @@ module Main = {
            * TODO: make this reuse logic
            */
           switch (state.mode) {
-          | Normal =>
+          | Edit.Normal =>
             let (s1, se1) =
               Modal.reducer(
                 Modal.SetActive(true),
@@ -209,8 +207,21 @@ module Main = {
                 }
               ),
             );
-          | Editting => selectionReducer(Toggle(path))
+          | Edit.Editting => selectionReducer(Toggle(path))
           }
+        | Move(dest) =>
+          ReasonReact.UpdateWithSideEffects(
+            {...state, selected: [||], mode: Edit.Normal},
+            (
+              self => {
+                Js.Array.forEach(
+                  (p: Path.absolute) => Path.unsafeMove(p, dest),
+                  state.selected,
+                );
+                self.send(SetImages(Path.images(state.pwd)));
+              }
+            ),
+          )
         };
       },
       render: self => {
@@ -221,6 +232,8 @@ module Main = {
 
         let imageOnClick = (path: Path.absolute, _: ReactEventRe.Mouse.t) =>
           self.send(ImageClick(path));
+
+        let move = (dest: Path.base) => self.send(Move(dest));
 
         if (self.state.root.path == "") {
           /* Show drag and drop */
@@ -246,24 +259,7 @@ module Main = {
           let imageCount = Array.length(self.state.images);
           let pwd = {j|$(pwdPath) ($(imageCount))|j};
 
-          let header = {
-            let edit =
-              switch (self.state.mode) {
-              | Normal =>
-                <div className="edit">
-                  <a href="#" onClick=(_ => self.send(SetMode(Editting)))>
-                    (ReasonReact.string("Edit"))
-                  </a>
-                </div>
-              | Editting =>
-                <div className="edit">
-                  <a href="#"> (ReasonReact.string("Move")) </a>
-                  <a href="#" onClick=(_ => self.send(SetMode(Normal)))>
-                    (ReasonReact.string("Esc"))
-                  </a>
-                </div>
-              };
-
+          let header =
             <header className="main-header">
               <Search
                 active=self.state.search
@@ -274,7 +270,13 @@ module Main = {
                 )
                 setImages=(images => self.send(SetImages(images)))
               />
-              edit
+              <Edit
+                mode=self.state.mode
+                pwd=self.state.pwd
+                root=self.state.root
+                move
+                onClick=((m, _) => self.send(SetMode(m)))
+              />
               (
                 if (! self.state.search) {
                   <div>
@@ -291,7 +293,6 @@ module Main = {
                 }
               )
             </header>;
-          };
 
           <div>
             <Modal

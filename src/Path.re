@@ -13,9 +13,15 @@ type nodefs;
 type lstat;
 [@bs.send] external readdirSync : (nodefs, string) => array(string) = "";
 [@bs.send] external lstatSync : (nodefs, string) => lstat = "";
+[@bs.send] external existsSync : (nodefs, string) => bool = "";
+[@bs.send] external renameSync : (nodefs, string, string) => unit = "";
 [@bs.send] external lstatIsFile : lstat => bool = "isFile";
 [@bs.send] external lstatIsDirectory : lstat => bool = "isDirectory";
 let fs: nodefs = [%bs.raw {| require("fs") |}];
+
+type nodepath;
+let npath: nodepath = [%bs.raw {| require("path") |}];
+[@bs.send] external basename : (nodepath, string) => string = "";
 
 let removeDuplicateSlash: string => string = [%bs.raw
   {|
@@ -119,8 +125,20 @@ let renderable = (path: base, pwd: base, root: base) : string =>
     };
   };
 
+let renderableFromRoot = (path: base, root: base) : string => {
+  let rootLen = String.length(root.path);
+  let pathLen = String.length(path.path);
+  if (pathLen > rootLen) {
+    String.sub(path.path, rootLen, pathLen - rootLen);
+  } else {
+    path.path;
+  };
+};
+
 /* Load all the images up to N levels deep starting from given path */
-let rec directoryWalk = (basepath: base, remainingDepth) : array(absolute) =>
+let rec directoryWalk =
+        (basepath: base, remainingDepth, keepFiles: bool, keepDirs: bool)
+        : array(absolute) =>
   if (remainingDepth <= 0) {
     [||];
   } else {
@@ -130,11 +148,22 @@ let rec directoryWalk = (basepath: base, remainingDepth) : array(absolute) =>
         {
           let abs = makeAbsolute(basepath, p);
           if (isDir(abs)) {
+            let a =
+              if (keepDirs) {
+                Array.append(files, [|abs|]);
+              } else {
+                files;
+              };
             Array.append(
-              files,
-              directoryWalk(asBase(abs.path), remainingDepth - 1),
+              a,
+              directoryWalk(
+                asBase(abs.path),
+                remainingDepth - 1,
+                keepFiles,
+                keepDirs,
+              ),
             );
-          } else if (isImage(abs)) {
+          } else if (keepFiles && isImage(abs)) {
             Array.append(files, [|abs|]);
           } else {
             files;
@@ -177,5 +206,16 @@ let crossPlatform = (p: string) : string => {
     toWindowsPath(p);
   } else {
     p;
+  };
+};
+
+let unsafeMove = (p: absolute, dest: base) => {
+  let destIsDir = isDir(asAbsolute(dest.path));
+  let destPath = makeAbsolute(dest, asRelative(basename(npath, p.path)));
+  let destPathExists = existsSync(fs, destPath.path);
+
+  Js.log3("mv " ++ p.path ++ " " ++ destPath.path, destIsDir, destPathExists);
+  if (destIsDir && ! destPathExists) {
+    renameSync(fs, p.path, destPath.path);
   };
 };

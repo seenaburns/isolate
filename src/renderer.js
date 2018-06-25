@@ -4,7 +4,7 @@ const menu = require('./menu')
 const scrollbar = require('./scrollbar')
 const userData = require('./userData')
 
-const reason = require('./main.bs')
+const reason = require('./Main.bs')
 
 let global = electron.remote.getGlobal('global')
 let root = global.root_dir
