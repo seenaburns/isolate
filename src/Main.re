@@ -366,10 +366,12 @@ let setCols = (n: int) => sendAction(Resize(n));
  */
 let resizeTimeout = ref(None);
 let colw = ref(200);
-let resize = () => {
+let cols = () : int => {
   let w = document##querySelector("#images")##clientWidth;
-  sendAction(Resize(max(1, w / colw^)));
+  max(1, w / colw^);
 };
+let resize = () => sendAction(Resize(cols()));
+/* resizeThrottler limits resize to one call per 100ms */
 let resizeThrottler = () =>
   switch (resizeTimeout^) {
   | None =>
@@ -385,13 +387,39 @@ let resizeThrottler = () =>
       )
   | Some(_) => ()
   };
+
+let resizeDoubleThreshold = 6;
+/* Calculate a new colw such that there are now more or less columns displayed.
+ * Increasing/decreasing columns by one works when there are few columns, but after a certain point
+ * the change in size is small (a few pixels). At this point switch to doubling the number of
+ * columns per zoom.
+ */
+let desiredSize = (zoomIn: bool) : int => {
+  let c = cols();
+  let w = document##querySelector("#images")##clientWidth;
+
+  let desiredCols =
+    if (zoomIn) {
+      if (c <= resizeDoubleThreshold) {
+        c - 1;
+      } else {
+        max(resizeDoubleThreshold, c / 2);
+      };
+    } else if (c < resizeDoubleThreshold) {
+      c + 1;
+    } else {
+      c * 2;
+    };
+
+  max(100, w / desiredCols);
+};
+
 let zoomIn = () => {
-  colw := colw^ + 100;
+  colw := desiredSize(true);
   resize();
 };
 let zoomOut = () => {
-  let next = max(100, colw^ - 100);
-  colw := next;
+  colw := desiredSize(false);
   resize();
 };
 
