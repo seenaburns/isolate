@@ -166,47 +166,17 @@ module Main = {
         | ImageClick(path) =>
           /* Move imageOnClick logic into reducer so it doesn't have to re-render on every mode
            * change.
-           *
-           * This is super cumbersome without a way to send new actions in the reducer or a better
-           * way of composing.
-           *
-           * TODO: make this reuse logic
            */
           switch (state.mode) {
           | Edit.Normal =>
-            let (s1, se1) =
-              Modal.reducer(
-                Modal.SetActive(true),
-                state.modal,
-                state.images,
-              );
-            let (s2, se2) =
-              Modal.reducer(
-                Modal.Set(path),
-                switch (s1) {
-                | None => state.modal
-                | Some(x) => x
-                },
-                state.images,
-              );
-            ReasonReact.UpdateWithSideEffects(
-              switch (s2) {
-              | None => state
-              | Some(x) => {...state, modal: x}
-              },
+            ReasonReact.SideEffects(
               (
-                _ => {
-                  switch (se1) {
-                  | Some(f) => f()
-                  | None => ()
-                  };
-                  switch (se2) {
-                  | Some(f) => f()
-                  | None => ()
-                  };
+                self => {
+                  self.send(ModalAction(Modal.SetActive(true)));
+                  self.send(ModalAction(Modal.Set(path)));
                 }
               ),
-            );
+            )
           | Edit.Editting => selectionReducer(Toggle(path))
           }
         | Move(dest) =>
