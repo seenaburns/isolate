@@ -5,19 +5,28 @@ type mode =
 type state = {
   moving: bool,
   filter: string,
+  inputRef: ref(option(ReasonReact.reactRef)),
 };
 
 type action =
   | SetMoving(bool)
   | SetFilter(string);
 
+let setInputRef = (r, {ReasonReact.state}) =>
+  state.inputRef := Js.Nullable.toOption(r);
+
 let component = ReasonReact.reducerComponent("Edit");
 let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
   ...component,
-  initialState: () => {moving: false, filter: ""},
+  initialState: () => {moving: false, filter: "", inputRef: ref(None)},
+  didUpdate: ({oldSelf, newSelf}) =>
+    switch (newSelf.state.inputRef^) {
+    | None => ()
+    | Some(r) => ReasonReact.refToJsObj(r)##focus()
+    },
   reducer: (action, state) =>
     switch (action) {
-    | SetMoving(b) => ReasonReact.Update({moving: b, filter: ""})
+    | SetMoving(b) => ReasonReact.Update({...state, moving: b, filter: ""})
     | SetFilter(s) => ReasonReact.Update({...state, filter: s})
     },
   render: self =>
@@ -35,7 +44,14 @@ let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
             <a href="#" onClick=(_ => self.send(SetMoving(true)))>
               (ReasonReact.string("Move"))
             </a>
-            <a href="#" onClick=(onClick(Normal))>
+            <a
+              href="#"
+              onClick=(
+                e => {
+                  self.send(SetMoving(false));
+                  onClick(Normal, e);
+                }
+              )>
               (ReasonReact.string("Esc"))
             </a>
           </div>
@@ -90,6 +106,7 @@ let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
                 "class": "search",
                 "placeholder": "Search..",
                 "onChange": self.handle(onchange),
+                "ref": self.handle(setInputRef),
               },
               [||],
             );
