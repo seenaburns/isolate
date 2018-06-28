@@ -2,18 +2,23 @@ type mode =
   | Normal
   | Editting;
 
-type state = {moving: bool};
+type state = {
+  moving: bool,
+  filter: string,
+};
 
 type action =
-  | SetMoving(bool);
+  | SetMoving(bool)
+  | SetFilter(string);
 
 let component = ReasonReact.reducerComponent("Edit");
 let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
   ...component,
-  initialState: () => {moving: false},
-  reducer: (action, _) =>
+  initialState: () => {moving: false, filter: ""},
+  reducer: (action, state) =>
     switch (action) {
-    | SetMoving(b) => ReasonReact.Update({moving: b})
+    | SetMoving(b) => ReasonReact.Update({moving: b, filter: ""})
+    | SetFilter(s) => ReasonReact.Update({...state, filter: s})
     },
   render: self =>
     <div>
@@ -38,42 +43,65 @@ let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
       )
       (
         if (self.state.moving) {
-          let dirs = {
-            let dirs = Path.directoryWalk(root, 5, false, true);
-            Array.map(
-              (d: Path.absolute) => {
-                let d = Path.asBase(d.path);
-                let display = Path.renderableFromRoot(d, root);
-                <a
-                  href="#"
-                  onClick=(
-                    _ => {
-                      self.send(SetMoving(false));
-                      move(d);
-                    }
-                  )>
-                  (ReasonReact.string(display))
-                </a>;
+          let dirs =
+            ReasonReact.array(
+              {
+                let dirs = Path.directoryWalk(root, 5, false, true);
+                let queryRe = Js.Re.fromString(self.state.filter);
+                let dirs =
+                  Array.of_list(
+                    List.filter(
+                      (p: Path.absolute) =>
+                        Js.Option.isSome(Js.Re.exec(p.path, queryRe)),
+                      Array.to_list(dirs),
+                    ),
+                  );
+
+                Array.map(
+                  (d: Path.absolute) => {
+                    let d = Path.asBase(d.path);
+                    let display = Path.renderableFromRoot(d, root);
+                    <a
+                      href="#"
+                      onClick=(
+                        _ => {
+                          self.send(SetMoving(false));
+                          move(d);
+                        }
+                      )>
+                      (ReasonReact.string(display))
+                    </a>;
+                  },
+                  dirs,
+                );
               },
-              dirs,
             );
+
+          let onchange = (e, self) => {
+            e##preventDefault();
+            self.ReasonReact.send(SetFilter(e##target##value));
           };
 
-          let children = [
-            [|<p> (ReasonReact.string("Move to folder")) </p>|],
-            dirs,
-            [|
-              <a href="#" onClick=(_ => self.send(SetMoving(false)))>
-                (ReasonReact.string("Cancel"))
-              </a>,
-            |],
-          ];
+          let input =
+            ReasonReact.createDomElement(
+              "input",
+              ~props={
+                "type": "text",
+                "class": "search",
+                "placeholder": "Search..",
+                "onChange": self.handle(onchange),
+              },
+              [||],
+            );
 
-          ReasonReact.createDomElement(
-            "div",
-            ~props={"className": "moving-modal"},
-            Array.concat(children),
-          );
+          <div className="moving-modal">
+            <p> (ReasonReact.string("Move to folder")) </p>
+            input
+            dirs
+            <a href="#" onClick=(_ => self.send(SetMoving(false)))>
+              (ReasonReact.string("Cancel"))
+            </a>
+          </div>;
         } else {
           ReasonReact.null;
         }
