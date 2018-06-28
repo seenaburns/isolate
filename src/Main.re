@@ -358,10 +358,17 @@ let setRoot = (s: string) => {
 let crossPlatform = Path.crossPlatform;
 let setCols = (n: int) => sendAction(Resize(n));
 
+/* Resize
+ * Keep a mutable value (colw) of the minimum width of a column. Resizing increases the widht of the
+ * columns until an additional column can be added.
+ *
+ * ZoomIn/ZoomOut mutate colw and recalculate the columns.
+ */
 let resizeTimeout = ref(None);
+let colw = ref(200);
 let resize = () => {
   let w = document##querySelector("#images")##clientWidth;
-  sendAction(Resize(w / 200));
+  sendAction(Resize(max(1, w / colw^)));
 };
 let resizeThrottler = () =>
   switch (resizeTimeout^) {
@@ -378,6 +385,15 @@ let resizeThrottler = () =>
       )
   | Some(_) => ()
   };
+let zoomIn = () => {
+  colw := colw^ + 100;
+  resize();
+};
+let zoomOut = () => {
+  let next = max(100, colw^ - 100);
+  colw := next;
+  resize();
+};
 
 [@bs.send]
 external addEventListener : ('a, string, 'b => 'c, bool) => unit =

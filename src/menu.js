@@ -11,6 +11,8 @@ functions = {
   Copy: function() {},
   NightMode: function() {},
   OpenLocation: function () {},
+  ZoomIn: function() {},
+  ZoomOut: function() {},
 }
 
 module.exports = {
@@ -41,6 +43,13 @@ function UpdateMenu() {
     {
       label: "Edit",
       submenu: EditSubMenu()
+    },
+    {
+      label: "View",
+      submenu: [
+        { label: "Zoom In", accelerator: "CmdOrCtrl+Plus", click: functions.ZoomIn },
+        { label: "Zoom Out", accelerator: "CmdOrCtrl+-", click: functions.ZoomOut }
+      ]
     }
   ])
 }

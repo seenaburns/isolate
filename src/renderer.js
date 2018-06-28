@@ -89,6 +89,8 @@ if (platform == 'win32') {
 menu.Functions.Copy = copyMenu
 menu.Functions.NightMode = nightModeMenu
 menu.Functions.OpenLocation = openLocationMenu
+menu.Functions.ZoomIn = reason.zoomIn
+menu.Functions.ZoomOut = reason.zoomOut
 menu.Options.NightMode = nightModeEnabled()
 menu.UpdateMenu()
 
