@@ -1,51 +1,52 @@
 [@bs.val] external document : 'jsModule = "document";
 let electron: 'jsModule = [%bs.raw {| require("electron") |}];
+let menu: 'jsModule = [%bs.raw {| require("./menu") |}];
+
+/* Set modal-content to focused element so arrow keys immediately scroll the image, not the
+ * background
+ */
+let setFocus = () => {
+  %bs.raw
+  {| document.getElementById("modal-content").tabIndex = 0 |};
+  %bs.raw
+  {| document.getElementById("modal-content").focus() |};
+};
+
+let setBodyOverflow = (hidden: bool) : unit =>
+  switch (hidden) {
+  | false =>
+    %bs.raw
+    {| document.querySelector("body").style.overflow = "visible" |}
+  | true =>
+    %bs.raw
+    {| document.querySelector("body").style.overflow = "hidden" |}
+  };
+
+let rec findIndex = (a: list('a), x: 'a, index: int) : int =>
+  switch (a) {
+  | [] => (-1)
+  | [h, ...t] =>
+    if (h == x) {
+      index;
+    } else {
+      findIndex(t, x, index + 1);
+    }
+  };
+
+let advance = (current: 'a, images: array('a), forward: bool) : option('a) => {
+  let currentIndex = findIndex(Array.to_list(images), current, 0);
+  if (forward && currentIndex < Array.length(images) - 1) {
+    Some(images[currentIndex + 1]);
+  } else if (! forward && currentIndex > 0) {
+    Some(images[currentIndex - 1]);
+  } else {
+    None;
+  };
+};
 
 module Main = {
-  type state = {
-    root: Path.base,
-    pwd: Path.base,
-    search: bool,
-    images: array(Path.absolute),
-    modal: Modal.state,
-    /* Flag to track if ImageGrid should show all images or a subset */
-    showFull: bool,
-    ncols: int,
-    mode: Edit.mode,
-    selected: Js.Array.t(Path.absolute),
-  };
-
-  type selection =
-    | Add(Path.absolute)
-    | Remove(Path.absolute)
-    | Toggle(Path.absolute)
-    | Clear;
-
-  type action =
-    | SetRoot(Path.base)
-    | SetPwd(Path.base)
-    | SetImages(array(Path.absolute))
-    | SetSearchActive(bool)
-    | ModalAction(Modal.action)
-    | SetShowFull(bool)
-    | Resize(int)
-    | SetMode(Edit.mode)
-    | Selection(selection)
-    | ImageClick(Path.absolute)
-    | Move(Path.base);
-
-  let initState = () => {
-    root: Path.asBase(""),
-    pwd: Path.asBase(""),
-    search: false,
-    images: [||],
-    modal:
-      Modal.{active: false, zoomed: false, current: Path.asAbsolute("")},
-    showFull: false,
-    ncols: 4,
-    mode: Edit.Normal,
-    selected: [||],
-  };
+  type state = State.state;
+  type action = State.action;
 
   let readOnlyState: ref(option(state)) = ref(None);
 
@@ -53,16 +54,19 @@ module Main = {
   let make = (setSendAction, _children) => {
     let keydown = (self: ReasonReact.self('a, 'b, 'c), e) =>
       switch (e##key) {
-      | "Escape" => self.send(ModalAction(Modal.SetActive(false)))
-      | "z" => self.send(ModalAction(Modal.ZoomToggle))
-      | "ArrowRight" => self.send(ModalAction(Modal.Advance(true)))
-      | "ArrowLeft" => self.send(ModalAction(Modal.Advance(false)))
+      | "Escape" =>
+        self.send(State.ModalAction(State.Modal.SetActive(false)))
+      | "z" => self.send(State.ModalAction(State.Modal.ZoomToggle))
+      | "ArrowRight" =>
+        self.send(State.ModalAction(State.Modal.Advance(true)))
+      | "ArrowLeft" =>
+        self.send(State.ModalAction(State.Modal.Advance(false)))
       | _ => ()
       };
 
     {
       ...component,
-      initialState: initState,
+      initialState: State.init,
       /* Temporary while migrating to ReasonReact,
        * allows internal state to be visible (via Modal.readOnlyState) and set externally (via
        * setSendAction)
@@ -76,13 +80,13 @@ module Main = {
         let setFullTimeout = self => {
           let _ =
             Js.Global.setTimeout(
-              () => self.ReasonReact.send(SetShowFull(true)),
+              () => self.ReasonReact.send(State.SetShowFull(true)),
               300,
             );
           ();
         };
 
-        let selectionReducer = (action: selection) => {
+        let selectionReducer = (action: State.Selection.action) => {
           let add = p =>
             if (! Js.Array.includes(p, state.selected)) {
               let newSelected = Js.Array.copy(state.selected);
@@ -107,6 +111,66 @@ module Main = {
               add(p);
             }
           | Clear => ReasonReact.Update({...state, selected: [||]})
+          };
+        };
+
+        let modalReducer = (action: State.Modal.action) => {
+          let setZoom = (zoomed: bool) => {
+            let newState = {
+              ...state,
+              modal: {
+                ...state.modal,
+                zoomed,
+              },
+            };
+            if (zoomed) {
+              ReasonReact.UpdateWithSideEffects(newState, _ => setFocus());
+            } else {
+              ReasonReact.Update(newState);
+            };
+          };
+
+          switch (action) {
+          | SetActive(active) =>
+            ReasonReact.UpdateWithSideEffects(
+              {
+                ...state,
+                modal: {
+                  ...state.modal,
+                  active,
+                },
+              },
+              (
+                _ => {
+                  setBodyOverflow(active);
+                  menu##setModalOpen(active);
+                }
+              ),
+            )
+          | SetZoom(zoomed) => setZoom(zoomed)
+          | ZoomToggle => setZoom(! state.modal.zoomed)
+          | Advance(forward) when ! state.modal.zoomed =>
+            let next = advance(state.modal.current, state.images, forward);
+            switch (next) {
+            | None => ReasonReact.NoUpdate
+            | Some(i) =>
+              ReasonReact.Update({
+                ...state,
+                modal: {
+                  ...state.modal,
+                  current: i,
+                },
+              })
+            };
+          | Set(image) =>
+            ReasonReact.Update({
+              ...state,
+              modal: {
+                ...state.modal,
+                current: image,
+              },
+            })
+          | _ => ReasonReact.NoUpdate
           };
         };
 
@@ -136,16 +200,7 @@ module Main = {
           ReasonReact.Update({...state, images, selected: [||]});
         | SetSearchActive(enabled) =>
           ReasonReact.Update({...state, search: enabled})
-        | ModalAction(m) =>
-          switch (Modal.reducer(m, state.modal, state.images)) {
-          | (Some(s), Some(se)) =>
-            ReasonReact.UpdateWithSideEffects(
-              {...state, modal: s},
-              (_ => se()),
-            )
-          | (Some(s), None) => ReasonReact.Update({...state, modal: s})
-          | _ => ReasonReact.NoUpdate
-          }
+        | ModalAction(m) => modalReducer(m)
         | SetShowFull(b) =>
           if (b) {
             ReasonReact.Update({...state, showFull: b});
@@ -172,8 +227,8 @@ module Main = {
             ReasonReact.SideEffects(
               (
                 self => {
-                  self.send(ModalAction(Modal.SetActive(true)));
-                  self.send(ModalAction(Modal.Set(path)));
+                  self.send(ModalAction(State.Modal.SetActive(true)));
+                  self.send(ModalAction(State.Modal.Set(path)));
                 }
               ),
             )
@@ -267,7 +322,9 @@ module Main = {
           <div>
             <Modal
               state=self.state.modal
-              sendAction=((a: Modal.action) => self.send(ModalAction(a)))
+              sendAction=(
+                (a: State.Modal.action) => self.send(ModalAction(a))
+              )
             />
             header
             <ImageGrid
@@ -290,7 +347,7 @@ let setMain = (images: array(string)) : unit =>
   switch (sendMainAction^) {
   | None => Js.log("sendMainAction is None")
   | Some(f) =>
-    f(Main.SetImages(Array.map(i => Path.asAbsolute(i), images)))
+    f(State.SetImages(Array.map(i => Path.asAbsolute(i), images)))
   };
 let b = Main.make(setSendMainAction, [||]);
 ReactDOMRe.renderToElementWithId(ReasonReact.element(b), "browser-root");
@@ -307,16 +364,17 @@ let getState = () =>
   switch (Main.readOnlyState^) {
   | None =>
     Js.log("Main.readOnlyState is None");
-    Main.initState();
+    State.init();
   | Some(s) => s
   };
 
 let setModal = (image: string) =>
-  sendAction(ModalAction(Modal.Set(Path.asAbsolute(image))));
+  sendAction(ModalAction(State.Modal.Set(Path.asAbsolute(image))));
 let isModalOpen = () : bool => getState().modal.active;
 let currentImage = () : string => getState().modal.current.path;
-let openModal = () => sendAction(ModalAction(Modal.SetActive(true)));
-let closeModal = () => sendAction(ModalAction(Modal.SetActive(false)));
+let openModal = () => sendAction(ModalAction(State.Modal.SetActive(true)));
+let closeModal = () =>
+  sendAction(ModalAction(State.Modal.SetActive(false)));
 let setImageList = (images: array(string)) =>
   sendAction(SetImages(Array.map(x => Path.asAbsolute(x), images)));
 let setRoot = (s: string) => {

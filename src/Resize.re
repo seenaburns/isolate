@@ -9,7 +9,7 @@
 let colw = ref(200);
 let imagesWidth = () : int => document##querySelector("#images")##clientWidth;
 let cols = () : int => max(1, imagesWidth() / colw^);
-let resize = () => Main.sendAction(Main.Main.Resize(cols()));
+let resize = () => Main.sendAction(State.Resize(cols()));
 
 /* Register event listener for window resize
  * resizeThrottler limits resize to one call per 100ms
