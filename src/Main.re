@@ -61,6 +61,7 @@ module Main = {
         self.send(State.ModalAction(State.Modal.Advance(true)))
       | "ArrowLeft" =>
         self.send(State.ModalAction(State.Modal.Advance(false)))
+      | "e" => self.send(State.SetMode(Edit.Editting))
       | _ => ()
       };
 
