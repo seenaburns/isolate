@@ -5,6 +5,7 @@ const scrollbar = require('./scrollbar')
 const userData = require('./userData')
 
 const reason = require('./Main.bs')
+const reasonResize = require('./Resize.bs')
 
 let global = electron.remote.getGlobal('global')
 let root = global.root_dir
@@ -89,8 +90,8 @@ if (platform == 'win32') {
 menu.Functions.Copy = copyMenu
 menu.Functions.NightMode = nightModeMenu
 menu.Functions.OpenLocation = openLocationMenu
-menu.Functions.ZoomIn = reason.zoomIn
-menu.Functions.ZoomOut = reason.zoomOut
+menu.Functions.ZoomIn = reasonResize.zoomIn
+menu.Functions.ZoomOut = reasonResize.zoomOut
 menu.Options.NightMode = nightModeEnabled()
 menu.UpdateMenu()
 
