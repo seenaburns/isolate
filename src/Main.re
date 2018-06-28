@@ -61,7 +61,7 @@ module Main = {
         self.send(State.ModalAction(State.Modal.Advance(true)))
       | "ArrowLeft" =>
         self.send(State.ModalAction(State.Modal.Advance(false)))
-      | "e" => self.send(State.SetMode(Edit.Editting))
+      | "e" => self.send(State.SetMode(Edit.Editing))
       | _ => ()
       };
 
@@ -216,7 +216,7 @@ module Main = {
           switch (m) {
           | Edit.Normal =>
             ReasonReact.Update({...state, mode: m, selected: [||]})
-          | Edit.Editting => ReasonReact.Update({...state, mode: m})
+          | Edit.Editing => ReasonReact.Update({...state, mode: m})
           }
         | Selection(a) => selectionReducer(a)
         | ImageClick(path) =>
@@ -233,7 +233,7 @@ module Main = {
                 }
               ),
             )
-          | Edit.Editting => selectionReducer(Toggle(path))
+          | Edit.Editing => selectionReducer(Toggle(path))
           }
         | Move(dest) =>
           ReasonReact.UpdateWithSideEffects(

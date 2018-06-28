@@ -1,6 +1,6 @@
 type mode =
   | Normal
-  | Editting;
+  | Editing;
 
 type state = {
   moving: bool,
@@ -35,11 +35,11 @@ let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
         switch (mode) {
         | Normal =>
           <div className="edit">
-            <a href="#" onClick=(onClick(Editting))>
+            <a href="#" onClick=(onClick(Editing))>
               (ReasonReact.string("Edit"))
             </a>
           </div>
-        | Editting =>
+        | Editing =>
           <div className="edit">
             <a href="#" onClick=(_ => self.send(SetMoving(true)))>
               (ReasonReact.string("Move"))
