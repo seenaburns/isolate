@@ -158,16 +158,33 @@ nav ul {
   text-rendering: geometricPrecision;
 }
 
+.edit {
+  float: right;
+
+  a {
+    margin-right: 20px;
+  }
+}
+
 .images-container {
   padding: images-padding;
-  column-count: auto;
-  column-width: colw;
-  column-gap: image-gap;
+  display: flex;
+  flex-direction: row;
+}
+
+.image-column {
+  flex-basis: colw;
+  flex-grow: 1;
+  padding-left: image-gap;
 }
 
 .iw {
   width: 100%;
   margin-bottom: image-gap;
+}
+
+.selected {
+  border: 10px solid #0F0;
 }
 
 .images-container img {
@@ -289,5 +306,27 @@ nav ul {
 
   img {
     width: 128px;
+  }
+}
+
+.moving-modal {
+  position: absolute;
+  top: 200px;
+  left: 50%;
+  margin-left: -200px;
+  background: #fff;
+  border: 1px solid #000;
+  color: #000;
+  padding: 20px;
+  width: 400px;
+
+  p {
+    margin: 0px;
+    padding: 0px;
+  }
+
+  a {
+    display: block;
+    color: #000 !important;
   }
 }
