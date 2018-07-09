@@ -52,20 +52,36 @@ module Main = {
 
   let component = ReasonReact.reducerComponent("Main");
   let make = (setSendAction, _children) => {
-    let keydown = (self: ReasonReact.self(state, 'b, 'c), e) =>
-      switch (e##key) {
-      | "Escape" =>
-        self.send(State.ModalAction(State.Modal.SetActive(false)));
-        self.send(State.SetMode(Edit.Normal));
-      | "z" => self.send(State.ModalAction(State.Modal.ZoomToggle))
-      | "ArrowRight" =>
-        self.send(State.ModalAction(State.Modal.Advance(true)))
-      | "ArrowLeft" =>
-        self.send(State.ModalAction(State.Modal.Advance(false)))
-      | "e" => self.send(State.SetMode(Edit.Editing))
-      | "m" => self.send(State.SetMode(Edit.Moving))
-      | _ => ()
+    /* TODO: current self is set at the start of loading, it should be set on every state change so
+     * hotkeys have extra conditions (or the reducer should handle):
+     * - Separate `Escape` for if modal is active, if Edit.Editing/Edit.Moving
+     * - `e` only applies when Edit.Normal
+     * - `m` only applies when Edit.Editing
+     */
+    let keydown = (self: ReasonReact.self(state, 'b, 'c), e) => {
+      let active = document##activeElement;
+      if (active##tagName != "INPUT") {
+        switch (e##key) {
+        | "Escape" =>
+          self.send(State.ModalAction(State.Modal.SetActive(false)));
+          self.send(State.SetMode(Edit.Normal));
+        | "z" =>
+          e##preventDefault();
+          self.send(State.ModalAction(State.Modal.ZoomToggle));
+        | "ArrowRight" =>
+          self.send(State.ModalAction(State.Modal.Advance(true)))
+        | "ArrowLeft" =>
+          self.send(State.ModalAction(State.Modal.Advance(false)))
+        | "e" =>
+          e##preventDefault();
+          self.send(State.SetMode(Edit.Editing));
+        | "m" =>
+          e##preventDefault();
+          self.send(State.SetMode(Edit.Moving));
+        | _ => ()
+        };
       };
+    };
 
     {
       ...component,
