@@ -52,16 +52,18 @@ module Main = {
 
   let component = ReasonReact.reducerComponent("Main");
   let make = (setSendAction, _children) => {
-    let keydown = (self: ReasonReact.self('a, 'b, 'c), e) =>
+    let keydown = (self: ReasonReact.self(state, 'b, 'c), e) =>
       switch (e##key) {
       | "Escape" =>
-        self.send(State.ModalAction(State.Modal.SetActive(false)))
+        self.send(State.ModalAction(State.Modal.SetActive(false)));
+        self.send(State.SetMode(Edit.Normal));
       | "z" => self.send(State.ModalAction(State.Modal.ZoomToggle))
       | "ArrowRight" =>
         self.send(State.ModalAction(State.Modal.Advance(true)))
       | "ArrowLeft" =>
         self.send(State.ModalAction(State.Modal.Advance(false)))
       | "e" => self.send(State.SetMode(Edit.Editing))
+      | "m" => self.send(State.SetMode(Edit.Moving))
       | _ => ()
       };
 
@@ -216,7 +218,7 @@ module Main = {
           switch (m) {
           | Edit.Normal =>
             ReasonReact.Update({...state, mode: m, selected: [||]})
-          | Edit.Editing => ReasonReact.Update({...state, mode: m})
+          | _ => ReasonReact.Update({...state, mode: m})
           }
         | Selection(a) => selectionReducer(a)
         | ImageClick(path) =>
@@ -233,7 +235,8 @@ module Main = {
                 }
               ),
             )
-          | Edit.Editing => selectionReducer(Toggle(path))
+          | Edit.Editing
+          | Edit.Moving => selectionReducer(Toggle(path))
           }
         | Move(dest) =>
           ReasonReact.UpdateWithSideEffects(

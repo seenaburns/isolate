@@ -1,9 +1,9 @@
 type mode =
   | Normal
-  | Editing;
+  | Editing
+  | Moving;
 
 type state = {
-  moving: bool,
   filter: string,
   inputRef: ref(option(ReasonReact.reactRef)),
 };
@@ -18,7 +18,7 @@ let setInputRef = (r, {ReasonReact.state}) =>
 let component = ReasonReact.reducerComponent("Edit");
 let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
   ...component,
-  initialState: () => {moving: false, filter: "", inputRef: ref(None)},
+  initialState: () => {filter: "", inputRef: ref(None)},
   didUpdate: ({oldSelf, newSelf}) =>
     switch (newSelf.state.inputRef^) {
     | None => ()
@@ -26,7 +26,6 @@ let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
     },
   reducer: (action, state) =>
     switch (action) {
-    | SetMoving(b) => ReasonReact.Update({...state, moving: b, filter: ""})
     | SetFilter(s) => ReasonReact.Update({...state, filter: s})
     },
   render: self =>
@@ -39,26 +38,20 @@ let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
               (ReasonReact.string("Edit"))
             </a>
           </div>
-        | Editing =>
+        | Editing
+        | Moving =>
           <div className="edit">
-            <a href="#" onClick=(_ => self.send(SetMoving(true)))>
+            <a href="#" onClick=(e => onClick(Moving, e))>
               (ReasonReact.string("Move"))
             </a>
-            <a
-              href="#"
-              onClick=(
-                e => {
-                  self.send(SetMoving(false));
-                  onClick(Normal, e);
-                }
-              )>
+            <a href="#" onClick=(e => onClick(Normal, e))>
               (ReasonReact.string("Esc"))
             </a>
           </div>
         }
       )
       (
-        if (self.state.moving) {
+        if (mode == Moving) {
           let dirs =
             ReasonReact.array(
               {
@@ -80,9 +73,9 @@ let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
                     <a
                       href="#"
                       onClick=(
-                        _ => {
-                          self.send(SetMoving(false));
+                        e => {
                           move(d);
+                          onClick(Normal, e);
                         }
                       )>
                       (ReasonReact.string(display))
