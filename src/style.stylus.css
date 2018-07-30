@@ -45,7 +45,7 @@ body {
   font-size: 16px;
   line-height: 1.4em;
   padding: body-padding;
-  margin-top: 0;
+  margin: 0;
   text-rendering: geometricPrecision;
 }
 
@@ -168,6 +168,7 @@ nav ul {
 
 .images-container {
   padding: images-padding;
+  margin-right: image-gap; // balance edge padding
   display: flex;
   flex-direction: row;
 }
