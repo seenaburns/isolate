@@ -15,10 +15,10 @@
   "devDependencies": {
     "electron": "1.8.4",
     "electron-builder": "^19.52.1",
+    "bs-platform": "^3.1.5",
     "stylus": "^0.54.5"
   },
   "dependencies": {
-    "bs-platform": "^3.1.5",
     "reason-react": "^0.4.2"
   }
 }
