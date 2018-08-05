@@ -6,7 +6,8 @@ type state = {
 };
 
 type action =
-  | SetFilter(string);
+  | SetFilter(string)
+  | Keydown(int);
 
 let setInputRef = (r, {ReasonReact.state}) =>
   state.inputRef := Js.Nullable.toOption(r);
@@ -25,11 +26,22 @@ let clearInput = inputRef => {
   };
 };
 
+let applyFilter =
+    (items: Js.Array.t(Path.base), query: string)
+    : Js.Array.t(Path.base) =>
+  Js.Array.filter(
+    (i: Path.base) => {
+      let queryRe = Js.Re.fromString(query);
+      Js.Option.isSome(Js.Re.exec(i.path, queryRe));
+    },
+    items,
+  );
+
 let component = ReasonReact.reducerComponent("Directories");
 let make =
     (
       ~title: string,
-      ~items: array(Path.base),
+      ~items: Js.Array.t(Path.base),
       ~setPwd,
       ~renderPath: Path.base => string,
       ~enabled: bool,
@@ -40,11 +52,20 @@ let make =
   reducer: (action, state) =>
     switch (action) {
     | SetFilter(s) => ReasonReact.Update({...state, filter: s})
+    | Keydown(13) =>
+      let filtered: Js.Array.t(Path.base) =
+        applyFilter(items, state.filter);
+      if (Js.Array.length(filtered) >= 1) {
+        ReasonReact.SideEffects(_ => setPwd(filtered[0]));
+      } else {
+        ReasonReact.NoUpdate;
+      };
+    | Keydown(_) => ReasonReact.NoUpdate
     },
   willReceiveProps: ({state}) => {
     clearInput(state.inputRef);
     if (enabled) {
-      focus(state.inputRef)
+      focus(state.inputRef);
     };
     {...state, filter: ""};
   },
@@ -54,21 +75,17 @@ let make =
       self.ReasonReact.send(SetFilter(e##target##value));
     };
 
-    let queryRe = Js.Re.fromString(self.state.filter);
-
+    let filtered: Js.Array.t(Path.base) =
+      applyFilter(items, self.state.filter);
     let directories =
-      Array.map(
+      Js.Array.map(
         (p: Path.base) =>
-          if (Js.Option.isSome(Js.Re.exec(p.path, queryRe))) {
-            <li>
-              <a href="#" onClick=(setPwd(p))>
-                (ReasonReact.string(renderPath(p)))
-              </a>
-            </li>;
-          } else {
-            ReasonReact.null;
-          },
-        items,
+          <li>
+            <a href="#" onClick=(_ => setPwd(p))>
+              (ReasonReact.string(renderPath(p)))
+            </a>
+          </li>,
+        filtered,
       );
 
     let dirList =
@@ -83,6 +100,8 @@ let make =
           "placeholder": "Type to filter...",
           "onChange": self.handle(onchange),
           "ref": self.handle(setInputRef),
+          "onKeyDown": e =>
+            self.send(Keydown(ReactEventRe.Keyboard.which(e))),
         },
         [||],
       );

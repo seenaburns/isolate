@@ -270,7 +270,7 @@ module Main = {
         };
       },
       render: self => {
-        let setPwd = (path: Path.base, _event) => {
+        let setPwd = (path: Path.base) => {
           self.send(SetPwd(path));
           self.send(SetImages(Path.images(path)));
         };
