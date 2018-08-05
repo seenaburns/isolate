@@ -1,7 +1,10 @@
+[@bs.val] external document : 'jsModule = "document";
+
 type state = {directoriesEnabled: bool};
 
 type action =
-  | SetDirectoriesEnabled(bool);
+  | SetDirectoriesEnabled(bool)
+  | Keydown(ReactEventRe.Keyboard.t);
 
 let component = ReasonReact.reducerComponent("Toolbar");
 let make =
@@ -19,10 +22,31 @@ let make =
       _children,
     ) => {
   ...component,
-  initialState: () => {directoriesEnabled: false},
-  reducer: (action, _) =>
+  initialState: () => {directoriesEnabled: true},
+  didMount: self =>
+    document##addEventListener("keydown", e => self.send(Keydown(e))),
+  reducer: (action, state) =>
     switch (action) {
     | SetDirectoriesEnabled(b) => ReasonReact.Update({directoriesEnabled: b})
+    | Keydown(e) =>
+      let active = document##activeElement;
+      let notInput = active##tagName != "INPUT";
+      let isInputFilter = active##className == "filter";
+      let noModifiers =
+        ! (
+          ReactEventRe.Keyboard.altKey(e)
+          || ReactEventRe.Keyboard.ctrlKey(e)
+          || ReactEventRe.Keyboard.metaKey(e)
+          || ReactEventRe.Keyboard.shiftKey(e)
+        );
+      switch (ReactEventRe.Keyboard.key(e)) {
+      | "n" when notInput && noModifiers =>
+        ReactEventRe.Keyboard.preventDefault(e);
+        ReasonReact.Update({directoriesEnabled: true});
+      | "Escape" when (notInput || isInputFilter) && state.directoriesEnabled =>
+        ReasonReact.Update({directoriesEnabled: false})
+      | _ => ReasonReact.NoUpdate
+      };
     },
   render: self => {
     let search = (query: string) => {
@@ -47,9 +71,8 @@ let make =
       ();
     };
 
-    let onMouseEnter = _e => {
+    let onMouseEnter = _e =>
       self.ReasonReact.send(SetDirectoriesEnabled(true));
-    };
 
     <header className="main-header" onMouseLeave onMouseEnter>
       (

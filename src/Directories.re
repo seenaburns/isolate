@@ -18,6 +18,12 @@ let focus = inputRef =>
   | Some(r) => ReasonReact.refToJsObj(r)##focus()
   };
 
+let blur = inputRef =>
+  switch (inputRef^) {
+  | None => ()
+  | Some(r) => ReasonReact.refToJsObj(r)##blur()
+  };
+
 let clearInput = inputRef => {
   Js.log("Clear");
   switch (inputRef^) {
@@ -66,6 +72,8 @@ let make =
     clearInput(state.inputRef);
     if (enabled) {
       focus(state.inputRef);
+    } else {
+      blur(state.inputRef);
     };
     {...state, filter: ""};
   },
