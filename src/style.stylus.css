@@ -173,7 +173,7 @@ body.nightmode {
   nav {
     height: 0px; // main-header:hover sets height
     overflow: hidden;
-    transition: height 0.2s, transform 0.2s;
+    transition: height 0.15s, transform 0.15s;
     border-top: 0px; // clear to stop double border fuzziness when collapsed
   }
 
