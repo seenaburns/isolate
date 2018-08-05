@@ -38,9 +38,9 @@ function createWindow () {
     minHeight: 400,
     backgroundColor: bg,
     center: true,
-    titleBarStyle: 'hiddenInset',
+    // titleBarStyle: 'hiddenInset',
     // Removes title bar in windows
-    // frame: false,
+    frame: false,
   })
 
   // and load the index.html of the app.
