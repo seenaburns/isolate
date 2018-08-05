@@ -105,8 +105,14 @@ let make =
         },
         [||],
       );
+    
+    let navClassName = if (enabled) {
+      "enabled"
+    } else {
+      "disabled"
+    };
 
-    <nav onMouseEnter=(_ => focus(self.state.inputRef))>
+    <nav className=navClassName onMouseEnter=(_ => focus(self.state.inputRef))>
       <div className="title">
         <h3> (ReasonReact.string(title)) </h3>
         input

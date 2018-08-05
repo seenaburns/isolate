@@ -185,7 +185,6 @@ body.nightmode {
   }
 
   nav {
-    height: nav-height-collapsed; // main-header:hover sets height
     overflow: hidden;
     transition: height 0.15s, transform 0.15s;
     border-top: 0px; // clear to stop double border fuzziness when collapsed
@@ -207,10 +206,12 @@ body.nightmode {
   }
 }
 
-.main-header:hover {
-  nav {
-    height: nav-height;
-  }
+nav.disabled {
+    height: nav-height-collapsed; // main-header:hover sets height
+}
+
+nav.enabled {
+  height: nav-height;
 }
 
 nav ul {
