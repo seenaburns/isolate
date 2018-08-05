@@ -28,19 +28,17 @@ let search = (root: Path.base, query: string) : array(Path.absolute) => {
 };
 
 let component = ReasonReact.statelessComponent("Search");
-let make = (~active, ~root, ~pwd, ~setImages, ~setSearchActive, _children) => {
+let make = (~active, ~search, ~cancel, _children) => {
   ...component,
   render: self => {
     let back = (_event, self) => {
-      setSearchActive(false);
-      setImages(Path.images(pwd));
+      cancel();
     };
 
     let onkeydown = (e, self) =>
       if (e##key == "Enter") {
         e##preventDefault();
-        setSearchActive(true);
-        setImages(search(root, e##target##value));
+        search(e##target##value);
       };
 
     let input =

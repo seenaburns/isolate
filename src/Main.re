@@ -317,7 +317,7 @@ module Main = {
               pwd=self.state.pwd
               root=self.state.root
               move
-              search=self.state.search
+              searchActive=self.state.search
               setImages=(images => self.send(SetImages(images)))
               setMode=(m => self.send(SetMode(m)))
               setPwd

@@ -6,7 +6,7 @@ let make =
       ~pwd,
       ~root,
       ~move,
-      ~search,
+      ~searchActive,
       ~setImages,
       ~setMode,
       ~setPwd,
@@ -14,10 +14,20 @@ let make =
       _children,
     ) => {
   ...component,
-  render: self =>
+  render: self => {
+    let search = (query: string) => {
+      setSearchActive(true);
+      setImages(Search.search(root, query));
+    };
+
+    let cancel = () => {
+      setSearchActive(false);
+      setImages(Path.images(pwd));
+    };
+
     <header className="main-header">
       (
-        if (! search) {
+        if (! searchActive) {
           <Directories paths=(Array.of_list(dirs)) root pwd setPwd />;
         } else {
           ReasonReact.null;
@@ -25,14 +35,15 @@ let make =
       )
       <div className="toolbar">
         (
-          if (! search) {
+          if (! searchActive) {
             <h3> (ReasonReact.string(pwd.path)) </h3>;
           } else {
             ReasonReact.null;
           }
         )
-        <Search active=search root pwd setSearchActive setImages />
+        <Search active=searchActive search cancel />
         <Edit mode pwd root move onClick=((m, _) => setMode(m)) />
       </div>
-    </header>,
+    </header>;
+  },
 };
