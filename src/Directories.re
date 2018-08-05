@@ -1,26 +1,55 @@
-let component = ReasonReact.statelessComponent("Directories");
+type state = {
+  inputRef: ref(option(ReasonReact.reactRef)),
+};
+
+let setInputRef = (r, {ReasonReact.state}) =>
+  state.inputRef := Js.Nullable.toOption(r);
+
+let focus = inputRef =>
+  switch (inputRef^) {
+  | None => ()
+  | Some(r) => ReasonReact.refToJsObj(r)##focus()
+  };
+
+let component = ReasonReact.reducerComponent("Directories");
 let make =
     (
-      ~title: string,
       ~items: array(Path.base),
+      ~renderPath: Path.base => string,
+      ~filter,
+      ~setFilter,
       ~setPwd,
-      ~renderPath: (Path.base) => string,
+      ~title: string,
       _children,
     ) => {
   ...component,
-  render: _self => {
+  initialState: () => {inputRef: ref(None)},
+  reducer: (_action: unit, _) => ReasonReact.NoUpdate,
+  render: self => {
+    let onchange = (e) => {
+      e##preventDefault();
+      setFilter(e##target##value);
+    };
+
+    let queryRe = Js.Re.fromString(filter);
+
     let directories =
       Array.map(
         (p: Path.base) =>
-          <li>
-            <a href="#" onClick=(setPwd(p))>
-              (ReasonReact.string(renderPath(p)))
-            </a>
-          </li>,
+          if (Js.Option.isSome(Js.Re.exec(p.path, queryRe))) {
+            <li>
+              <a href="#" onClick=(setPwd(p))>
+                (ReasonReact.string(renderPath(p)))
+              </a>
+            </li>;
+          } else {
+            ReasonReact.null;
+          },
         items,
       );
 
-    let dirList = ReasonReact.createDomElement("ul", ~props={"id": "dirs"}, directories);
+    let dirList =
+      ReasonReact.createDomElement("ul", ~props={"id": "dirs"}, directories);
 
     let input =
       ReasonReact.createDomElement(
@@ -29,17 +58,19 @@ let make =
           "type": "text",
           "class": "filter",
           "placeholder": "Type to filter...",
+          "onChange": onchange,
+          "ref": self.handle(setInputRef),
         },
         [||],
       );
 
-    <nav>
+    <nav onMouseEnter=(_ => focus(self.state.inputRef))>
       <div className="title">
-        <h3>(ReasonReact.string(title))</h3>
+        <h3> (ReasonReact.string(title)) </h3>
         input
       </div>
       /* cannot set children directly, see
-      * https://reasonml.github.io/reason-react/docs/en/children.html#pitfall */
+       * https://reasonml.github.io/reason-react/docs/en/children.html#pitfall */
       dirList
     </nav>;
   },
