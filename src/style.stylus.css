@@ -366,8 +366,10 @@ nav ul {
 }
 
 .moving-modal {
-  position: absolute;
-  top: 200px;
+  position: fixed;
+  max-height: 50%;
+  overflow: scroll;
+  top: 100px;
   left: 50%;
   margin-left: -200px;
   background: #fff;
