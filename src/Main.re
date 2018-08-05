@@ -306,37 +306,43 @@ module Main = {
 
           let header =
             <header className="main-header">
-              <Search
-                active=self.state.search
-                root=self.state.root
-                pwd=self.state.pwd
-                setSearchActive=(
-                  enabled => self.send(SetSearchActive(enabled))
-                )
-                setImages=(images => self.send(SetImages(images)))
-              />
-              <Edit
-                mode=self.state.mode
-                pwd=self.state.pwd
-                root=self.state.root
-                move
-                onClick=((m, _) => self.send(SetMode(m)))
-              />
               (
                 if (! self.state.search) {
-                  <div>
-                    <h3> (ReasonReact.string(pwd)) </h3>
-                    <Directories
-                      paths=(Array.of_list(dirs))
-                      root=self.state.root
-                      pwd=self.state.pwd
-                      setPwd
-                    />
-                  </div>;
+                  <Directories
+                    paths=(Array.of_list(dirs))
+                    root=self.state.root
+                    pwd=self.state.pwd
+                    setPwd
+                  />;
                 } else {
                   ReasonReact.null;
                 }
               )
+              <div className="toolbar">
+                (
+                  if (! self.state.search) {
+                    <h3> (ReasonReact.string(pwd)) </h3>;
+                  } else {
+                    ReasonReact.null;
+                  }
+                )
+                <Search
+                  active=self.state.search
+                  root=self.state.root
+                  pwd=self.state.pwd
+                  setSearchActive=(
+                    enabled => self.send(SetSearchActive(enabled))
+                  )
+                  setImages=(images => self.send(SetImages(images)))
+                />
+                <Edit
+                  mode=self.state.mode
+                  pwd=self.state.pwd
+                  root=self.state.root
+                  move
+                  onClick=((m, _) => self.send(SetMode(m)))
+                />
+              </div>
             </header>;
 
           <div>

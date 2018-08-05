@@ -1,20 +1,21 @@
 fg = #000
-fg-faded = #ccc
+fg-faded = #ddd
 modal-fg = #bbb
 modal-fg-bright = #fff
 bg = #fff
 
 nightmode-fg = #fff
-nightmode-fg-faded = #ccc
+nightmode-fg-faded = #333
 nightmode-modal-fg = #bbb
 nightmode-modal-fg-bright = #fff
 nightmode-bg = #1c1c21
 
 colw = 200px
-body-padding = 50px 0 0 0
 header-padding = 0 40px 30px
-images-padding = 0px
 image-gap = 4px
+body-padding = image-gap 0 0 0
+
+toolbar-height = 35px
 
 // Fonts
 
@@ -42,7 +43,7 @@ image-gap = 4px
 body {
   -webkit-app-region: drag;
   font-family: 'inconsolata_packaged', Inconsolata, monospace;
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.4em;
   padding: body-padding;
   margin: 0;
@@ -61,11 +62,20 @@ body {
   .search {
     background: bg;
     color: fg;
+    border-bottom: 1px solid fg;
   }
 
-  .search::placeholder {
-    color: fg-faded;
-    border-bottom: 1px solid fg;
+  .main-header {
+    background: bg;
+    color: fg;
+
+    .toolbar {
+      border-top: 1px solid fg-faded;
+    }
+  }
+
+  .main-header:hover {
+    border-top: 1px solid fg-faded;
   }
 
   .modal-zoomed {
@@ -104,8 +114,20 @@ body.nightmode {
     border-bottom: 1px solid nightmode-fg;
   }
 
+  .main-header {
+    background: nightmode-bg;
+    color: nightmode-fg;
+
+    .toolbar {
+      border-top: 1px solid nightmode-fg-faded;
+    }
+  }
+
+  .main-header:hover {
+    border-top: 1px solid nightmode-fg-faded;
+  }
+
   .search::placeholder {
-    color: nightmode-fg-faded;
   }
 
   .modal-zoomed {
@@ -131,11 +153,37 @@ body.nightmode {
 }
 
 .main-header {
-  padding: header-padding;
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+
+  .toolbar {
+    -webkit-app-region: drag;
+    height: toolbar-height;
+    width: 100%;
+    padding: 0px 20px;
+  }
+
+  nav {
+    height: 0px; // main-header:hover sets height
+    overflow: hidden;
+    transition: height 0.2s, transform 0.2s;
+    border-top: 0px; // clear to stop double border fuzziness when collapsed
+  }
 
   h3 {
-    margin: 0;
-    padding: 0px 0px 30px;
+    margin: 0px;
+    padding: 0px;
+    line-height: toolbar-height;
+    float: left;
+    font-weight: normal;
+    font-size: 14px;
+  }
+}
+
+.main-header:hover {
+  nav {
+    height: 100px;
   }
 }
 
@@ -144,8 +192,8 @@ nav ul {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  margin: 0;
-  padding: 0;
+  margin: 0px 0 0;
+  padding: 8px 20px 0px;
   list-style: none;
 }
 
@@ -156,10 +204,12 @@ nav ul {
   border: none;
   outline: none;
   text-rendering: geometricPrecision;
+  margin-top: 8px;
 }
 
 .edit {
   float: right;
+  margin-top: 8px;
 
   a {
     margin-right: 20px;
@@ -167,7 +217,6 @@ nav ul {
 }
 
 .images-container {
-  padding: images-padding;
   margin-right: image-gap; // balance edge padding
   display: flex;
   flex-direction: row;
