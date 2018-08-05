@@ -1,7 +1,7 @@
-type state = {directoryFilter: string};
+type state = {directoriesEnabled: bool};
 
 type action =
-  | SetFilter(string);
+  | SetDirectoriesEnabled(bool);
 
 let component = ReasonReact.reducerComponent("Toolbar");
 let make =
@@ -19,10 +19,10 @@ let make =
       _children,
     ) => {
   ...component,
-  initialState: () => {directoryFilter: ""},
+  initialState: () => {directoriesEnabled: false},
   reducer: (action, _) =>
     switch (action) {
-    | SetFilter(s) => ReasonReact.Update({directoryFilter: s})
+    | SetDirectoriesEnabled(b) => ReasonReact.Update({directoriesEnabled: b})
     },
   render: self => {
     let search = (query: string) => {
@@ -37,21 +37,28 @@ let make =
 
     let renderPath = (p: Path.base) : string =>
       Path.renderable(p, pwd, root);
-    
-    let onMouseLeave = (_e) => {
-      Js.log("left");
-      self.ReasonReact.send(SetFilter(""));
+
+    let onMouseLeave = _e => {
+      let _ =
+        Js.Global.setTimeout(
+          _ => self.ReasonReact.send(SetDirectoriesEnabled(false)),
+          200,
+        );
+      ();
     };
 
-    <header className="main-header" onMouseLeave>
+    let onMouseEnter = _e => {
+      self.ReasonReact.send(SetDirectoriesEnabled(true));
+    };
+
+    <header className="main-header" onMouseLeave onMouseEnter>
       (
         if (! searchActive) {
           <Directories
             title="Navigate:"
             items=(Array.of_list(dirs))
             setPwd
-            filter=self.state.directoryFilter
-            setFilter=(s => self.ReasonReact.send(s))
+            enabled=self.state.directoriesEnabled
             renderPath
           />;
         } else {

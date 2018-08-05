@@ -1,6 +1,12 @@
+/* external value : Js.t {..} = "value" [@@bs.val]; */
+
 type state = {
+  filter: string,
   inputRef: ref(option(ReasonReact.reactRef)),
 };
+
+type action =
+  | SetFilter(string);
 
 let setInputRef = (r, {ReasonReact.state}) =>
   state.inputRef := Js.Nullable.toOption(r);
@@ -11,27 +17,44 @@ let focus = inputRef =>
   | Some(r) => ReasonReact.refToJsObj(r)##focus()
   };
 
+let clearInput = inputRef => {
+  Js.log("Clear");
+  switch (inputRef^) {
+  | None => ()
+  | Some(r) => ReasonReact.refToJsObj(r)##value#=""
+  };
+};
+
 let component = ReasonReact.reducerComponent("Directories");
 let make =
     (
-      ~items: array(Path.base),
-      ~renderPath: Path.base => string,
-      ~filter,
-      ~setFilter,
-      ~setPwd,
       ~title: string,
+      ~items: array(Path.base),
+      ~setPwd,
+      ~renderPath: Path.base => string,
+      ~enabled: bool,
       _children,
     ) => {
   ...component,
-  initialState: () => {inputRef: ref(None)},
-  reducer: (_action: unit, _) => ReasonReact.NoUpdate,
+  initialState: () => {filter: "", inputRef: ref(None)},
+  reducer: (action, state) =>
+    switch (action) {
+    | SetFilter(s) => ReasonReact.Update({...state, filter: s})
+    },
+  willReceiveProps: ({state}) => {
+    clearInput(state.inputRef);
+    if (enabled) {
+      focus(state.inputRef)
+    };
+    {...state, filter: ""};
+  },
   render: self => {
-    let onchange = (e) => {
+    let onchange = (e, self) => {
       e##preventDefault();
-      setFilter(e##target##value);
+      self.ReasonReact.send(SetFilter(e##target##value));
     };
 
-    let queryRe = Js.Re.fromString(filter);
+    let queryRe = Js.Re.fromString(self.state.filter);
 
     let directories =
       Array.map(
@@ -58,7 +81,7 @@ let make =
           "type": "text",
           "class": "filter",
           "placeholder": "Type to filter...",
-          "onChange": onchange,
+          "onChange": self.handle(onchange),
           "ref": self.handle(setInputRef),
         },
         [||],
