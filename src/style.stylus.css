@@ -35,10 +35,16 @@ toolbar-height = 35px
 
 * {
   box-sizing: border-box;
-  -webkit-app-region: no-drag;
+  // Disabling dragging, add on a case by case basis
+  // -webkit-app-region: no-drag;
 }
 
-/* Frameless Electron windows aren’t draggable. Here we make everything undraggable, and then explicitly allow dragging on the body. This results in only the top bar (where the traffic light buttons are) being used as a drag handle for the entire window */
+/* 
+ * Frameless Electron windows aren’t draggable. Here we make everything
+ * undraggable, and then explicitly allow dragging on the body. This results in
+ * only the top bar (where the traffic light buttons are) being used as a drag
+ * handle for the entire window */
+ */
 
 body {
   -webkit-app-region: drag;
