@@ -82,7 +82,7 @@ body {
     }
   }
 
-  .main-header:hover {
+  nav.enabled {
     border-top: 1px solid fg-faded;
   }
 
@@ -131,7 +131,7 @@ body.nightmode {
     }
   }
 
-  .main-header:hover {
+  nav.enabled {
     border-top: 1px solid nightmode-fg-faded;
   }
 
@@ -188,11 +188,11 @@ body.nightmode {
     overflow: hidden;
     transition: height 0.15s, transform 0.15s;
     border-top: 0px; // clear to stop double border fuzziness when collapsed
-    padding: 8px 20px 0px;
+    padding: 0px 20px 0px;
 
     .title {
       height: 20px;
-      margin: 0px 0px 8px;
+      margin: 8px 0px;
     }
 
     h3 {
@@ -207,7 +207,7 @@ body.nightmode {
 }
 
 nav.disabled {
-    height: nav-height-collapsed; // main-header:hover sets height
+    height: nav-height-collapsed;
 }
 
 nav.enabled {
