@@ -16,6 +16,8 @@ image-gap = 4px
 body-padding = image-gap 0 0 0
 
 toolbar-height = 35px
+nav-height = 148px
+nav-height-collapsed = 0px
 
 // Fonts
 
@@ -65,7 +67,7 @@ body {
     color: fg;
   }
 
-  .search {
+  input {
     background: bg;
     color: fg;
     border-bottom: 1px solid fg;
@@ -114,7 +116,7 @@ body.nightmode {
     color: nightmode-fg;
   }
 
-  .search {
+  input {
     background: nightmode-bg;
     color: nightmode-fg;
     border-bottom: 1px solid nightmode-fg;
@@ -163,33 +165,51 @@ body.nightmode {
   position: fixed;
   bottom: 0;
 
+  h3 {
+    margin: 0px;
+    padding: 0px;
+    font-weight: normal;
+    font-size: 14px;
+  }
+
   .toolbar {
     -webkit-app-region: drag;
     height: toolbar-height;
     width: 100%;
     padding: 0px 20px;
+
+    h3 {
+      line-height: toolbar-height;
+      float: left;
+    }
   }
 
   nav {
-    height: 0px; // main-header:hover sets height
+    height: nav-height-collapsed; // main-header:hover sets height
     overflow: hidden;
     transition: height 0.15s, transform 0.15s;
     border-top: 0px; // clear to stop double border fuzziness when collapsed
-  }
+    padding: 8px 20px 0px;
 
-  h3 {
-    margin: 0px;
-    padding: 0px;
-    line-height: toolbar-height;
-    float: left;
-    font-weight: normal;
-    font-size: 14px;
+    .title {
+      height: 20px;
+      margin: 0px 0px 8px;
+    }
+
+    h3 {
+      float: left;
+    }
+
+    input {
+      float: left;
+      margin-left: 20px;
+    }
   }
 }
 
 .main-header:hover {
   nav {
-    height: 100px;
+    height: nav-height;
   }
 }
 
@@ -198,18 +218,21 @@ nav ul {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  margin: 0px 0 0;
-  padding: 8px 20px 0px;
+  margin: 0px;
+  padding: 0px;
   list-style: none;
 }
 
-.search {
-  float: right;
+input {
   font-size: inherit;
   font-family: inherit;
   border: none;
   outline: none;
   text-rendering: geometricPrecision;
+}
+
+.search {
+  float: right;
   margin-top: 8px;
 }
 

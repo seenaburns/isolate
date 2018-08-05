@@ -25,10 +25,14 @@ let make =
       setImages(Path.images(pwd));
     };
 
+    let renderPath = (p: Path.base) : string => {
+      Path.renderable(p, pwd, root)
+    };
+
     <header className="main-header">
       (
         if (! searchActive) {
-          <Directories paths=(Array.of_list(dirs)) root pwd setPwd />;
+          <Directories title="Navigate:" items=(Array.of_list(dirs)) setPwd renderPath/>;
         } else {
           ReasonReact.null;
         }

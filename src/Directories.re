@@ -1,10 +1,10 @@
 let component = ReasonReact.statelessComponent("Directories");
 let make =
     (
-      ~paths: array(Path.base),
-      ~pwd: Path.base,
-      ~root: Path.base,
+      ~title: string,
+      ~items: array(Path.base),
       ~setPwd,
+      ~renderPath: (Path.base) => string,
       _children,
     ) => {
   ...component,
@@ -14,17 +14,33 @@ let make =
         (p: Path.base) =>
           <li>
             <a href="#" onClick=(setPwd(p))>
-              (ReasonReact.string(Path.renderable(p, pwd, root)))
+              (ReasonReact.string(renderPath(p)))
             </a>
           </li>,
-        paths,
+        items,
       );
 
-    let dirList =
-      ReasonReact.createDomElement("ul", ~props={"id": "dirs"}, directories);
+    let dirList = ReasonReact.createDomElement("ul", ~props={"id": "dirs"}, directories);
 
-    /* cannot set children directly, see
-     * https://reasonml.github.io/reason-react/docs/en/children.html#pitfall */
-    <nav> dirList </nav>;
+    let input =
+      ReasonReact.createDomElement(
+        "input",
+        ~props={
+          "type": "text",
+          "class": "filter",
+          "placeholder": "Type to filter...",
+        },
+        [||],
+      );
+
+    <nav>
+      <div className="title">
+        <h3>(ReasonReact.string(title))</h3>
+        input
+      </div>
+      /* cannot set children directly, see
+      * https://reasonml.github.io/reason-react/docs/en/children.html#pitfall */
+      dirList
+    </nav>;
   },
 };
