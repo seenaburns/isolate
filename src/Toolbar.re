@@ -74,7 +74,7 @@ let make =
     let onMouseEnter = _e =>
       self.ReasonReact.send(SetDirectoriesEnabled(true));
 
-    <header className="main-header" onMouseLeave onMouseEnter>
+    <header className="main-header" onMouseLeave>
       (
         if (! searchActive) {
           <Directories
@@ -88,16 +88,24 @@ let make =
           ReasonReact.null;
         }
       )
+      /* Define separate zones for separate on-hover behavior */
       <div className="toolbar">
-        (
-          if (! searchActive) {
-            <h3> (ReasonReact.string(pwd.path)) </h3>;
-          } else {
-            ReasonReact.null;
-          }
-        )
-        <Search active=searchActive search cancel />
-        <Edit mode pwd root move onClick=((m, _) => setMode(m)) />
+        <div className="left" onMouseEnter>
+          (
+            if (! searchActive) {
+              <h3> (ReasonReact.string(pwd.path)) </h3>;
+            } else {
+              ReasonReact.null;
+            }
+          )
+        </div>
+        <div className="center" >
+            (ReasonReact.string("- ZOOM +"))
+        </div>
+        <div className="right">
+          <Search active=searchActive search cancel />
+          <Edit mode pwd root move onClick=((m, _) => setMode(m)) />
+        </div>
       </div>
     </header>;
   },

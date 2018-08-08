@@ -16,6 +16,7 @@ image-gap = 4px
 body-padding = image-gap 0 0 0
 
 toolbar-height = 35px
+toolbar-padding = 20px
 nav-height = 148px
 nav-height-collapsed = 0px
 
@@ -176,11 +177,32 @@ body.nightmode {
     -webkit-app-region: drag;
     height: toolbar-height;
     width: 100%;
-    padding: 0px 20px;
 
     h3 {
       line-height: toolbar-height;
       float: left;
+    }
+
+    .left {
+      float: left;
+      width: 50%;
+      height: toolbar-height;
+      padding-left: toolbar-padding;
+    }
+
+
+    .right {
+      float: right;
+      width: 50%;
+      height: toolbar-height;
+      padding-right: toolbar-padding;
+    }
+
+    .center {
+      margin: 0 auto;
+      position: absolute;
+      right: 50%;
+      line-height: toolbar-height;
     }
   }
 
