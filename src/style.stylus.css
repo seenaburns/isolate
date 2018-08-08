@@ -217,6 +217,10 @@ body.nightmode {
       margin: 8px 0px;
     }
 
+    .close {
+      float: right;
+    }
+
     h3 {
       float: left;
     }

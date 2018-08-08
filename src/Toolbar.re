@@ -82,6 +82,7 @@ let make =
             items=(Array.of_list(dirs))
             setPwd
             enabled=self.state.directoriesEnabled
+            setEnabled=(b => self.send(SetDirectoriesEnabled(b)))
             renderPath
           />;
         } else {
@@ -99,9 +100,7 @@ let make =
             }
           )
         </div>
-        <div className="center" >
-            (ReasonReact.string("- ZOOM +"))
-        </div>
+        <div className="center"> (ReasonReact.string("- ZOOM +")) </div>
         <div className="right">
           <Search active=searchActive search cancel />
           <Edit mode pwd root move onClick=((m, _) => setMode(m)) />

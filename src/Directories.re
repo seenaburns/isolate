@@ -51,6 +51,7 @@ let make =
       ~setPwd,
       ~renderPath: Path.base => string,
       ~enabled: bool,
+      ~setEnabled: bool => unit,
       _children,
     ) => {
   ...component,
@@ -59,10 +60,9 @@ let make =
     switch (action) {
     | SetFilter(s) => ReasonReact.Update({...state, filter: s})
     | Keydown(13) =>
-      let filtered: Js.Array.t(Path.base) =
-        applyFilter(items, state.filter);
+      let filtered: Js.Array.t(Path.base) = applyFilter(items, state.filter);
       if (Js.Array.length(filtered) >= 1) {
-        ReasonReact.SideEffects(_ => setPwd(filtered[0]));
+        ReasonReact.SideEffects((_ => setPwd(filtered[0])));
       } else {
         ReasonReact.NoUpdate;
       };
@@ -113,17 +113,19 @@ let make =
         },
         [||],
       );
-    
-    let navClassName = if (enabled) {
-      "enabled"
-    } else {
-      "disabled"
-    };
 
-    <nav className=navClassName onMouseEnter=(_ => focus(self.state.inputRef))>
+    let navClassName = if (enabled) {"enabled"} else {"disabled"};
+
+    <nav
+      className=navClassName onMouseEnter=(_ => focus(self.state.inputRef))>
       <div className="title">
         <h3> (ReasonReact.string(title)) </h3>
         input
+        <div className="close">
+          <a href="#" onClick=(_ => setEnabled(false))>
+            (ReasonReact.string("close"))
+          </a>
+        </div>
       </div>
       /* cannot set children directly, see
        * https://reasonml.github.io/reason-react/docs/en/children.html#pitfall */
