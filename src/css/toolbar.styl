@@ -3,7 +3,7 @@ toolbar-padding = 20px
 nav-height = 148px
 nav-height-collapsed = 0px
 
-popup-transition-time = 0.2s
+popup-transition = 0.2s ease-out
 popup-background = #fff;
 
 .main-header {
@@ -60,7 +60,7 @@ popup-background = #fff;
 
   nav {
     overflow: hidden;
-    transition: height 0.15s, transform 0.15s;
+    transition: height 0.15s ease-out;
     border-top: 0px; // clear to stop double border fuzziness when collapsed
     padding: 0px 20px 0px;
 
@@ -126,15 +126,14 @@ input {
 
 
 .popup-container {
-  width: 100px;
+  width: 130px;
   transition:
-    opacity popup-transition-time,
-    height popup-transition-time,
-    transform popup-transition-time;
+    opacity popup-transition,
+    height popup-transition;
   position: absolute;
   bottom: 0;
   margin-bottom: toolbar-height;
-  margin-left: -35px;
+  margin-left: -50px;
   padding-bottom: 15px;
 }
 .popup-container.enabled {
@@ -145,21 +144,28 @@ input {
   }
 }
 .popup-container.disabled {
-  height: 0px;
   opacity: 0;
+  pointer-events: none;
 
   .popup {
-    top: -85px;
+    top: 10px;
   }
 }
 
 .popup {
   background: popup-background;
-  width: 100%;
   position: relative;
-  transition: top 0.15s;
+  transition: top popup-transition;
   box-shadow: 1px 3px 8px rgba(0,0,0,0.2);
+  margin: 15px 15px 0px;
 }
+
+/* .popup before and after constructs a triangle arrow beneath the popup, with a box shadow
+ * :after contains a 6px box that is rotated 45 degs, and placed beneath the window with a shadow
+ *   because this renders under the popup box itself, it is occulded by .popup's shadow
+ * :before renders a triangle with a border, but above both, so that it appears as one contiguous
+ *   shape
+ */
 .popup:after{
   content: "";
   position: absolute;
@@ -176,16 +182,16 @@ input {
 }
 .popup:before{
   position: absolute;
-	top: 100%;
-	left: 50%;
-	border: solid transparent;
-	content: " ";
-	height: 0;
-	width: 0;
+  top: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
   pointer-events: none;
   border-color: rgba(0,0,0,0);
-	border-top-color: popup-background;
-	border-width: 6px;
+  border-top-color: popup-background;
+  border-width: 6px;
   margin-left: -6px;
 }
 
