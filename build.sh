@@ -4,7 +4,7 @@ set -euo pipefail
 
 mkdir -p build
 
-cat src/style.stylus.css | $(npm bin)/stylus > build/style.css
+cat src/css/main.styl | $(npm bin)/stylus > build/style.css
 
 # bsb will fail if bsconfig.json not in pwd which is enough for now to check if in top level
 # Compile reason
