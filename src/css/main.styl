@@ -105,6 +105,24 @@ body {
       color: modal-fg-bright;
     }
   }
+
+  .popup {
+    background: bg;
+
+    .menu-item {
+      border-top: 1px solid fg-faded;
+    }
+
+    .menu-item:hover {
+      background: fg-faded;
+    }
+  }
+  .popup:after{
+    background: bg;
+  }
+  .popup:before{
+    border-top-color: bg;
+  }
 }
 
 body.nightmode {
@@ -156,6 +174,24 @@ body.nightmode {
     span:hover, span:focus {
       color: nightmode-modal-fg-bright;
     }
+  }
+
+  .popup {
+    background: nightmode-bg;
+
+    .menu-item {
+      border-top: 1px solid nightmode-fg-faded;
+    }
+
+    .menu-item:hover {
+      background: nightmode-fg-faded;
+    }
+  }
+  .popup:after{
+    background: nightmode-bg;
+  }
+  .popup:before{
+    border-top-color: nightmode-bg;
   }
 }
 
