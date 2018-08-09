@@ -57,10 +57,12 @@ body {
   text-rendering: geometricPrecision;
 }
 
-/* Light/Dark mode handled by a class ontop of body, define all colors here */
-body {
-  background: bg;
-  color: fg;
+/* Light/Dark mode handled by a class ontop of body, define all colors here
+ * It appears like args to colors shadow the global variable names
+ */
+colors(fg, fg-faded, modal-fg, modal-fg-bright, bg)
+  background: bg
+  color: fg
 
   a {
     color: fg;
@@ -123,76 +125,13 @@ body {
   .popup:before{
     border-top-color: bg;
   }
+
+body {
+  colors(fg, fg-faded, modal-fg, modal-fg-bright, bg)
 }
 
 body.nightmode {
-  background: nightmode-bg;
-  color: nightmode-fg;
-
-  a {
-    color: nightmode-fg;
-  }
-
-  input {
-    background: nightmode-bg;
-    color: nightmode-fg;
-    border-bottom: 1px solid nightmode-fg;
-  }
-
-  .main-header {
-    background: nightmode-bg;
-    color: nightmode-fg;
-
-    .toolbar {
-      border-top: 1px solid nightmode-fg-faded;
-    }
-  }
-
-  nav.enabled {
-    border-top: 1px solid nightmode-fg-faded;
-  }
-
-  .search::placeholder {
-  }
-
-  .modal-zoomed {
-    header {
-      color: rgba(0,0,0,0)
-    }
-    header:hover {
-      color: nightmode-modal-fg;
-    }
-  }
-
-  .modal-unzoomed {
-    header {
-      color: nightmode-modal-fg;
-    }
-  }
-
-  .modal-controls {
-    span:hover, span:focus {
-      color: nightmode-modal-fg-bright;
-    }
-  }
-
-  .popup {
-    background: nightmode-bg;
-
-    .menu-item {
-      border-top: 1px solid nightmode-fg-faded;
-    }
-
-    .menu-item:hover {
-      background: nightmode-fg-faded;
-    }
-  }
-  .popup:after{
-    background: nightmode-bg;
-  }
-  .popup:before{
-    border-top-color: nightmode-bg;
-  }
+  colors(nightmode-fg, nightmode-fg-faded, nightmode-modal-fg, nightmode-modal-fg-bright, nightmode-bg)
 }
 
 .images-container {
