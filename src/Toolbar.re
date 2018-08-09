@@ -59,6 +59,11 @@ let make =
       setImages(Path.images(pwd));
     };
 
+    let menuItems: Js.Array.t(PopupMenu.item) = [|
+      {text: "Move", action: () => ()},
+      {text: "Nightmode", action: () => ()},
+    |];
+
     let renderPath = (p: Path.base) : string =>
       Path.renderable(p, pwd, root);
 
@@ -100,12 +105,13 @@ let make =
             }
           )
         </div>
-        <div className="center"> (ReasonReact.string("- ZOOM +")) </div>
+        <div className="center"> (ReasonReact.string("- Zoom +")) </div>
         <div className="right">
           <Search active=searchActive search cancel />
-          <Edit mode pwd root move onClick=((m, _) => setMode(m)) />
+          <PopupMenu title="More" menuItems/>
         </div>
       </div>
     </header>;
+    /* <Edit mode pwd root move onClick=((m, _) => setMode(m)) /> */
   },
 };
