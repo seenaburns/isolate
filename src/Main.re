@@ -44,6 +44,95 @@ let advance = (current: 'a, images: array('a), forward: bool) : option('a) => {
   };
 };
 
+let selectionReducer = (state: State.state, action: State.Selection.action) => {
+  let add = p =>
+    if (! Js.Array.includes(p, state.selected)) {
+      let newSelected = Js.Array.copy(state.selected);
+      let _ = Js.Array.push(p, newSelected);
+      ReasonReact.Update({...state, selected: newSelected});
+    } else {
+      ReasonReact.NoUpdate;
+    };
+
+  let remove = p =>
+    ReasonReact.Update({
+      ...state,
+      selected: Js.Array.filter(x => p != x, state.selected),
+    });
+
+  switch (action) {
+  | Add(p) => add(p)
+  | Remove(p) => remove(p)
+  | Toggle(p) =>
+    if (Js.Array.includes(p, state.selected)) {
+      remove(p);
+    } else {
+      add(p);
+    }
+  | Clear => ReasonReact.Update({...state, selected: [||]})
+  };
+};
+
+let modalReducer = (state: State.state, action: State.Modal.action) => {
+  let setZoom = (zoomed: bool) => {
+    let newState = {
+      ...state,
+      modal: {
+        ...state.modal,
+        zoomed,
+      },
+    };
+    if (zoomed) {
+      ReasonReact.UpdateWithSideEffects(newState, _ => setFocus());
+    } else {
+      ReasonReact.Update(newState);
+    };
+  };
+
+  switch (action) {
+  | SetActive(active) =>
+    ReasonReact.UpdateWithSideEffects(
+      {
+        ...state,
+        modal: {
+          ...state.modal,
+          active,
+        },
+      },
+      (
+        _ => {
+          setBodyOverflow(active);
+          menu##setModalOpen(active);
+        }
+      ),
+    )
+  | SetZoom(zoomed) => setZoom(zoomed)
+  | ZoomToggle => setZoom(! state.modal.zoomed)
+  | Advance(forward) when ! state.modal.zoomed =>
+    let next = advance(state.modal.current, state.images, forward);
+    switch (next) {
+    | None => ReasonReact.NoUpdate
+    | Some(i) =>
+      ReasonReact.Update({
+        ...state,
+        modal: {
+          ...state.modal,
+          current: i,
+        },
+      })
+    };
+  | Set(image) =>
+    ReasonReact.Update({
+      ...state,
+      modal: {
+        ...state.modal,
+        current: image,
+      },
+    })
+  | _ => ReasonReact.NoUpdate
+  };
+};
+
 module Main = {
   type state = State.state;
   type action = State.action;
@@ -83,6 +172,14 @@ module Main = {
       };
     };
 
+    /*
+     * Chromium seems to hold a copy of every image in the webframe cache. This can
+     * cause the memory used to balloon, looking alarming to users.
+     * webFrame.clearCache() unloads these images, dropping memory at the cost of
+     * directory load time.
+     */
+    let clearCache = () => electron##webFrame##clearCache();
+
     {
       ...component,
       initialState: State.init,
@@ -105,94 +202,6 @@ module Main = {
           ();
         };
 
-        let selectionReducer = (action: State.Selection.action) => {
-          let add = p =>
-            if (! Js.Array.includes(p, state.selected)) {
-              let newSelected = Js.Array.copy(state.selected);
-              let _ = Js.Array.push(p, newSelected);
-              ReasonReact.Update({...state, selected: newSelected});
-            } else {
-              ReasonReact.NoUpdate;
-            };
-          let remove = p =>
-            ReasonReact.Update({
-              ...state,
-              selected: Js.Array.filter(x => p != x, state.selected),
-            });
-
-          switch (action) {
-          | Add(p) => add(p)
-          | Remove(p) => remove(p)
-          | Toggle(p) =>
-            if (Js.Array.includes(p, state.selected)) {
-              remove(p);
-            } else {
-              add(p);
-            }
-          | Clear => ReasonReact.Update({...state, selected: [||]})
-          };
-        };
-
-        let modalReducer = (action: State.Modal.action) => {
-          let setZoom = (zoomed: bool) => {
-            let newState = {
-              ...state,
-              modal: {
-                ...state.modal,
-                zoomed,
-              },
-            };
-            if (zoomed) {
-              ReasonReact.UpdateWithSideEffects(newState, _ => setFocus());
-            } else {
-              ReasonReact.Update(newState);
-            };
-          };
-
-          switch (action) {
-          | SetActive(active) =>
-            ReasonReact.UpdateWithSideEffects(
-              {
-                ...state,
-                modal: {
-                  ...state.modal,
-                  active,
-                },
-              },
-              (
-                _ => {
-                  setBodyOverflow(active);
-                  menu##setModalOpen(active);
-                }
-              ),
-            )
-          | SetZoom(zoomed) => setZoom(zoomed)
-          | ZoomToggle => setZoom(! state.modal.zoomed)
-          | Advance(forward) when ! state.modal.zoomed =>
-            let next = advance(state.modal.current, state.images, forward);
-            switch (next) {
-            | None => ReasonReact.NoUpdate
-            | Some(i) =>
-              ReasonReact.Update({
-                ...state,
-                modal: {
-                  ...state.modal,
-                  current: i,
-                },
-              })
-            };
-          | Set(image) =>
-            ReasonReact.Update({
-              ...state,
-              modal: {
-                ...state.modal,
-                current: image,
-              },
-            })
-          | _ => ReasonReact.NoUpdate
-          };
-        };
-
         switch (action) {
         | SetRoot(path) => ReasonReact.Update({...state, root: path})
         | SetPwd(path) =>
@@ -201,13 +210,7 @@ module Main = {
             (
               self => {
                 setFullTimeout(self);
-                /*
-                 * Chromium seems to hold a copy of every image in the webframe cache. This can
-                 * cause the memory used to balloon, looking alarming to users.
-                 * webFrame.clearCache() unloads these images, dropping memory at the cost of
-                 * directory load time.
-                 */
-                electron##webFrame##clearCache();
+                clearCache();
               }
             ),
           )
@@ -219,7 +222,7 @@ module Main = {
           ReasonReact.Update({...state, images, selected: [||]});
         | SetSearchActive(enabled) =>
           ReasonReact.Update({...state, search: enabled})
-        | ModalAction(m) => modalReducer(m)
+        | ModalAction(m) => modalReducer(state, m)
         | SetShowFull(b) =>
           if (b) {
             ReasonReact.Update({...state, showFull: b});
@@ -236,7 +239,7 @@ module Main = {
             ReasonReact.Update({...state, mode: m, selected: [||]})
           | _ => ReasonReact.Update({...state, mode: m})
           }
-        | Selection(a) => selectionReducer(a)
+        | Selection(a) => selectionReducer(state, a)
         | ImageClick(path) =>
           /* Move imageOnClick logic into reducer so it doesn't have to re-render on every mode
            * change.
@@ -252,7 +255,7 @@ module Main = {
               ),
             )
           | Edit.Editing
-          | Edit.Moving => selectionReducer(Toggle(path))
+          | Edit.Moving => selectionReducer(state, Toggle(path))
           }
         | Move(dest) =>
           ReasonReact.UpdateWithSideEffects(

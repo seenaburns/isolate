@@ -7,10 +7,10 @@ module Modal = {
 
   type action =
     | Advance(bool) /* true if advance forward */
-    | Set(Path.absolute);
+    | Set(Path.absolute)
     | SetActive(bool)
     | SetZoom(bool)
-    | ZoomToggle
+    | ZoomToggle;
 };
 
 type state = {
@@ -30,9 +30,9 @@ type state = {
 module Selection = {
   type action =
     | Add(Path.absolute)
-    | Clear;
+    | Clear
     | Remove(Path.absolute)
-    | Toggle(Path.absolute)
+    | Toggle(Path.absolute);
 };
 
 type action =
@@ -40,13 +40,13 @@ type action =
   | ModalAction(Modal.action)
   | Move(Path.base)
   | Resize(int)
-  | Selection(Selection.action);
+  | Selection(Selection.action)
   | SetImages(array(Path.absolute))
   | SetMode(Edit.mode)
   | SetPwd(Path.base)
   | SetRoot(Path.base)
   | SetSearchActive(bool)
-  | SetShowFull(bool)
+  | SetShowFull(bool);
 
 let init = () => {
   images: [||],
