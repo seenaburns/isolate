@@ -47,39 +47,14 @@ function openLocationMenu(menuItem, browserWindow, event) {
   }
 }
 
-function setNightMode(b) {
-  if (b) {
-    ui.body.classList.add('nightmode')
-  } else {
-    ui.body.classList.remove('nightmode')
-  }
-
-  if (platform == 'win32') {
-    scrollbar.SetNightmode(b)
-  }
-
-  menu.Options.NightMode = b
-  menu.UpdateMenu()
-
-  userData.SetKey("night_mode", b, "settings.json")
-}
-
-function nightModeEnabled() {
-  return ui.body.classList.contains('nightmode')
-}
-
 function nightModeMenu(menuItem, browserWindow, event) {
-  if (document.activeElement == ui.body.search) {
-    return
-  }
-  curr = nightModeEnabled()
-  setNightMode(!curr)
+  reason.toggleNightMode()
 }
 
 nightModeSetting = userData.Get("settings.json")["night_mode"]
 nightMode = nightModeSetting != undefined && nightModeSetting
 if (nightMode) {
-  setNightMode(true)
+  reason.setNightMode(true)
 }
 
 if (platform == 'win32') {
@@ -91,7 +66,7 @@ menu.Functions.NightMode = nightModeMenu
 menu.Functions.OpenLocation = openLocationMenu
 menu.Functions.ZoomIn = reason.zoomIn
 menu.Functions.ZoomOut = reason.zoomOut
-menu.Options.NightMode = nightModeEnabled()
+menu.Options.NightMode = reason.nightModeEnabled()
 menu.UpdateMenu()
 
 const contextMenu = new electron.remote.Menu()

@@ -409,3 +409,8 @@ let resizeThrottler =
   );
 
 addEventListener(window, "resize", resizeThrottler, false);
+
+/* Export nightmode functions to js */
+let setNightMode = Util.setNightMode;
+let nightModeEnabled = Util.nightModeEnabled;
+let toggleNightMode = Util.toggleNightMode;

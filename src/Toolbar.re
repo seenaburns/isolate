@@ -63,7 +63,9 @@ let make =
 
     let menuItems: Js.Array.t(PopupMenu.item) = [|
       {text: "Move", action: () => ()},
-      {text: "Nightmode", action: () => ()},
+      {text: "Nightmode", action: () => {
+        Util.toggleNightMode();
+      }},
     |];
 
     let renderPath = (p: Path.base) : string =>
