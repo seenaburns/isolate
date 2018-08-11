@@ -366,15 +366,8 @@ let getState = () =>
   | Some(s) => s
   };
 
-let setModal = (image: string) =>
-  sendAction(ModalAction(State.Modal.Set(Path.asAbsolute(image))));
 let isModalOpen = () : bool => getState().modal.active;
 let currentImage = () : string => getState().modal.current.path;
-let openModal = () => sendAction(ModalAction(State.Modal.SetActive(true)));
-let closeModal = () =>
-  sendAction(ModalAction(State.Modal.SetActive(false)));
-let setImageList = (images: array(string)) =>
-  sendAction(SetImages(Array.map(x => Path.asAbsolute(x), images)));
 let setRoot = (s: string) => {
   let p = Path.asBase(s);
   sendAction(SetPwd(p));
