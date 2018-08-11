@@ -17,12 +17,17 @@ type state = {
   images: array(Path.absolute),
   modal: Modal.state,
   mode: Edit.mode,
-  ncols: int,
   pwd: Path.base,
   root: Path.base,
   search: bool,
   selected: Js.Array.t(Path.absolute),
-
+  /*
+   * ncols: the number of columns rendered by the image grid however, zooming is
+   * managed by a desired, minimum column width, which is used to calculate the
+   * number of columns that can fit in a window
+   */
+  ncols: int,
+  desiredColumnWidth: int,
   /* Flag to track if ImageGrid should show all images or a subset */
   showFull: bool,
 };
@@ -39,7 +44,10 @@ type action =
   | ImageClick(Path.absolute)
   | ModalAction(Modal.action)
   | Move(Path.base)
+  /* Resize with same ncols given #images.ClientWidth */
   | Resize(int)
+  /* Resize, computing new column width and ncols, given #images.ClientWidth */
+  | ResizeZoom(int, bool)
   | Selection(Selection.action)
   | SetImages(array(Path.absolute))
   | SetMode(Edit.mode)
@@ -52,10 +60,11 @@ let init = () => {
   images: [||],
   modal: Modal.{active: false, zoomed: false, current: Path.asAbsolute("")},
   mode: Edit.Normal,
-  ncols: 4,
   pwd: Path.asBase(""),
   root: Path.asBase(""),
   search: false,
   selected: [||],
+  desiredColumnWidth: 200,
+  ncols: 4,
   showFull: false,
 };

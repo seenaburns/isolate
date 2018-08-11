@@ -2,6 +2,11 @@
 let electron: 'jsModule = [%bs.raw {| require("electron") |}];
 let menu: 'jsModule = [%bs.raw {| require("./menu") |}];
 
+[@bs.send]
+external addEventListener : ('a, string, 'b => 'c, bool) => unit =
+  "addEventListener";
+let window = [%bs.raw {| window |}];
+
 /* Set modal-content to focused element so arrow keys immediately scroll the image, not the
  * background
  */
@@ -187,7 +192,7 @@ module Main = {
      * setSendAction)
      */
     didMount: self => {
-      document##addEventListener("keydown", keydown(self));
+      addEventListener(document, "keydown", keydown(self), false);
       setSendAction(self.send);
     },
     didUpdate: s => readOnlyState := Some(s.newSelf.state),
@@ -231,7 +236,19 @@ module Main = {
             (self => setFullTimeout(self)),
           );
         }
-      | Resize(cols) => ReasonReact.Update({...state, ncols: cols})
+      | Resize(imagesClientWidth) =>
+        ReasonReact.Update({
+          ...state,
+          ncols: Resize.columnsThatFit(imagesClientWidth, state.desiredColumnWidth),
+        })
+      | ResizeZoom(imagesClientWidth, larger) =>
+        let (newNCols, newDesiredWidth) =
+          Resize.calcNewDesiredColumnWidth(imagesClientWidth, state.ncols, larger);
+        ReasonReact.Update({
+          ...state,
+          ncols: newNCols,
+          desiredColumnWidth: newDesiredWidth,
+        });
       | SetMode(m) =>
         switch (m) {
         | Edit.Normal =>
@@ -317,6 +334,7 @@ module Main = {
             setMode=(m => self.send(SetMode(m)))
             setPwd
             setSearchActive=(enabled => self.send(SetSearchActive(enabled)))
+            zoom=(b => self.send(ResizeZoom(Resize.getImagesClientWidth(), b)))
           />
           <ImageGrid
             images=self.state.images
@@ -368,3 +386,26 @@ let setRoot = (s: string) => {
 };
 let crossPlatform = Path.crossPlatform;
 let setCols = (n: int) => sendAction(Resize(n));
+
+let zoomIn = () => {
+  sendAction(ResizeZoom(Resize.getImagesClientWidth(), true));
+};
+let zoomOut = () => {
+  sendAction(ResizeZoom(Resize.getImagesClientWidth(), false));
+};
+
+/* Register event listener for window resize
+ * limits resize to one call per 100ms
+ */
+let resize_rate_ms = 100;
+
+let resizeThrottler =
+  Util.throttle(
+    resize_rate_ms,
+    () => {
+      Js.log("resize");
+      sendAction(Resize(Resize.getImagesClientWidth()));
+    },
+  );
+
+addEventListener(window, "resize", resizeThrottler, false);

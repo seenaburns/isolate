@@ -20,6 +20,7 @@ let make =
       ~setMode,
       ~setPwd,
       ~setSearchActive,
+      ~zoom: bool => unit,
       _children,
     ) => {
   ...component,
@@ -112,7 +113,15 @@ let make =
             }
           )
         </div>
-        <div className="center"> (ReasonReact.string("- Zoom +")) </div>
+        <div className="center">
+          <a href="#" onClick=(_ => zoom(false))>
+            (ReasonReact.string("-"))
+          </a>
+          (ReasonReact.string("Zoom"))
+          <a href="#" onClick=(_ => zoom(true))>
+            (ReasonReact.string("+"))
+          </a>
+        </div>
         <div className="right">
           <Search active=searchActive search cancel />
           <PopupMenu title="More" menuItems />
