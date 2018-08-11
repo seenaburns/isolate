@@ -38,6 +38,10 @@ body-padding = image-gap 0 0 0
   box-sizing: border-box;
   // Disabling dragging, add on a case by case basis
   // -webkit-app-region: no-drag;
+  
+  // Seems necessary for geometricPercision text rendering, maybe because of transitions?
+  // https://stackoverflow.com/questions/32724159/issues-with-geometricprecision-in-chrome
+  backface-visibility: hidden;
 }
 
 /* 

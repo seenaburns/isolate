@@ -62,7 +62,9 @@ let make =
     };
 
     let menuItems: Js.Array.t(PopupMenu.item) = [|
-      {text: "Move", action: () => ()},
+      {text: "Move", action: () => {
+        setMode(Edit.Editing);
+      }},
       {text: "Nightmode", action: () => {
         Util.toggleNightMode();
       }},
@@ -125,11 +127,14 @@ let make =
           </a>
         </div>
         <div className="right">
+          (switch (mode) {
+          | Edit.Normal => <PopupMenu title="More" menuItems />
+          | _ => <Edit mode pwd root move onClick=((m, _) => setMode(m)) />
+          }
+          )
           <Search active=searchActive search cancel />
-          <PopupMenu title="More" menuItems />
         </div>
       </div>
     </header>;
-    /* <Edit mode pwd root move onClick=((m, _) => setMode(m)) /> */
   },
 };

@@ -21,6 +21,7 @@ popup-transition = 0.2s ease-out
     -webkit-app-region: drag;
     height: toolbar-height;
     width: 100%;
+    display: flex;
 
     h3 {
       line-height: toolbar-height;
@@ -28,18 +29,18 @@ popup-transition = 0.2s ease-out
     }
 
     .left {
-      float: left;
-      width: 75%;
       height: toolbar-height;
       padding-left: toolbar-padding;
+      flex: 0 1 75%;
     }
 
 
     .right {
-      float: right;
-      width: 25%;
       height: toolbar-height;
       padding-right: toolbar-padding;
+      line-height: toolbar-height;
+      flex: 1 0 25%;
+      display: flex;
     }
 
     .center {
@@ -56,13 +57,6 @@ popup-transition = 0.2s ease-out
         text-decoration: none;
         padding: 0px 10px;
       }
-    }
-
-    .more {
-      float: right;
-      height: toolbar-height;
-      line-height: toolbar-height;
-      padding: 0px 20px;
     }
   }
 
@@ -115,21 +109,26 @@ input {
   font-family: inherit;
   border: none;
   outline: none;
-  text-rendering: geometricPrecision;
 }
 
 .search {
-  float: right;
+  display: inline-block;
   margin-top: 8px;
 }
 
 .edit {
-  float: right;
-  margin-top: 8px;
+  margin-left: 20px;
 
   a {
     margin-right: 20px;
   }
+}
+
+.more {
+  display: inline-block;
+  height: toolbar-height;
+  line-height: toolbar-height;
+  padding: 0px 20px;
 }
 
 

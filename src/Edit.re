@@ -45,7 +45,7 @@ let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
               (ReasonReact.string("Move"))
             </a>
             <a href="#" onClick=(e => onClick(Normal, e))>
-              (ReasonReact.string("Esc"))
+              (ReasonReact.string("Cancel"))
             </a>
           </div>
         }
