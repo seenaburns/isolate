@@ -133,6 +133,45 @@ let modalReducer = (state: State.state, action: State.Modal.action) => {
   };
 };
 
+/*
+ * Chromium seems to hold a copy of every image in the webframe cache. This can
+ * cause the memory used to balloon, looking alarming to users.
+ * webFrame.clearCache() unloads these images, dropping memory at the cost of
+ * directory load time.
+ */
+let clearCache = () => electron##webFrame##clearCache();
+
+/* TODO: current self is set at the start of loading, it should be set on every state change so
+ * hotkeys have extra conditions (or the reducer should handle):
+ * - Separate `Escape` for if modal is active, if Edit.Editing/Edit.Moving
+ * - `e` only applies when Edit.Normal
+ * - `m` only applies when Edit.Editing
+ */
+let keydown = (self: ReasonReact.self(State.state, 'b, 'c), e) => {
+  let active = document##activeElement;
+  if (active##tagName != "INPUT") {
+    switch (e##key) {
+    | "Escape" =>
+      self.send(State.ModalAction(State.Modal.SetActive(false)));
+      self.send(State.SetMode(Edit.Normal));
+    | "z" =>
+      e##preventDefault();
+      self.send(State.ModalAction(State.Modal.ZoomToggle));
+    | "ArrowRight" =>
+      self.send(State.ModalAction(State.Modal.Advance(true)))
+    | "ArrowLeft" =>
+      self.send(State.ModalAction(State.Modal.Advance(false)))
+    | "e" =>
+      e##preventDefault();
+      self.send(State.SetMode(Edit.Editing));
+    | "m" =>
+      e##preventDefault();
+      self.send(State.SetMode(Edit.Moving));
+    | _ => ()
+    };
+  };
+};
+
 module Main = {
   type state = State.state;
   type action = State.action;
@@ -141,199 +180,154 @@ module Main = {
 
   let component = ReasonReact.reducerComponent("Main");
   let make = (setSendAction, _children) => {
-    /* TODO: current self is set at the start of loading, it should be set on every state change so
-     * hotkeys have extra conditions (or the reducer should handle):
-     * - Separate `Escape` for if modal is active, if Edit.Editing/Edit.Moving
-     * - `e` only applies when Edit.Normal
-     * - `m` only applies when Edit.Editing
+    ...component,
+    initialState: State.init,
+    /* Temporary while migrating to ReasonReact,
+     * allows internal state to be visible (via Modal.readOnlyState) and set externally (via
+     * setSendAction)
      */
-    let keydown = (self: ReasonReact.self(state, 'b, 'c), e) => {
-      let active = document##activeElement;
-      if (active##tagName != "INPUT") {
-        switch (e##key) {
-        | "Escape" =>
-          self.send(State.ModalAction(State.Modal.SetActive(false)));
-          self.send(State.SetMode(Edit.Normal));
-        | "z" =>
-          e##preventDefault();
-          self.send(State.ModalAction(State.Modal.ZoomToggle));
-        | "ArrowRight" =>
-          self.send(State.ModalAction(State.Modal.Advance(true)))
-        | "ArrowLeft" =>
-          self.send(State.ModalAction(State.Modal.Advance(false)))
-        | "e" =>
-          e##preventDefault();
-          self.send(State.SetMode(Edit.Editing));
-        | "m" =>
-          e##preventDefault();
-          self.send(State.SetMode(Edit.Moving));
-        | _ => ()
-        };
-      };
-    };
-
-    /*
-     * Chromium seems to hold a copy of every image in the webframe cache. This can
-     * cause the memory used to balloon, looking alarming to users.
-     * webFrame.clearCache() unloads these images, dropping memory at the cost of
-     * directory load time.
-     */
-    let clearCache = () => electron##webFrame##clearCache();
-
-    {
-      ...component,
-      initialState: State.init,
-      /* Temporary while migrating to ReasonReact,
-       * allows internal state to be visible (via Modal.readOnlyState) and set externally (via
-       * setSendAction)
-       */
-      didMount: self => {
-        document##addEventListener("keydown", keydown(self));
-        setSendAction(self.send);
-      },
-      didUpdate: s => readOnlyState := Some(s.newSelf.state),
-      reducer: (action: action, state) => {
-        let setFullTimeout = self => {
-          let _ =
-            Js.Global.setTimeout(
-              () => self.ReasonReact.send(State.SetShowFull(true)),
-              300,
-            );
-          ();
-        };
-
-        switch (action) {
-        | SetRoot(path) => ReasonReact.Update({...state, root: path})
-        | SetPwd(path) =>
-          ReasonReact.UpdateWithSideEffects(
-            {...state, pwd: path, showFull: false},
-            (
-              self => {
-                setFullTimeout(self);
-                clearCache();
-              }
-            ),
-          )
-        | SetImages(images) =>
-          Array.sort(
-            (a: Path.absolute, b: Path.absolute) => compare(a.path, b.path),
-            images,
+    didMount: self => {
+      document##addEventListener("keydown", keydown(self));
+      setSendAction(self.send);
+    },
+    didUpdate: s => readOnlyState := Some(s.newSelf.state),
+    reducer: (action: action, state) => {
+      let setFullTimeout = self => {
+        let _ =
+          Js.Global.setTimeout(
+            () => self.ReasonReact.send(State.SetShowFull(true)),
+            300,
           );
-          ReasonReact.Update({...state, images, selected: [||]});
-        | SetSearchActive(enabled) =>
-          ReasonReact.Update({...state, search: enabled})
-        | ModalAction(m) => modalReducer(state, m)
-        | SetShowFull(b) =>
-          if (b) {
-            ReasonReact.Update({...state, showFull: b});
-          } else {
-            ReasonReact.UpdateWithSideEffects(
-              {...state, showFull: b},
-              (self => setFullTimeout(self)),
-            );
-          }
-        | Resize(cols) => ReasonReact.Update({...state, ncols: cols})
-        | SetMode(m) =>
-          switch (m) {
-          | Edit.Normal =>
-            ReasonReact.Update({...state, mode: m, selected: [||]})
-          | _ => ReasonReact.Update({...state, mode: m})
-          }
-        | Selection(a) => selectionReducer(state, a)
-        | ImageClick(path) =>
-          /* Move imageOnClick logic into reducer so it doesn't have to re-render on every mode
-           * change.
-           */
-          switch (state.mode) {
-          | Edit.Normal =>
-            ReasonReact.SideEffects(
-              (
-                self => {
-                  self.send(ModalAction(State.Modal.SetActive(true)));
-                  self.send(ModalAction(State.Modal.Set(path)));
-                }
-              ),
-            )
-          | Edit.Editing
-          | Edit.Moving => selectionReducer(state, Toggle(path))
-          }
-        | Move(dest) =>
+        ();
+      };
+
+      switch (action) {
+      | SetRoot(path) => ReasonReact.Update({...state, root: path})
+      | SetPwd(path) =>
+        ReasonReact.UpdateWithSideEffects(
+          {...state, pwd: path, showFull: false},
+          (
+            self => {
+              setFullTimeout(self);
+              clearCache();
+            }
+          ),
+        )
+      | SetImages(images) =>
+        Array.sort(
+          (a: Path.absolute, b: Path.absolute) => compare(a.path, b.path),
+          images,
+        );
+        ReasonReact.Update({...state, images, selected: [||]});
+      | SetSearchActive(enabled) =>
+        ReasonReact.Update({...state, search: enabled})
+      | ModalAction(m) => modalReducer(state, m)
+      | SetShowFull(b) =>
+        if (b) {
+          ReasonReact.Update({...state, showFull: b});
+        } else {
           ReasonReact.UpdateWithSideEffects(
-            {...state, selected: [||], mode: Edit.Normal},
+            {...state, showFull: b},
+            (self => setFullTimeout(self)),
+          );
+        }
+      | Resize(cols) => ReasonReact.Update({...state, ncols: cols})
+      | SetMode(m) =>
+        switch (m) {
+        | Edit.Normal =>
+          ReasonReact.Update({...state, mode: m, selected: [||]})
+        | _ => ReasonReact.Update({...state, mode: m})
+        }
+      | Selection(a) => selectionReducer(state, a)
+      | ImageClick(path) =>
+        /* Move imageOnClick logic into reducer so it doesn't have to re-render on every mode
+         * change.
+         */
+        switch (state.mode) {
+        | Edit.Normal =>
+          ReasonReact.SideEffects(
             (
               self => {
-                Js.Array.forEach(
-                  (p: Path.absolute) => Path.unsafeMove(p, dest),
-                  state.selected,
-                );
-                self.send(SetImages(Path.images(state.pwd)));
+                self.send(ModalAction(State.Modal.SetActive(true)));
+                self.send(ModalAction(State.Modal.Set(path)));
               }
             ),
           )
-        };
-      },
-      render: self => {
-        let setPwd = (path: Path.base) => {
-          self.send(SetPwd(path));
-          self.send(SetImages(Path.images(path)));
-        };
+        | Edit.Editing
+        | Edit.Moving => selectionReducer(state, Toggle(path))
+        }
+      | Move(dest) =>
+        ReasonReact.UpdateWithSideEffects(
+          {...state, selected: [||], mode: Edit.Normal},
+          (
+            self => {
+              Js.Array.forEach(
+                (p: Path.absolute) => Path.unsafeMove(p, dest),
+                state.selected,
+              );
+              self.send(SetImages(Path.images(state.pwd)));
+            }
+          ),
+        )
+      };
+    },
+    render: self => {
+      let setPwd = (path: Path.base) => {
+        self.send(SetPwd(path));
+        self.send(SetImages(Path.images(path)));
+      };
 
-        let imageOnClick = (path: Path.absolute, _: ReactEventRe.Mouse.t) =>
-          self.send(ImageClick(path));
+      let imageOnClick = (path: Path.absolute, _: ReactEventRe.Mouse.t) =>
+        self.send(ImageClick(path));
 
-        let move = (dest: Path.base) => self.send(Move(dest));
+      let move = (dest: Path.base) => self.send(Move(dest));
 
-        if (self.state.root.path == "") {
-          /* Show drag and drop */
-          <div className="dragndrop">
-            <img src="assets/icon_512x512.png" />
-            <p>
-              (ReasonReact.string("Drag & drop a folder to get started"))
-            </p>
-          </div>;
-        } else {
-          let dirs = {
-            let subdirs = Array.to_list(Path.subdirs(self.state.pwd));
-            if (self.state.pwd != self.state.root) {
-              [Path.up(self.state.pwd), ...subdirs];
-            } else {
-              subdirs;
-            };
+      if (self.state.root.path == "") {
+        /* Show drag and drop */
+        <div className="dragndrop">
+          <img src="assets/icon_512x512.png" />
+          <p> (ReasonReact.string("Drag & drop a folder to get started")) </p>
+        </div>;
+      } else {
+        let dirs = {
+          let subdirs = Array.to_list(Path.subdirs(self.state.pwd));
+          if (self.state.pwd != self.state.root) {
+            [Path.up(self.state.pwd), ...subdirs];
+          } else {
+            subdirs;
           };
-
-          <div>
-            <Modal
-              state=self.state.modal
-              sendAction=(
-                (a: State.Modal.action) => self.send(ModalAction(a))
-              )
-            />
-            <Toolbar
-              dirs
-              imageCount=(Array.length(self.state.images))
-              mode=self.state.mode
-              move
-              pwd=self.state.pwd
-              root=self.state.root
-              searchActive=self.state.search
-              setImages=(images => self.send(SetImages(images)))
-              setMode=(m => self.send(SetMode(m)))
-              setPwd
-              setSearchActive=(
-                enabled => self.send(SetSearchActive(enabled))
-              )
-            />
-            <ImageGrid
-              images=self.state.images
-              showFull=self.state.showFull
-              ncols=self.state.ncols
-              imageOnClick
-              selectedList=self.state.selected
-            />
-          </div>;
         };
-      },
-    };
+
+        <div>
+          <Modal
+            state=self.state.modal
+            sendAction=(
+              (a: State.Modal.action) => self.send(ModalAction(a))
+            )
+          />
+          <Toolbar
+            dirs
+            imageCount=(Array.length(self.state.images))
+            mode=self.state.mode
+            move
+            pwd=self.state.pwd
+            root=self.state.root
+            searchActive=self.state.search
+            setImages=(images => self.send(SetImages(images)))
+            setMode=(m => self.send(SetMode(m)))
+            setPwd
+            setSearchActive=(enabled => self.send(SetSearchActive(enabled)))
+          />
+          <ImageGrid
+            images=self.state.images
+            showFull=self.state.showFull
+            ncols=self.state.ncols
+            imageOnClick
+            selectedList=self.state.selected
+          />
+        </div>;
+      };
+    },
   };
 };
 
