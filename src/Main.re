@@ -301,12 +301,6 @@ module Main = {
             };
           };
 
-          /* Construct PWD */
-          let pwdPath =
-            Path.renderable(self.state.pwd, self.state.pwd, self.state.root);
-          let imageCount = Array.length(self.state.images);
-          let pwd = {j|$(pwdPath) ($(imageCount))|j};
-
           <div>
             <Modal
               state=self.state.modal
@@ -316,10 +310,11 @@ module Main = {
             />
             <Toolbar
               dirs
+              imageCount=(Array.length(self.state.images))
               mode=self.state.mode
+              move
               pwd=self.state.pwd
               root=self.state.root
-              move
               searchActive=self.state.search
               setImages=(images => self.send(SetImages(images)))
               setMode=(m => self.send(SetMode(m)))

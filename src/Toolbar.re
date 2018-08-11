@@ -10,10 +10,11 @@ let component = ReasonReact.reducerComponent("Toolbar");
 let make =
     (
       ~dirs,
+      ~imageCount,
       ~mode,
+      ~move,
       ~pwd,
       ~root,
-      ~move,
       ~searchActive,
       ~setImages,
       ~setMode,
@@ -79,6 +80,12 @@ let make =
     let onMouseEnter = _e =>
       self.ReasonReact.send(SetDirectoriesEnabled(true));
 
+    /* Construct PWD */
+    let renderedPwd = {
+      let pwdPath = Path.renderable(pwd, pwd, root);
+      {j|$(pwdPath) ($(imageCount))|j};
+    };
+
     <header className="main-header" onMouseLeave>
       (
         if (! searchActive) {
@@ -99,7 +106,7 @@ let make =
         <div className="left" onMouseEnter>
           (
             if (! searchActive) {
-              <h3> (ReasonReact.string(pwd.path)) </h3>;
+              <h3> (ReasonReact.string(renderedPwd)) </h3>;
             } else {
               ReasonReact.null;
             }
@@ -108,7 +115,7 @@ let make =
         <div className="center"> (ReasonReact.string("- Zoom +")) </div>
         <div className="right">
           <Search active=searchActive search cancel />
-          <PopupMenu title="More" menuItems/>
+          <PopupMenu title="More" menuItems />
         </div>
       </div>
     </header>;
