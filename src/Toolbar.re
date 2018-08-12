@@ -62,16 +62,9 @@ let make =
     };
 
     let menuItems: Js.Array.t(PopupMenu.item) = [|
-      {text: "Move", action: () => {
-        setMode(Edit.Editing);
-      }},
-      {text: "Nightmode", action: () => {
-        Util.toggleNightMode();
-      }},
+      {text: "Move", action: () => setMode(Edit.Editing)},
+      {text: "Nightmode", action: () => Util.toggleNightMode()},
     |];
-
-    let renderPath = (p: Path.base) : string =>
-      Path.renderable(p, pwd, root);
 
     let onMouseLeave = _e => {
       let _ =
@@ -94,14 +87,47 @@ let make =
     <header className="main-header" onMouseLeave>
       (
         if (! searchActive) {
-          <Directories
-            title="Navigate:"
-            items=(Array.of_list(dirs))
-            setPwd
-            enabled=self.state.directoriesEnabled
-            setEnabled=(b => self.send(SetDirectoriesEnabled(b)))
-            renderPath
-          />;
+          /* Show directories on hover in normal mode
+           * Disable if editing (still render so it animates out)
+           * When moving, use to select destination
+           */
+          switch (mode) {
+          | Edit.Normal =>
+            let items =
+              Js.Array.map(
+                (p: Path.base) => (
+                  {
+                    display: Path.renderable(p, pwd, root),
+                    action: _ => setPwd(p),
+                  }: Directories.item
+                ),
+                Array.of_list(dirs),
+              );
+            <Directories
+              title="Navigate:"
+              items
+              enabled=self.state.directoriesEnabled
+              setEnabled=(b => self.send(SetDirectoriesEnabled(b)))
+            />;
+          | Edit.Editing => <Directories title="" items=[||] enabled=false />
+          | Edit.Moving =>
+            let allDirs = Path.directoryWalk(root, 5, false, true);
+            let items =
+              Js.Array.map(
+                (p: Path.absolute) => (
+                  {
+                    display: p.path,
+                    action: _ => {
+                      Js.log("Move to " ++ p.path);
+                      setMode(Edit.Normal);
+                    },
+                  }: Directories.item
+                ),
+                allDirs,
+              );
+
+            <Directories title="Select destination:" items enabled=true />;
+          };
         } else {
           ReasonReact.null;
         }
@@ -127,10 +153,11 @@ let make =
           </a>
         </div>
         <div className="right">
-          (switch (mode) {
-          | Edit.Normal => <PopupMenu title="More" menuItems />
-          | _ => <Edit mode pwd root move onClick=((m, _) => setMode(m)) />
-          }
+          (
+            switch (mode) {
+            | Edit.Normal => <PopupMenu title="More" menuItems />
+            | _ => <Edit mode pwd root move onClick=((m, _) => setMode(m)) />
+            }
           )
           <Search active=searchActive search cancel />
         </div>
