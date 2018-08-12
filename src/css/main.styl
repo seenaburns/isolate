@@ -146,6 +146,7 @@ body.nightmode {
   margin-right: image-gap; // balance edge padding
   display: flex;
   flex-direction: row;
+  padding-bottom: toolbar-height;
 }
 
 .image-column {
@@ -159,8 +160,22 @@ body.nightmode {
   margin-bottom: image-gap;
 }
 
+// Selected images get amber overlay
+// use ::after to cover with semi-opaque box
 .selected {
-  border: 10px solid #0F0;
+  position: relative;
+  z-index: -1; // keeps below toolbar
+}
+.selected::after {
+  content: '';
+  background: rgba(255,192,20,0.5);
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
 }
 
 .images-container img {
