@@ -113,16 +113,18 @@ let make =
             let allDirs = Path.directoryWalk(root, 5, false, true);
             let items =
               Js.Array.map(
-                (p: Path.absolute) => (
+                (p: Path.absolute): Directories.item => {
+                  let asBase = Path.asBase(p.path);
                   {
-                    display: Path.renderable(Path.asBase(p.path), Path.asBase("/"), root),
+                    display: Path.renderable(asBase, Path.asBase("/"), root),
                     action: _ => {
                       Js.log("Move to " ++ p.path);
-                      setMode(Edit.Normal);
                       self.send(SetDirectoriesEnabled(false));
+                      move(asBase);
+                      setMode(Edit.Normal);
                     },
-                  }: Directories.item
-                ),
+                  }
+                },
                 allDirs,
               );
 
