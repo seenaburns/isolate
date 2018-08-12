@@ -164,7 +164,6 @@ body.nightmode {
 // use ::after to cover with semi-opaque box
 .selected {
   position: relative;
-  z-index: -1; // keeps below toolbar
 }
 .selected::after {
   content: '';
@@ -181,4 +180,5 @@ body.nightmode {
 .images-container img {
   width: 100%;
   display: block; // remove padding below image
+  pointer-events: auto;
 }

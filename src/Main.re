@@ -322,6 +322,15 @@ module Main = {
               (a: State.Modal.action) => self.send(ModalAction(a))
             )
           />
+          <ImageGrid
+            images=self.state.images
+            showFull=self.state.showFull
+            ncols=self.state.ncols
+            imageOnClick
+            selectedList=self.state.selected
+          />
+
+          /* Render toolbar last to keep highest in stacking context */
           <Toolbar
             dirs
             imageCount=(Array.length(self.state.images))
@@ -335,13 +344,6 @@ module Main = {
             setPwd
             setSearchActive=(enabled => self.send(SetSearchActive(enabled)))
             zoom=(b => self.send(ResizeZoom(Resize.getImagesClientWidth(), b)))
-          />
-          <ImageGrid
-            images=self.state.images
-            showFull=self.state.showFull
-            ncols=self.state.ncols
-            imageOnClick
-            selectedList=self.state.selected
           />
         </div>;
       };
