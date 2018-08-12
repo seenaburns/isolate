@@ -115,7 +115,7 @@ let make =
               Js.Array.map(
                 (p: Path.absolute) => (
                   {
-                    display: p.path,
+                    display: Path.renderable(Path.asBase(p.path), Path.asBase("/"), root),
                     action: _ => {
                       Js.log("Move to " ++ p.path);
                       setMode(Edit.Normal);
