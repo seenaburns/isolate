@@ -66,17 +66,16 @@ let make =
       {text: "Nightmode", action: () => Util.toggleNightMode()},
     |];
 
-    let onMouseLeave = _e => {
-      let _ =
-        Js.Global.setTimeout(
-          _ => self.ReasonReact.send(SetDirectoriesEnabled(false)),
-          200,
-        );
-      ();
+    /* Skip unnecessary events if directories is forced open (mode!=Normal) */
+    let onMouse = (enabled: bool) => {
+      switch (mode) {
+      | Edit.Normal when self.state.directoriesEnabled != enabled =>
+          self.ReasonReact.send(SetDirectoriesEnabled(enabled))
+      | _ => ()
+      }
     };
-
-    let onMouseEnter = _e =>
-      self.ReasonReact.send(SetDirectoriesEnabled(true));
+    let onMouseLeave = _e => onMouse(false);
+    let onMouseEnter = _e => onMouse(true);
 
     /* Construct PWD */
     let renderedPwd = {
@@ -120,6 +119,7 @@ let make =
                     action: _ => {
                       Js.log("Move to " ++ p.path);
                       setMode(Edit.Normal);
+                      self.send(SetDirectoriesEnabled(false));
                     },
                   }: Directories.item
                 ),

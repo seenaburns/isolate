@@ -11,8 +11,9 @@ type state = {
 };
 
 type action =
-  | SetFilter(string)
-  | Keydown(int);
+  | Clear
+  | Keydown(int)
+  | SetFilter(string);
 
 let setInputRef = (r, {ReasonReact.state}) =>
   state.inputRef := Js.Nullable.toOption(r);
@@ -30,7 +31,6 @@ let blur = inputRef =>
   };
 
 let clearInput = inputRef => {
-  Js.log("Clear");
   switch (inputRef^) {
   | None => ()
   | Some(r) => ReasonReact.refToJsObj(r)##value#=""
@@ -62,6 +62,16 @@ let make =
   reducer: (action, state) =>
     switch (action) {
     | SetFilter(s) => ReasonReact.Update({...state, filter: s})
+    | Clear =>
+      ReasonReact.UpdateWithSideEffects(
+        {...state, filter: ""},
+        (
+          _ => {
+            clearInput(state.inputRef);
+            blur(state.inputRef);
+          }
+        ),
+      )
     | Keydown(13) =>
       let filtered = applyFilter(items, state.filter);
       if (Js.Array.length(filtered) >= 1) {
@@ -71,14 +81,15 @@ let make =
       };
     | Keydown(_) => ReasonReact.NoUpdate
     },
-  willReceiveProps: ({state}) => {
-    clearInput(state.inputRef);
+  willReceiveProps: self => {
     if (enabled) {
-      focus(state.inputRef);
+      clearInput(self.state.inputRef);
+      focus(self.state.inputRef);
     } else {
-      blur(state.inputRef);
+      let _ = Js.Global.setTimeout(_ => self.ReasonReact.send(Clear), 200);
+      ();
     };
-    {...state, filter: ""};
+    self.state;
   },
   render: self => {
     let onchange = (e, self) => {
