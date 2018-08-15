@@ -6,6 +6,38 @@ type action =
   | SetDirectoriesEnabled(bool)
   | Keydown(ReactEventRe.Keyboard.t);
 
+module Search = {
+  /* Cache of files in directory tree */
+  let files: ref(option(array(Path.absolute))) = ref(None);
+
+  let loadFiles = (root: Path.base) =>
+    switch (files^) {
+    | None => files := Some(Path.directoryWalk(root, 5, true, false))
+    | Some(_) => ()
+    };
+
+  let search = (root: Path.base, query: string) : array(Path.absolute) => {
+    loadFiles(root);
+
+    Js.log(query);
+    let queryRe = Js.Re.fromString(query);
+
+    switch (files^) {
+    | None =>
+      Js.log("No files loaded for search");
+      [||];
+    | Some(filepaths) =>
+      Array.of_list(
+        List.filter(
+          (p: Path.absolute) =>
+            Js.Option.isSome(Js.Re.exec(p.path, queryRe)),
+          Array.to_list(filepaths),
+        ),
+      )
+    };
+  };
+};
+
 let component = ReasonReact.reducerComponent("Toolbar");
 let make =
     (
@@ -177,7 +209,23 @@ let make =
               </a>
             }
           )
-          <Search active=searchActive search setMode />
+          <input
+            type_="text"
+            className="search"
+            placeholder="Search..."
+            onKeyDown=(
+              e =>
+                if (ReactEventRe.Keyboard.key(e) == "Enter") {
+                  ReactEventRe.Keyboard.preventDefault(e);
+                  let target =
+                    ReactDOMRe.domElementToObj(
+                      ReactEventRe.Keyboard.target(e),
+                    );
+                  search(target##value);
+                  setMode(State.Search);
+                }
+            )
+          />
         </div>
       </div>
     </header>;
