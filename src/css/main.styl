@@ -15,6 +15,8 @@ header-padding = 0 40px 30px
 image-gap = 4px
 body-padding = image-gap 0 0 0
 
+line-height = 1.4em
+
 @require 'src/css/toolbar.styl'
 @require 'src/css/modal.styl'
 
@@ -55,7 +57,7 @@ body {
   -webkit-app-region: drag;
   font-family: 'inconsolata_packaged', Inconsolata, monospace;
   font-size: 14px;
-  line-height: 1.4em;
+  line-height: line-height;
   padding: body-padding;
   margin: 0;
   text-rendering: geometricPrecision;
