@@ -13,10 +13,16 @@ module Modal = {
     | ZoomToggle;
 };
 
+type mode =
+  | Normal
+  | Edit
+  | EditMoving
+  | Search
+
 type state = {
   images: array(Path.absolute),
   modal: Modal.state,
-  mode: Edit.mode,
+  mode: mode,
   pwd: Path.base,
   root: Path.base,
   search: bool,
@@ -50,7 +56,7 @@ type action =
   | ResizeZoom(int, bool)
   | Selection(Selection.action)
   | SetImages(array(Path.absolute))
-  | SetMode(Edit.mode)
+  | SetMode(mode)
   | SetPwd(Path.base)
   | SetRoot(Path.base)
   | SetSearchActive(bool)
@@ -59,7 +65,7 @@ type action =
 let init = () => {
   images: [||],
   modal: Modal.{active: false, zoomed: false, current: Path.asAbsolute("")},
-  mode: Edit.Normal,
+  mode: Normal,
   pwd: Path.asBase(""),
   root: Path.asBase(""),
   search: false,

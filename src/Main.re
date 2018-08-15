@@ -148,9 +148,9 @@ let clearCache = () => electron##webFrame##clearCache();
 
 /* TODO: current self is set at the start of loading, it should be set on every state change so
  * hotkeys have extra conditions (or the reducer should handle):
- * - Separate `Escape` for if modal is active, if Edit.Editing/Edit.Moving
- * - `e` only applies when Edit.Normal
- * - `m` only applies when Edit.Editing
+ * - Separate `Escape` for if modal is active, if Edit/EditMoving
+ * - `e` only applies when Normal
+ * - `m` only applies when Edit
  */
 let keydown = (self: ReasonReact.self(State.state, 'b, 'c), e) => {
   let active = document##activeElement;
@@ -158,7 +158,7 @@ let keydown = (self: ReasonReact.self(State.state, 'b, 'c), e) => {
     switch (e##key) {
     | "Escape" =>
       self.send(State.ModalAction(State.Modal.SetActive(false)));
-      self.send(State.SetMode(Edit.Normal));
+      self.send(State.SetMode(Normal));
     | "z" =>
       e##preventDefault();
       self.send(State.ModalAction(State.Modal.ZoomToggle));
@@ -168,10 +168,10 @@ let keydown = (self: ReasonReact.self(State.state, 'b, 'c), e) => {
       self.send(State.ModalAction(State.Modal.Advance(false)))
     | "e" =>
       e##preventDefault();
-      self.send(State.SetMode(Edit.Editing));
+      self.send(State.SetMode(Edit));
     | "m" =>
       e##preventDefault();
-      self.send(State.SetMode(Edit.Moving));
+      self.send(State.SetMode(EditMoving));
     | _ => ()
     };
   };
@@ -251,7 +251,7 @@ module Main = {
         });
       | SetMode(m) =>
         switch (m) {
-        | Edit.Normal =>
+        | Normal =>
           ReasonReact.Update({...state, mode: m, selected: [||]})
         | _ => ReasonReact.Update({...state, mode: m})
         }
@@ -261,7 +261,8 @@ module Main = {
          * change.
          */
         switch (state.mode) {
-        | Edit.Normal =>
+        | Normal
+        | Search =>
           ReasonReact.SideEffects(
             (
               self => {
@@ -270,12 +271,12 @@ module Main = {
               }
             ),
           )
-        | Edit.Editing
-        | Edit.Moving => selectionReducer(state, Toggle(path))
+        | Edit
+        | EditMoving => selectionReducer(state, Toggle(path))
         }
       | Move(dest) =>
         ReasonReact.UpdateWithSideEffects(
-          {...state, selected: [||], mode: Edit.Normal},
+          {...state, selected: [||], mode: Normal},
           (
             self => {
               Js.Array.forEach(

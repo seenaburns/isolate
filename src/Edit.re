@@ -38,16 +38,7 @@ let make = (~mode, ~pwd, ~root, ~onClick, ~move, _children) => {
               (ReasonReact.string("Edit"))
             </a>
           </div>
-        | Editing
-        | Moving =>
-          <div className="edit">
-            <a href="#" onClick=(e => onClick(Moving, e))>
-              (ReasonReact.string("Move"))
-            </a>
-            <a href="#" onClick=(e => onClick(Normal, e))>
-              (ReasonReact.string("Cancel"))
-            </a>
-          </div>
+        | _ => ReasonReact.null
         }
       )
     </div>,

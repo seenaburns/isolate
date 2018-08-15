@@ -28,17 +28,14 @@ let search = (root: Path.base, query: string) : array(Path.absolute) => {
 };
 
 let component = ReasonReact.statelessComponent("Search");
-let make = (~active, ~search, ~cancel, _children) => {
+let make = (~active, ~search, ~setMode, _children) => {
   ...component,
   render: self => {
-    let back = (_event, self) => {
-      cancel();
-    };
-
     let onkeydown = (e, self) =>
       if (e##key == "Enter") {
         e##preventDefault();
         search(e##target##value);
+        setMode(State.Search);
       };
 
     let input =
@@ -53,15 +50,6 @@ let make = (~active, ~search, ~cancel, _children) => {
         [||],
       );
 
-    let controls =
-      if (active) {
-        <a href="#" onClick=(self.handle(back))>
-          (ReasonReact.string("Back"))
-        </a>;
-      } else {
-        ReasonReact.null;
-      };
-
-    <div> input controls </div>;
+    input;
   },
 };
