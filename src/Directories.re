@@ -30,23 +30,23 @@ let blur = inputRef =>
   | Some(r) => ReasonReact.refToJsObj(r)##blur()
   };
 
-let clearInput = inputRef => {
+let clearInput = inputRef =>
   switch (inputRef^) {
   | None => ()
   | Some(r) => ReasonReact.refToJsObj(r)##value#=""
   };
-};
 
 let applyFilter =
     (items: Js.Array.t(item), query: string)
-    : Js.Array.t(item) =>
+    : Js.Array.t(item) => {
+  let queries = Array.to_list(Js.String.split(" ", query));
+
   Js.Array.filter(
-    (i: item) => {
-      let queryRe = Js.Re.fromString(query);
-      Js.Option.isSome(Js.Re.exec(i.display, queryRe));
-    },
+    (i: item) =>
+      List.for_all(q => Js.String.includes(Js.String.toLowerCase(q), Js.String.toLowerCase(i.display)), queries),
     items,
   );
+};
 
 let component = ReasonReact.reducerComponent("Directories");
 let make =
