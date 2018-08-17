@@ -153,12 +153,18 @@ let clearCache = () => electron##webFrame##clearCache();
  * - `m` only applies when Edit
  */
 let keydown = (self: ReasonReact.self(State.state, 'b, 'c), e) => {
+  /* Universal hotkeys (also defined in menu) */
+  switch (e##key) {
+  | "Escape" =>
+    self.send(State.ModalAction(State.Modal.SetActive(false)));
+    self.send(State.SetMode(Normal));
+  | _ => ()
+  };
+
+  /* Hokeys when not focused on input (e.g. typing in search) */
   let active = document##activeElement;
   if (active##tagName != "INPUT") {
     switch (e##key) {
-    | "Escape" =>
-      self.send(State.ModalAction(State.Modal.SetActive(false)));
-      self.send(State.SetMode(Normal));
     | "z" =>
       e##preventDefault();
       self.send(State.ModalAction(State.Modal.ZoomToggle));
