@@ -239,11 +239,19 @@ module Main = {
       | Resize(imagesClientWidth) =>
         ReasonReact.Update({
           ...state,
-          ncols: Resize.columnsThatFit(imagesClientWidth, state.desiredColumnWidth),
+          ncols:
+            Resize.columnsThatFit(
+              imagesClientWidth,
+              state.desiredColumnWidth,
+            ),
         })
       | ResizeZoom(imagesClientWidth, larger) =>
         let (newNCols, newDesiredWidth) =
-          Resize.calcNewDesiredColumnWidth(imagesClientWidth, state.ncols, larger);
+          Resize.calcNewDesiredColumnWidth(
+            imagesClientWidth,
+            state.ncols,
+            larger,
+          );
         ReasonReact.Update({
           ...state,
           ncols: newNCols,
@@ -251,8 +259,7 @@ module Main = {
         });
       | SetMode(m) =>
         switch (m) {
-        | Normal =>
-          ReasonReact.Update({...state, mode: m, selected: [||]})
+        | Normal => ReasonReact.Update({...state, mode: m, selected: [||]})
         | _ => ReasonReact.Update({...state, mode: m})
         }
       | Selection(a) => selectionReducer(state, a)
@@ -330,7 +337,6 @@ module Main = {
             imageOnClick
             selectedList=self.state.selected
           />
-
           /* Render toolbar last to keep highest in stacking context */
           <Toolbar
             dirs
@@ -344,7 +350,9 @@ module Main = {
             setMode=(m => self.send(SetMode(m)))
             setPwd
             setSearchActive=(enabled => self.send(SetSearchActive(enabled)))
-            zoom=(b => self.send(ResizeZoom(Resize.getImagesClientWidth(), b)))
+            zoom=(
+              b => self.send(ResizeZoom(Resize.getImagesClientWidth(), b))
+            )
           />
         </div>;
       };
@@ -390,12 +398,10 @@ let setRoot = (s: string) => {
 let crossPlatform = Path.crossPlatform;
 let setCols = (n: int) => sendAction(Resize(n));
 
-let zoomIn = () => {
+let zoomIn = () =>
   sendAction(ResizeZoom(Resize.getImagesClientWidth(), true));
-};
-let zoomOut = () => {
+let zoomOut = () =>
   sendAction(ResizeZoom(Resize.getImagesClientWidth(), false));
-};
 
 /* Register event listener for window resize
  * limits resize to one call per 100ms

@@ -43,7 +43,14 @@ let applyFilter =
 
   Js.Array.filter(
     (i: item) =>
-      List.for_all(q => Js.String.includes(Js.String.toLowerCase(q), Js.String.toLowerCase(i.display)), queries),
+      List.for_all(
+        q =>
+          Js.String.includes(
+            Js.String.toLowerCase(q),
+            Js.String.toLowerCase(i.display),
+          ),
+        queries,
+      ),
     items,
   );
 };

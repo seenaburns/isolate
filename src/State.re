@@ -17,12 +17,12 @@ type mode =
   | Normal
   | Edit
   | EditMoving
-  | Search
+  | Search;
 
 type state = {
   images: array(Path.absolute),
   modal: Modal.state,
-  mode: mode,
+  mode,
   pwd: Path.base,
   root: Path.base,
   search: bool,

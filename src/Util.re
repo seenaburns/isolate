@@ -19,9 +19,9 @@ let throttle = (rate_ms: int, f: unit => unit) => {
   throttler;
 };
 
-/* 
+/*
  * Nightmode functions
- * 
+ *
  * TODO: this is a really hacky copy from js into reason, so both reason and js
  * can depend on the code. This should be moved into some state owned by the
  * main component, and changed by a reducer.
@@ -57,5 +57,5 @@ let nightModeEnabled: unit => bool = [%bs.raw
 
 let toggleNightMode = () => {
   let curr = nightModeEnabled();
-  setNightMode(!curr);
-}
+  setNightMode(! curr);
+};
