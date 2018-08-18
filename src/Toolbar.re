@@ -52,6 +52,7 @@ let make =
       ~setMode: State.mode => unit,
       ~setPwd,
       ~setSearchActive,
+      ~toggleShuffle,
       ~zoom: bool => unit,
       _children,
     ) => {
@@ -96,6 +97,7 @@ let make =
 
     let menuItems: Js.Array.t(PopupMenu.item) = [|
       {text: "Move", action: () => setMode(Edit)},
+      {text: "Shuffle", action: () => toggleShuffle()},
       {text: "Nightmode", action: () => Util.toggleNightMode()},
     |];
 

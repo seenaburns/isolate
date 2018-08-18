@@ -49,6 +49,18 @@ let advance = (current: 'a, images: array('a), forward: bool) : option('a) => {
   };
 };
 
+let shuffle: array('a) => array('a) = [%bs.raw
+  {|
+    function (a) {
+      for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+  |}
+];
+
 let selectionReducer = (state: State.state, action: State.Selection.action) => {
   let add = p =>
     if (! Js.Array.includes(p, state.selected)) {
@@ -216,7 +228,7 @@ module Main = {
       | SetRoot(path) => ReasonReact.Update({...state, root: path})
       | SetPwd(path) =>
         ReasonReact.UpdateWithSideEffects(
-          {...state, pwd: path, showFull: false},
+          {...state, pwd: path, showFull: false, shuffle: false},
           (
             self => {
               setFullTimeout(self);
@@ -225,10 +237,23 @@ module Main = {
           ),
         )
       | SetImages(images) =>
-        Array.sort(
-          (a: Path.absolute, b: Path.absolute) => compare(a.path, b.path),
-          images,
-        );
+        /*
+         * Set image grid contents, ordered
+         * Apply shuffle if set (and not searching), but otherwise sort by filename.
+         * Because modal left/right happens from image list, apply shuffle when
+         * setting images (also stopping from reshuffling when react redraws)
+         */
+        let images =
+          if (state.shuffle && ! state.search) {
+            shuffle(images);
+          } else {
+            Array.sort(
+              (a: Path.absolute, b: Path.absolute) =>
+                compare(a.path, b.path),
+              images,
+            );
+            images;
+          };
         ReasonReact.Update({...state, images, selected: [||]});
       | SetSearchActive(enabled) =>
         ReasonReact.Update({...state, search: enabled})
@@ -300,6 +325,16 @@ module Main = {
             }
           ),
         )
+      | SetShuffle(b) =>
+        ReasonReact.UpdateWithSideEffects(
+          {...state, shuffle: b},
+          (self => self.send(SetImages(self.state.images))),
+        )
+      | ToggleShuffle =>
+        ReasonReact.UpdateWithSideEffects(
+          {...state, shuffle: ! state.shuffle},
+          (self => self.send(SetImages(self.state.images))),
+        )
       };
     },
     render: self => {
@@ -356,6 +391,7 @@ module Main = {
             setMode=(m => self.send(SetMode(m)))
             setPwd
             setSearchActive=(enabled => self.send(SetSearchActive(enabled)))
+            toggleShuffle=(_ => self.send(ToggleShuffle))
             zoom=(
               b => self.send(ResizeZoom(Resize.getImagesClientWidth(), b))
             )

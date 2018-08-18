@@ -27,6 +27,7 @@ type state = {
   root: Path.base,
   search: bool,
   selected: Js.Array.t(Path.absolute),
+  shuffle: bool,
   /*
    * ncols: the number of columns rendered by the image grid however, zooming is
    * managed by a desired, minimum column width, which is used to calculate the
@@ -60,7 +61,9 @@ type action =
   | SetPwd(Path.base)
   | SetRoot(Path.base)
   | SetSearchActive(bool)
-  | SetShowFull(bool);
+  | SetShowFull(bool)
+  | SetShuffle(bool)
+  | ToggleShuffle;
 
 let init = () => {
   images: [||],
@@ -70,6 +73,7 @@ let init = () => {
   root: Path.asBase(""),
   search: false,
   selected: [||],
+  shuffle: false,
   desiredColumnWidth: 200,
   ncols: 4,
   showFull: false,
