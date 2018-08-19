@@ -21,7 +21,14 @@ $bsb -make-world
 
 # Replace require(...) with reference to local module
 replace_deps() {
-  sed -i '' "s|require(\"$1|require(\"$2|g" $3;
+  sedcmd="s|require(\"$1|require(\"$2|g";
+
+  if [[ $OSTYPE = darwin* ]]
+  then
+    sed -i '' "$sedcmd" "$3";
+  else
+    sed -i "$sedcmd" "$3";
+  fi
 }
 
 if [ ! -d build/bs-stdlib ];
@@ -37,12 +44,12 @@ then
 
   for f in $(find build/reason-react -iname '*.js');
   do
-    replace_deps "bs-platform" "../../../build/bs-stdlib" $f
+    replace_deps "bs-platform" "../../../build/bs-stdlib" "$f"
   done
 fi
 
 for f in $(find src -iname '*.bs.js');
 do
-  replace_deps "bs-platform" "../build/bs-stdlib" $f
-  replace_deps "reason-react" "../build/reason-react" $f
+  replace_deps "bs-platform" "../build/bs-stdlib" "$f"
+  replace_deps "reason-react" "../build/reason-react" "$f"
 done
