@@ -43,7 +43,7 @@ function openLocationMenu(menuItem, browserWindow, event) {
     p = reason.currentImage()
     p = reason.crossPlatform(p)
     p = p.replace('file://', '')
-    app.showItemInFolder(imageUrl)
+    app.showItemInFolder(p)
   }
 }
 
