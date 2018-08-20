@@ -38,23 +38,12 @@ line-height = 1.4em
 
 * {
   box-sizing: border-box;
-  // Disabling dragging, add on a case by case basis
-  // -webkit-app-region: no-drag;
-  
   // Seems necessary for geometricPercision text rendering, maybe because of transitions?
   // https://stackoverflow.com/questions/32724159/issues-with-geometricprecision-in-chrome
   backface-visibility: hidden;
 }
 
-/* 
- * Frameless Electron windows aren’t draggable. Here we make everything
- * undraggable, and then explicitly allow dragging on the body. This results in
- * only the top bar (where the traffic light buttons are) being used as a drag
- * handle for the entire window */
- */
-
 body {
-  -webkit-app-region: drag;
   font-family: 'inconsolata_packaged', Inconsolata, monospace;
   font-size: 14px;
   line-height: line-height;
@@ -183,4 +172,53 @@ body.nightmode {
   width: 100%;
   display: block; // remove padding below image
   pointer-events: auto;
+}
+
+// Platform specific styling
+
+// Frameless Electron windows aren’t draggable.
+
+/* Default / On MacOS
+ * On MacOS, making everything draggable works works: everything in the window
+ * can be used as a drag handle, but elements still register mouse events
+ */
+body {
+  -webkit-app-region: drag;
+
+  .main-header {
+    -webkit-app-region: drag;
+  }
+
+  .draggable-top, .draggable-bottom {
+    display: none;
+  }
+}
+
+/*
+ * On Windows, it's either but not both. Therefore, we make everything undraggable
+ * and enable for a thin region at the top
+ */
+body.win32 {
+  -webkit-app-region: no-drag;
+
+  .main-header {
+    -webkit-app-region: no-drag;
+  }
+
+  .draggable-top, .draggable-bottom {
+    -webkit-app-region: drag;
+    position: fixed;
+    width: 100%;
+    display: block;
+  }
+
+  .draggable-top {
+    top: 0;
+    height: 12px;
+  }
+
+  .draggable-bottom {
+    bottom: 0;
+    height: 5px;
+  }
 }

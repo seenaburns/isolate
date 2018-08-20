@@ -61,6 +61,8 @@ if (platform == 'win32') {
   scrollbar.Init(nightMode)
 }
 
+document.querySelector("body").classList.add(platform)
+
 menu.Functions.Copy = copyMenu
 menu.Functions.NightMode = nightModeMenu
 menu.Functions.OpenLocation = openLocationMenu
