@@ -130,8 +130,11 @@ input {
   height: toolbar-height;
   line-height: toolbar-height;
   padding: 0px 20px;
-}
 
+  // overlap 1px border on toolbar
+  // windows seems very sensitive to loosing hover when mouse passes over border
+  margin-top: -1px;
+}
 
 .popup-container {
   width: 130px;
