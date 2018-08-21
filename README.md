@@ -45,7 +45,7 @@ Clicking on any image will open it, fitting to the window.
 
 **Right clicking** on the image shows you
 
-- `CmdOrCtrl + C` copies the image to your clipboard
+- `CmdOrCtrl + Shift + C` copies the image to your clipboard
 - `CmdOrCtrl + Shift + O` opens the image in your native file manager
 
 #### Toolbar

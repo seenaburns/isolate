@@ -34,6 +34,7 @@ function copyMenu(menuItem, browserWindow, event) {
     p = reason.currentImage()
     p = reason.crossPlatform(p)
     p = p.replace('file://', '')
+    console.log("copy", p)
     electron.clipboard.writeImage(p)
   }
 }
@@ -43,6 +44,7 @@ function openLocationMenu(menuItem, browserWindow, event) {
     p = reason.currentImage()
     p = reason.crossPlatform(p)
     p = p.replace('file://', '')
+    console.log("open", p)
     app.showItemInFolder(p)
   }
 }
