@@ -14,13 +14,11 @@ let ui = {
   'body': document.querySelector('body'),
 }
 
-reason.setRoot(root)
-
 document.ondragover = (ev) => {
   ev.preventDefault()
 }
 
-document.ondrop = document.body.ondrop = (ev) => {
+document.ondrop = document.ondrop = (ev) => {
   ev.preventDefault()
 
   p = ev.dataTransfer.files[0].path
@@ -52,6 +50,8 @@ function openLocationMenu(menuItem, browserWindow, event) {
 function nightModeMenu(menuItem, browserWindow, event) {
   reason.toggleNightMode()
 }
+
+reason.setRoot(root)
 
 nightModeSetting = userData.Get("settings.json")["night_mode"]
 nightMode = nightModeSetting != undefined && nightModeSetting
