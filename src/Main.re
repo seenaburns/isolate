@@ -124,7 +124,7 @@ let modalReducer = (state: State.state, action: State.Modal.action) => {
       ),
     )
   | SetZoom(zoomed) => setZoom(zoomed)
-  | ZoomToggle => setZoom(! state.modal.zoomed)
+  | ZoomToggle when state.modal.active => setZoom(! state.modal.zoomed)
   | Advance(forward) when ! state.modal.zoomed =>
     let next = advance(state.modal.current, state.images, forward);
     switch (next) {
