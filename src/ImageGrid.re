@@ -18,7 +18,7 @@ let make =
       _children,
     ) => {
   ...component,
-  render: self => {
+  render: _ => {
     let makeImage = (image: Path.absolute) => {
       let selected = Js.Array.includes(image, selectedList);
       <Image image imageOnClick selected />;
@@ -38,7 +38,8 @@ let make =
     /* Split images across n cols, in row order */
     let columns = [||];
     for (_ in 0 to ncols - 1) {
-      Js.Array.push(ref([]), columns);
+      let _ = Js.Array.push(ref([]), columns);
+      ();
     };
     Array.iteri(
       (i, img) => columns[i mod ncols] := [img, ...columns[i mod ncols]^],

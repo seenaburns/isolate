@@ -16,7 +16,7 @@ let make =
       _children,
     ) => {
   ...component,
-  render: self => {
+  render: _ => {
     let containerClasses = {
       let default = "modal-container";
       let zoomClass = state.zoomed ? "modal-zoomed" : "modal-unzoomed";
@@ -31,7 +31,7 @@ let make =
               <span
                 id="close"
                 dangerouslySetInnerHTML=[%bs.raw {| {__html: svg_close } |}]
-                onClick=(e => sendAction(SetActive(false)))
+                onClick=(_ => sendAction(SetActive(false)))
               />
               (
                 if (state.zoomed) {
@@ -40,13 +40,13 @@ let make =
                     dangerouslySetInnerHTML=[%bs.raw
                       {| {__html: svg_unzoom } |}
                     ]
-                    onClick=(e => sendAction(SetZoom(false)))
+                    onClick=(_ => sendAction(SetZoom(false)))
                   />;
                 } else {
                   <span
                     id="zoom"
                     dangerouslySetInnerHTML=[%bs.raw {| {__html: svg_zoom } |}]
-                    onClick=(e => sendAction(SetZoom(true)))
+                    onClick=(_ => sendAction(SetZoom(true)))
                   />;
                 }
               )
@@ -70,7 +70,7 @@ let make =
           <div
             id="modal-content"
             className="modal-content"
-            onClick=(e => sendAction(SetActive(false)))>
+            onClick=(_ => sendAction(SetActive(false)))>
             <img src=Path.makeUrl(state.current).url />
           </div>
         </div>

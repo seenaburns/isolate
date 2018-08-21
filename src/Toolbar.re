@@ -198,10 +198,10 @@ let make =
             | Edit
             | EditMoving =>
               <div className="edit">
-                <a href="#" onClick=(e => setMode(EditMoving))>
+                <a href="#" onClick=(_ => setMode(EditMoving))>
                   (ReasonReact.string("Move"))
                 </a>
-                <a href="#" onClick=(e => setMode(Normal))>
+                <a href="#" onClick=(_ => setMode(Normal))>
                   (ReasonReact.string("Cancel"))
                 </a>
               </div>
