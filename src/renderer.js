@@ -18,7 +18,7 @@ document.ondragover = (ev) => {
   ev.preventDefault()
 }
 
-document.ondrop = document.ondrop = (ev) => {
+document.ondrop = document.body.ondrop = (ev) => {
   ev.preventDefault()
 
   p = ev.dataTransfer.files[0].path
