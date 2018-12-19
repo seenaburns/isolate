@@ -13,9 +13,16 @@ import {
   GUTTER_SIZE,
   DEFAULT_COLUMN_WIDTH
 } from "./lib/resize";
+import { ENGINE_METHOD_ALL } from "constants";
+import Modal from "./components/modal";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
+
+enum Mode {
+  Modal,
+  Selection
+}
 
 interface AppProps {}
 
@@ -25,6 +32,9 @@ interface AppState {
 
   path: string;
   contents: DirectoryContents;
+  selection: string[];
+  mode: Mode;
+  modal?: string;
 
   columnSizing: ColumnSizing;
 }
@@ -44,7 +54,10 @@ class App extends React.Component<AppProps, AppState> {
       width: DEFAULT_COLUMN_WIDTH,
       minimumColumnWidth: DEFAULT_COLUMN_WIDTH,
       containerWidth: 0
-    }
+    },
+
+    selection: [],
+    mode: Mode.Modal
   };
 
   componentDidMount() {
@@ -60,7 +73,8 @@ class App extends React.Component<AppProps, AppState> {
         this.setState(state => ({
           path: newPath,
           contents: contents,
-          activeRequest: undefined
+          activeRequest: undefined,
+          selection: []
         }));
       },
       err => {
@@ -100,10 +114,31 @@ class App extends React.Component<AppProps, AppState> {
     }));
   }
 
+  imageOnClick(path: string) {
+    this.setState(state => {
+      if (state.mode === Mode.Modal) {
+        return {
+          modal: path,
+          selection: state.selection
+        };
+      }
+      return {
+        selection: toggleSelection(state.selection, path),
+        modal: state.modal
+      };
+    });
+  }
+
   render() {
     return (
       <div>
         {this.state.activeRequest && <Loading />}
+        {this.state.modal && (
+          <Modal
+            image={this.state.modal}
+            close={() => this.setState({ modal: undefined })}
+          />
+        )}
         <Errors errors={this.state.errors} />
         <Directories dirs={this.state.contents.dirs} cd={this.cd.bind(this)} />
         <a href="#" onClick={() => this.zoom(true)}>
@@ -116,10 +151,20 @@ class App extends React.Component<AppProps, AppState> {
           images={this.state.contents.images}
           columnSizing={this.state.columnSizing}
           onResize={this.resize.bind(this)}
+          imageOnClick={this.imageOnClick.bind(this)}
+          selection={this.state.selection}
         />
       </div>
     );
   }
+}
+
+function toggleSelection(selection: string[], path: string) {
+  if (selection.includes(path)) {
+    return selection.filter(p => p !== path);
+  }
+  selection.push(path);
+  return selection;
 }
 
 ReactDOM.render(<App />, document.getElementById("root"));

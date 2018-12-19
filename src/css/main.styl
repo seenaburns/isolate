@@ -1,15 +1,90 @@
-body {
-  --fg: #000;
-  --bg: #fff;
+fg = #000
+fg-faded = #ddd
+modal-fg = #bbb
+modal-fg-bright = #fff
+bg = #fff
+
+nightmode-fg = #fff
+nightmode-fg-faded = #333
+nightmode-modal-fg = #bbb
+nightmode-modal-fg-bright = #fff
+nightmode-bg = #1c1c21
+
+header-padding = 0 40px 30px
+body-padding = image-gap 0 0 0
+
+line-height = 1.4em
+
+@require 'src/css/modal.styl'
+
+// Fonts
+@font-face {
+    font-family: 'inconsolata_packaged';
+    src: url('../assets/fonts/Inconsolata/Inconsolata-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'inconsolata_packaged';
+    src: url('../assets/fonts/Inconsolata/Inconsolata-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+* {
+  box-sizing: border-box;
+  // Seems necessary for geometricPercision text rendering, maybe because of transitions?
+  // https://stackoverflow.com/questions/32724159/issues-with-geometricprecision-in-chrome
+  backface-visibility: hidden;
 }
 
 body {
+  font-family: 'inconsolata_packaged', Inconsolata, monospace;
+  font-size: 14px;
+  line-height: line-height;
+  padding: body-padding;
+  margin: 0;
+  text-rendering: geometricPrecision;
+
   color: var(--fg)
   background: var(--bg)
+}
+
+body {
+  --fg: fg
+  --bg: bg
+  --modal-fg: modal-fg
+  --modal-fg-bright: modal-fg-bright
+}
+
+body.nightmode {
+  --fg: nightmode-fg
+  --bg: nightmode-bg
+  --modal-fg: nightmode-modal-fg
+  --modal-fg-bright: nightmode-modal-fg-bright
+}
+
+a {
+  color: var(--fg)
 }
 
 .loading {
   position: fixed;
   width: 50px;
   margin: 20 auto;
+}
+
+// Selected images get amber overlay
+.selected {
+  background: rgba(255,192,20,0.5);
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+:focus {
+  outline: none;
 }

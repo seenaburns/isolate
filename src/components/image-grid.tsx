@@ -25,6 +25,8 @@ interface ImageGridProps {
   images: Image[];
   columnSizing: ColumnSizing;
   onResize: (dim: { height: number; width: number }) => void;
+  imageOnClick: (path: string) => void;
+  selection: string[];
 }
 
 // ImageGrid works by using react-virtualized's collection (inside AutoSizer for
@@ -107,13 +109,23 @@ class ImageGrid extends React.Component<ImageGridProps> {
     );
 
     return (
-      <img
-        src={encodeURI(path)}
-        style={style}
-        key={key}
-        width={width}
-        height={height}
-      />
+      <div style={style} key={key}>
+        {this.props.selection.includes(path) && (
+          <div
+            className="selected"
+            style={{
+              width: width,
+              height: height
+            }}
+          />
+        )}
+        <img
+          src={encodeURI(path)}
+          width={width}
+          height={height}
+          onClick={() => this.props.imageOnClick(path)}
+        />
+      </div>
     );
   }
 
