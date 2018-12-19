@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Isolate /</title>
+  <title>Isolate</title>
   <link href="build/style.css" rel="stylesheet">
 
   <style id="scrollbar-style">
@@ -13,14 +13,12 @@
 
 <body>
 
-<div id="browser-root">
+<div id="root">
 </div>
 <div class="draggable-top"></div>
 
 <script>
-  // You can also require other files to run in this process
-  require('./src/Main.bs.js')
-  require('./src/renderer.js')
+  require("../build/renderer.js");
 </script>
 </body>
 </html>

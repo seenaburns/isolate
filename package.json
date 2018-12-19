@@ -1,24 +1,33 @@
 {
   "name": "isolate",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack": "electron-builder --config build.json --dir",
     "dist": "npm run build && electron-builder --config build.json",
-    "build": "./build.sh",
+    "build-css": "cat src/css/main.styl | npx stylus > build/style.css",
+    "build": "mkdir -p build/ && npm run build-css && npx webpack",
     "start": "npm run build && electron . "
   },
   "keywords": [],
   "author": "Seena Burns",
   "devDependencies": {
-    "electron": "1.8.4",
-    "electron-builder": "^19.52.1",
-    "bs-platform": "^3.1.5",
-    "stylus": "^0.54.5"
+    "@types/react": "16.7.3",
+    "css-loader": "1.0.1",
+    "electron-builder": "19.52.1",
+    "style-loader": "0.23.1",
+    "stylus": "0.54.5",
+    "ts-loader": "5.3.1",
+    "typescript": "3.1.6",
+    "webpack": "4.25.1",
+    "webpack-cli": "3.1.2"
   },
   "dependencies": {
-    "reason-react": "^0.4.2"
+    "electron": "4.0.0-beta.7",
+    "react": "16.6.1",
+    "react-dom": "16.6.1",
+    "react-virtualized": "9.21.0"
   }
 }
