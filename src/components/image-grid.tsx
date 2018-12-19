@@ -3,14 +3,11 @@ import { AutoSizer, Collection, WindowScroller } from "react-virtualized";
 import "react-virtualized/styles.css"; // only needs to be imported once
 
 import { Image } from "../lib/image";
-import { resize, zoom, ColumnSizing } from "../lib/resize";
+import { ColumnSizing, DEFAULT_COLUMN_WIDTH, GUTTER_SIZE } from "../lib/resize";
 
-const GUTTER_SIZE = 4;
-const COLUMN_WIDTH = 200;
-const THUMBNAIL_WIDTH = 250;
-const VERTICAL_OVERSCAN_SIZE = COLUMN_WIDTH * 10;
+const VERTICAL_OVERSCAN_SIZE = DEFAULT_COLUMN_WIDTH * 10;
 
-export default class Images extends React.Component<{ images: Image[] }> {
+export default class Images extends React.Component<ImageGridProps> {
   render() {
     if (this.props.images.length == 0) {
       return null;
@@ -18,7 +15,7 @@ export default class Images extends React.Component<{ images: Image[] }> {
     return (
       <div>
         <h2>Files</h2>
-        <ImageGrid images={this.props.images} />
+        <ImageGrid {...this.props} />
       </div>
     );
   }
@@ -26,11 +23,8 @@ export default class Images extends React.Component<{ images: Image[] }> {
 
 interface ImageGridProps {
   images: Image[];
-}
-
-interface ImageGridState {
-  containerWidth: number;
-  column: ColumnSizing;
+  columnSizing: ColumnSizing;
+  onResize: (dim: { height: number; width: number }) => void;
 }
 
 // ImageGrid works by using react-virtualized's collection (inside AutoSizer for
@@ -43,7 +37,7 @@ interface ImageGridState {
 // React-virtualized provides:
 // - convenient api for a masonry grid with predefined sizings (server generated)
 // - lazy loading for large folders
-class ImageGrid extends React.Component<ImageGridProps, ImageGridState> {
+class ImageGrid extends React.Component<ImageGridProps> {
   columnHeights: number[] = [];
   collectionRef: any;
 
@@ -52,24 +46,17 @@ class ImageGrid extends React.Component<ImageGridProps, ImageGridState> {
 
     this.collectionRef = React.createRef();
 
-    this.state = {
-      containerWidth: 0,
-      column: {
-        count: 1,
-        width: COLUMN_WIDTH,
-        minimumColumnWidth: COLUMN_WIDTH
-      }
-    };
-
     this.zeroColumnHeights(1);
   }
 
-  componentDidUpdate(prevProps: ImageGridProps, prevState: ImageGridState) {
+  // Update dimensions and force collection to reposition
+  // Reset _columnYMap before recomputing columns
+  componentDidUpdate(prevProps: ImageGridProps) {
     const imagesChanged = prevProps.images !== this.props.images;
-    const resized = prevState.column !== this.state.column;
+    const resized = prevProps.columnSizing !== this.props.columnSizing;
 
     if (imagesChanged || resized) {
-      this.zeroColumnHeights(this.state.column.count);
+      this.zeroColumnHeights(this.props.columnSizing.count);
       this.collectionRef.current.recomputeCellSizesAndPositions();
     }
   }
@@ -78,48 +65,10 @@ class ImageGrid extends React.Component<ImageGridProps, ImageGridState> {
     this.columnHeights = Array(columnCount).fill(0);
   }
 
-  resize(dim: { height: number; width: number }) {
-    console.log("Resize", dim.height, dim.width);
-
-    // Update dimensions and force collection to reposition
-    // Reset _columnYMap before recomputing columns
-    this.setState(state => {
-      const newSizing = resize(
-        dim.width,
-        state.column.minimumColumnWidth,
-        GUTTER_SIZE
-      );
-      return {
-        containerWidth: dim.width,
-        column: newSizing
-      };
-    });
-  }
-
-  zoom(zoomIn: boolean) {
-    this.setState(state => {
-      const newSizing = zoom(
-        zoomIn,
-        state.containerWidth,
-        state.column.minimumColumnWidth,
-        GUTTER_SIZE
-      );
-      return {
-        column: newSizing
-      };
-    });
-  }
-
   render() {
     return (
       <div>
-        <a href="#" onClick={() => this.zoom(true)}>
-          zin
-        </a>
-        <a href="#" onClick={() => this.zoom(false)}>
-          zout
-        </a>
-        <AutoSizer disableHeight onResize={this.resize.bind(this)}>
+        <AutoSizer disableHeight onResize={this.props.onResize}>
           {({ width }: any) => (
             <WindowScroller>
               {({ height, scrollTop }: any) => {
@@ -152,7 +101,10 @@ class ImageGrid extends React.Component<ImageGridProps, ImageGridState> {
   _cellRenderer({ index, key, style }: any) {
     const i = this.props.images[index];
     const path = i.path;
-    const { width, height } = dimensionsForImage(i, this.state.column.width);
+    const { width, height } = dimensionsForImage(
+      i,
+      this.props.columnSizing.width
+    );
 
     return (
       <img
@@ -168,7 +120,7 @@ class ImageGrid extends React.Component<ImageGridProps, ImageGridState> {
   // Masonry grid:
   // Maintain the current column heights in _columnYMap
   _cellSizeAndPositionGetter({ index }: any) {
-    const colWidth = this.state.column.width;
+    const colWidth = this.props.columnSizing.width;
 
     const i = this.props.images[index];
     const { height } = dimensionsForImage(i, colWidth);

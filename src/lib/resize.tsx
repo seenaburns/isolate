@@ -1,9 +1,13 @@
 import { number } from "prop-types";
 
+export const GUTTER_SIZE = 4;
+export const DEFAULT_COLUMN_WIDTH = 200;
+
 export interface ColumnSizing {
   count: number;
   width: number;
   minimumColumnWidth: number;
+  containerWidth: number;
 }
 
 // Given a changing container width, compute the number of columns that will fit
@@ -16,7 +20,8 @@ export function resize(
     return {
       count: 1,
       width: minimumColumnWidth,
-      minimumColumnWidth: minimumColumnWidth
+      minimumColumnWidth: minimumColumnWidth,
+      containerWidth: containerWidth
     };
   }
 
@@ -26,7 +31,8 @@ export function resize(
   return {
     count: columnCount,
     width: Math.floor(containerMinusGutters / columnCount),
-    minimumColumnWidth: minimumColumnWidth
+    minimumColumnWidth: minimumColumnWidth,
+    containerWidth: containerWidth
   };
 }
 

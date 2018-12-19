@@ -6,6 +6,13 @@ import Directories from "./components/directories";
 import Loading from "./components/loading";
 import Errors from "./components/errors";
 import { DirectoryContents, cdPath, list } from "./lib/fs";
+import {
+  resize,
+  zoom,
+  ColumnSizing,
+  GUTTER_SIZE,
+  DEFAULT_COLUMN_WIDTH
+} from "./lib/resize";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
@@ -18,6 +25,8 @@ interface AppState {
 
   path: string;
   contents: DirectoryContents;
+
+  columnSizing: ColumnSizing;
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -28,6 +37,13 @@ class App extends React.Component<AppProps, AppState> {
     contents: {
       dirs: [],
       images: []
+    },
+
+    columnSizing: {
+      count: 1,
+      width: DEFAULT_COLUMN_WIDTH,
+      minimumColumnWidth: DEFAULT_COLUMN_WIDTH,
+      containerWidth: 0
     }
   };
 
@@ -61,13 +77,46 @@ class App extends React.Component<AppProps, AppState> {
     });
   }
 
+  resize(dim: { height: number; width: number }) {
+    console.log("Resize", dim.height, dim.width);
+
+    this.setState(state => ({
+      columnSizing: resize(
+        dim.width,
+        state.columnSizing.minimumColumnWidth,
+        GUTTER_SIZE
+      )
+    }));
+  }
+
+  zoom(zoomIn: boolean) {
+    this.setState(state => ({
+      columnSizing: zoom(
+        zoomIn,
+        state.columnSizing.containerWidth,
+        state.columnSizing.minimumColumnWidth,
+        GUTTER_SIZE
+      )
+    }));
+  }
+
   render() {
     return (
       <div>
         {this.state.activeRequest && <Loading />}
         <Errors errors={this.state.errors} />
         <Directories dirs={this.state.contents.dirs} cd={this.cd.bind(this)} />
-        <Images images={this.state.contents.images} />
+        <a href="#" onClick={() => this.zoom(true)}>
+          zin
+        </a>
+        <a href="#" onClick={() => this.zoom(false)}>
+          zout
+        </a>
+        <Images
+          images={this.state.contents.images}
+          columnSizing={this.state.columnSizing}
+          onResize={this.resize.bind(this)}
+        />
       </div>
     );
   }
