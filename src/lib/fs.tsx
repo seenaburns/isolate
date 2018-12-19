@@ -1,7 +1,7 @@
 const fs = require("fs");
 const nodePath = require("path");
 
-import { Image } from "./image";
+import { Image, imageInfo } from "./image";
 import { Dirent } from "fs";
 
 export interface DirectoryContents {
@@ -9,11 +9,28 @@ export interface DirectoryContents {
   images: Image[];
 }
 
+// TODO: async/await syntax instead of nested promises
+// TODO: filter unrecognized extensions to reduce errors
 export function list(path: string): Promise<DirectoryContents> {
-  return listDir(path).then(entries => ({
-    dirs: [".."].concat(entries.dirs),
-    images: entries.files.map(x => ({ absolutePath: x }))
-  }));
+  return listDir(path).then(entries => {
+    return Promise.all(
+      entries.files.map(x => {
+        const absPath = nodePath.join(path, x);
+        return imageInfo(absPath).then(({ image, error }) => {
+          if (error) {
+            console.log(error);
+            return null;
+          }
+          return image;
+        });
+      })
+    )
+      .then((results: Image[]) => results.filter((x: Image) => x))
+      .then(images => ({
+        dirs: [".."].concat(entries.dirs),
+        images: images
+      }));
+  });
 }
 
 function listDir(

@@ -12,7 +12,11 @@ export default class Images extends React.Component<{ images: Image[] }> {
         <h2>Files</h2>
         <ul>
           {this.props.images.map(i => {
-            return <li key={`li-i-${i.absolutePath}`}>{i.absolutePath}</li>;
+            return (
+              <li key={`li-i-${i.path}`}>{`${i.path} ${i.width} ${
+                i.height
+              }`}</li>
+            );
           })}
         </ul>
       </div>
