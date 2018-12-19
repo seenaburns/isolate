@@ -13,13 +13,13 @@ import {
   GUTTER_SIZE,
   DEFAULT_COLUMN_WIDTH
 } from "./lib/resize";
-import { ENGINE_METHOD_ALL } from "constants";
 import Modal from "./components/modal";
+import Toolbar from "./components/toolbar";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
 
-enum Mode {
+export enum Mode {
   Modal,
   Selection
 }
@@ -62,6 +62,16 @@ class App extends React.Component<AppProps, AppState> {
 
   componentDidMount() {
     this.cd("");
+  }
+
+  componentDidUpdate(prevProps: AppProps, prevState: AppState) {
+    // Clear selection if exiting out of mode
+    if (
+      prevState.mode == Mode.Selection &&
+      prevState.mode !== this.state.mode
+    ) {
+      this.setState({ selection: [] });
+    }
   }
 
   cd(path: string) {
@@ -140,13 +150,12 @@ class App extends React.Component<AppProps, AppState> {
           />
         )}
         <Errors errors={this.state.errors} />
+        <Toolbar
+          mode={this.state.mode}
+          zoom={this.zoom.bind(this)}
+          setMode={(mode: Mode) => this.setState({ mode: mode })}
+        />
         <Directories dirs={this.state.contents.dirs} cd={this.cd.bind(this)} />
-        <a href="#" onClick={() => this.zoom(true)}>
-          zin
-        </a>
-        <a href="#" onClick={() => this.zoom(false)}>
-          zout
-        </a>
         <Images
           images={this.state.contents.images}
           columnSizing={this.state.columnSizing}
