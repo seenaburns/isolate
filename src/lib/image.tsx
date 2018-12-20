@@ -3,7 +3,7 @@ const imageSize = promisify(require("image-size"));
 
 const sharp = require("sharp");
 
-export const THUMBNAIL_SIZE = 250;
+export const THUMBNAIL_SIZE = 300;
 
 export interface Image {
   path: string;
