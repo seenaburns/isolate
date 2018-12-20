@@ -85,7 +85,7 @@ function init() {
   globalData.global.night_mode = config["night_mode"] || false;
 
   createWindow();
-  createBackgroundWorker();
+  // createBackgroundWorker();
 }
 
 app.on("ready", init);

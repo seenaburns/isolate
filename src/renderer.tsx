@@ -19,6 +19,7 @@ import scrollbar from "./lib/scrollbar";
 import nightmode from "./lib/nightmode";
 import { Database, openDatabase } from "./lib/db";
 import { listDirMessage } from "./lib/worker-message";
+import { updateDirMetadata } from "./lib/background-update";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
@@ -84,23 +85,33 @@ class App extends React.Component<AppProps, AppState> {
     const newPath = cdPath(this.state.path, path);
     console.log("cd", this.state.path, "->", newPath);
 
-    const req = list(newPath).then(
-      contents => {
-        this.setState(state => ({
-          path: newPath,
-          contents: contents,
-          activeRequest: undefined,
-          selection: []
-        }));
-      },
-      err => {
-        this.setState(state => ({
-          errors: state.errors.concat([
-            `List '${newPath}' failed: ${err.message}`
-          ])
-        }));
-      }
-    );
+    const req = list(newPath)
+      .then(
+        contents => {
+          this.setState(state => ({
+            path: newPath,
+            contents: contents,
+            activeRequest: undefined,
+            selection: []
+          }));
+        },
+        err => {
+          this.setState(state => ({
+            errors: state.errors.concat([
+              `List '${newPath}' failed: ${err.message}`
+            ])
+          }));
+        }
+      )
+      .then(() => {
+        updateDirMetadata(this.props.database, newPath);
+      })
+      .then(
+        () => {},
+        error => {
+          console.log("ERROR updateDirMetadata", newPath, error);
+        }
+      );
 
     this.setState({
       activeRequest: req
@@ -187,13 +198,6 @@ console.log(global.night_mode, global.root_dir);
 nightmode.set(global.night_mode);
 scrollbar.init(global.night_mode);
 
-// Initialize background worker
-// const worker = new Worker("../build/worker.js");
-// worker.onmessage = e => {
-//   console.log("Got message from worker", e.data);
-// };
-// worker.postMessage("message from client");
-
 openDatabase().then(
   db => {
     ReactDOM.render(<App database={db} />, document.getElementById("root"));
@@ -203,6 +207,6 @@ openDatabase().then(
   }
 );
 
-setTimeout(() => {
-  electron.remote.app.sendToBackground("channel", "test message");
-}, 2000);
+// setTimeout(() => {
+//   electron.remote.app.sendToBackground("channel", "test message");
+// }, 2000);

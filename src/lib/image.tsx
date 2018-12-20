@@ -26,3 +26,12 @@ export function imageInfo(
     })
   );
 }
+
+export function dimensions(
+  path: string
+): {
+  width: number;
+  height: number;
+} {
+  return imageSize(path);
+}

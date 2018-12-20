@@ -1,6 +1,7 @@
 const sqlite3 = require("sqlite3");
 
 import userData from "./userData";
+import { resolveSoa } from "dns";
 
 const DATABASE_FILENAME = "isolate.db";
 const SCHEMA = `
@@ -25,7 +26,7 @@ export interface File {
   modified: number;
   width: number;
   height: number;
-  thumbnailPath: string;
+  thumbnailPath?: string;
 }
 
 export function openDatabase(): Promise<Database> {
@@ -83,15 +84,17 @@ function getFiles(
   args: string[]
 ): Promise<File[]> {
   return new Promise((resolve, reject) => {
-    db.db.run(
-      `SELECT hash, modified, path, height, width, thumbnailPath FROM files WHERE ${where}`,
-      args,
-      (error: Error, rows: File[]) => {
-        if (error) {
-          reject(error);
-        }
+    const query = `SELECT hash, modified, path, height, width, thumbnailPath FROM files WHERE ${where}`;
+    console.log("QUERY", query, args);
+    db.db.all(query, args, (error: Error, rows: File[]) => {
+      console.log("DB Rows", rows);
+      if (error) {
+        reject(error);
+      }
+      if (rows) {
         resolve(rows);
       }
-    );
+      resolve([]);
+    });
   });
 }
