@@ -1,5 +1,7 @@
 import React from "react";
 
+import encodePath from "../lib/encode-path";
+
 interface ModalProps {
   image: string;
   close: () => void;
@@ -69,7 +71,7 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
             className="modal-content"
             onClick={() => this.props.close()}
           >
-            <img src={encodeURI(this.props.image)} />
+            <img src={encodePath(this.props.image)} />
           </div>
         </div>
       </div>
