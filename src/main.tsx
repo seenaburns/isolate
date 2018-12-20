@@ -54,7 +54,7 @@ function createWindow() {
   );
 
   // Open the DevTools.
-  // win.webContents.openDevTools()
+  mainWindow.webContents.openDevTools();
 
   mainWindow.on("closed", function() {
     mainWindow = null;

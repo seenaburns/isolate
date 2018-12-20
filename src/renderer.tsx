@@ -186,6 +186,13 @@ console.log(global.night_mode, global.root_dir);
 nightmode.set(global.night_mode);
 scrollbar.init(global.night_mode);
 
+// Initialize background worker
+const worker = new Worker("../build/worker.js");
+worker.onmessage = e => {
+  console.log("Got message from worker", e.data);
+};
+worker.postMessage("message from client");
+
 openDatabase().then(
   db => {
     ReactDOM.render(<App database={db} />, document.getElementById("root"));
@@ -194,3 +201,8 @@ openDatabase().then(
     console.log(error);
   }
 );
+
+// navigator.serviceWorker.register("../build/worker.js", { scope: "../build/" });
+// navigator.serviceWorker.addEventListener("message", function(event) {
+//   console.log("Client received Message: " + event.data);
+// });
