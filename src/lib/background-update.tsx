@@ -1,6 +1,7 @@
 import { Database, getDir, File, upsertFile } from "./db";
 import { listDir, stat, hash } from "./fs";
-import { dimensions } from "./image";
+import { dimensions, writeThumbnail } from "./image";
+import userData, { THUMBNAIL_DIR } from "./userData";
 
 const nodePath = require("path");
 
@@ -57,11 +58,16 @@ async function processFile(path: string): Promise<File> {
   const dim = await dimensions(path);
   const imageHash = await hash(path);
 
+  const thumbnaiDir = userData.userDataPath(THUMBNAIL_DIR);
+  const thumbnailDest = nodePath.join(thumbnaiDir, imageHash);
+  await writeThumbnail(path, thumbnailDest);
+
   return {
     hash: imageHash,
     path: path,
     modified: mtime_s,
     width: dim.width,
-    height: dim.height
+    height: dim.height,
+    thumbnailPath: thumbnailDest
   };
 }

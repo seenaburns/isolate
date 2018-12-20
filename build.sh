@@ -4,13 +4,20 @@ set -euo pipefail
 
 mkdir -p build
 
+NATIVE_LIBS_MARKER="build/installed-native-libs"
+
 echo "⚡  INSTALLING NATIVE DEPENDENCIES FROM SOURCE"
-if [ ! -d "$(npm root)/sqlite3/lib/binding/electron-v4.0-darwin-x64/" ];
+if [ ! -f $NATIVE_LIBS_MARKER ];
 then
     echo "⚡  INSTALLING SQLITE3 FROM SOURCE FOR ELECTRON"
     npm install sqlite3 --build-from-source --runtime=electron --target='4.0.0-beta.7' --dist-url=https://atom.io/download/electron
+
+    echo "⚡  INSTALLING SHARP FROM SOURCE FOR ELECTRON"
+    npm install sharp --build-from-source --runtime=electron --target='4.0.0-beta.7'
+
+    touch $NATIVE_LIBS_MARKER
 else
-    echo "⚡  SQLITE3 ALREADY INSTALLED"
+    echo "⚡  NATIVE LIBS ALREADY INSTALLED (wipe $NATIVE_LIBS_MARKER to force reinstall)"
 fi
 
 echo "⚡  BUILDING CSS"

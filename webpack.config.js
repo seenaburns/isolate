@@ -31,6 +31,7 @@ function target(entry, output, overrides) {
 module.exports = [
   target("./src/renderer.tsx", "renderer.js", {
     externals: {
+      sharp: "commonjs sharp",
       sqlite3: "commonjs sqlite3"
     },
     target: "electron-renderer"
@@ -40,11 +41,5 @@ module.exports = [
       __dirname: false
     },
     target: "electron-main"
-  }),
-  target("./src/worker.tsx", "worker.js", {
-    externals: {
-      sqlite3: "commonjs sqlite3"
-    },
-    target: "electron-renderer"
   })
 ];

@@ -7,7 +7,7 @@ const fs = require("fs");
 const url = require("url");
 const os = require("os");
 
-import userData from "./lib/userData";
+import userData, { THUMBNAIL_DIR } from "./lib/userData";
 
 let globalData: any = global;
 
@@ -31,6 +31,14 @@ function createWindow() {
   const nightMode = nightModeSetting != undefined && nightModeSetting;
   if (nightMode) {
     bg = "#1c1c21";
+  }
+
+  const thumbnailDir = userData.userDataPath(THUMBNAIL_DIR);
+  if (!fs.existsSync(thumbnailDir)) {
+    const err = fs.mkdirSync(thumbnailDir);
+    if (err) {
+      console.error("Failed to create thumbnail dir", thumbnailDir);
+    }
   }
 
   mainWindow = new BrowserWindow({

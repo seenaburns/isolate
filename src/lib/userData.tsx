@@ -2,6 +2,8 @@ const electron = require("electron");
 const path = require("path");
 const fs = require("fs");
 
+export const THUMBNAIL_DIR = "thumbs";
+
 export default {
   SetKey: SetKey,
   Get: Get,
