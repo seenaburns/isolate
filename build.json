@@ -7,9 +7,8 @@
     "assets/icon_512x512.png",
     "assets/checker-square.png",
     "assets/fonts/Inconsolata/*.ttf",
-    "build/bs-stdlib/**/*",
-    "build/reason-react/**/*",
-    "build/style.css",
+    "build/**/*.js",
+    "build/**/*.css"
   ],
   "directories": {
     "output": "build/"

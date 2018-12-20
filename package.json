@@ -4,11 +4,11 @@
   "description": "",
   "main": "build/main.js",
   "scripts": {
+    "postinstall": "electron-builder install-app-deps",
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack": "electron-builder --config build.json --dir",
     "dist": "npm run build && electron-builder --config build.json",
-    "build-css": "cat src/css/main.styl | npx stylus > build/style.css",
-    "build": "mkdir -p build/ && npm run build-css && npx webpack",
+    "build": "./build.sh",
     "start": "npm run build && electron . "
   },
   "keywords": [],
@@ -17,7 +17,8 @@
     "@types/node": "^10.12.18",
     "@types/react": "16.7.3",
     "css-loader": "1.0.1",
-    "electron-builder": "19.52.1",
+    "electron": "4.0.0-beta.7",
+    "electron-builder": "^20.38.4",
     "image-size": "^0.6.3",
     "sqlite3": "^4.0.4",
     "style-loader": "0.23.1",
@@ -28,7 +29,6 @@
     "webpack-cli": "3.1.2"
   },
   "dependencies": {
-    "electron": "4.0.0-beta.7",
     "react": "16.6.1",
     "react-dom": "16.6.1",
     "react-virtualized": "9.21.0"
