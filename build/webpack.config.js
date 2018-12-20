@@ -5,14 +5,17 @@ function target(entry, output, overrides) {
     mode: "none",
     entry: entry,
     output: {
-      path: path.resolve(__dirname, "build"),
+      path: path.resolve(__dirname, "out"),
       filename: output
     },
     module: {
       rules: [
         {
           test: /\.tsx?$/,
-          use: "ts-loader"
+          loader: "ts-loader",
+          options: {
+            configFile: "build/tsconfig.json"
+          }
         },
         {
           test: /\.css$/,

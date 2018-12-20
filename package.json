@@ -2,13 +2,12 @@
   "name": "isolate",
   "version": "3.0.0",
   "description": "",
-  "main": "build/main.js",
+  "main": "build/out/main.js",
   "scripts": {
-    "postinstall": "electron-builder install-app-deps",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "pack": "electron-builder --config build.json --dir",
-    "dist": "npm run build && electron-builder --config build.json",
-    "build": "./build.sh",
+    "pack": "electron-builder --config build/build.json --dir",
+    "dist": "npm run build && electron-builder --config build/build.json",
+    "build": "./build/build.sh",
     "start": "npm run build && electron . "
   },
   "keywords": [],
