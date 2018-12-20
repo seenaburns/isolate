@@ -7,36 +7,17 @@ export const THUMBNAIL_SIZE = 250;
 
 export interface Image {
   path: string;
+  thumbnail?: string;
   width: number;
   height: number;
-}
-
-export function imageInfo(
-  path: string
-): Promise<{
-  image: Image;
-  error: Error;
-}> {
-  return imageSize(path).then(
-    (dim: { width: number; height: number }) => ({
-      image: {
-        path: path,
-        width: dim.width,
-        height: dim.height
-      }
-    }),
-    (err: Error) => ({
-      error: err
-    })
-  );
 }
 
 export function dimensions(
   path: string
-): {
+): Promise<{
   width: number;
   height: number;
-} {
+}> {
   return imageSize(path);
 }
 

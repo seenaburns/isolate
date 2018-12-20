@@ -2,37 +2,7 @@ const fs = require("fs");
 const nodePath = require("path");
 const crypto = require("crypto");
 
-import { Image, imageInfo } from "./image";
 import { Dirent, Stats } from "fs";
-
-export interface DirectoryContents {
-  dirs: string[];
-  images: Image[];
-}
-
-// TODO: async/await syntax instead of nested promises
-// TODO: filter unrecognized extensions to reduce errors
-export function list(path: string): Promise<DirectoryContents> {
-  return listDir(path).then(entries => {
-    return Promise.all(
-      entries.files.map(x => {
-        const absPath = nodePath.join(path, x);
-        return imageInfo(absPath).then(({ image, error }) => {
-          if (error) {
-            console.log(error);
-            return null;
-          }
-          return image;
-        });
-      })
-    )
-      .then((results: Image[]) => results.filter((x: Image) => x))
-      .then(images => ({
-        dirs: [".."].concat(entries.dirs),
-        images: images
-      }));
-  });
-}
 
 export function listDir(
   path: string

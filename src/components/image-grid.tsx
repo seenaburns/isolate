@@ -2,7 +2,7 @@ import React from "react";
 import { AutoSizer, Collection, WindowScroller } from "react-virtualized";
 import "react-virtualized/styles.css"; // only needs to be imported once
 
-import { Image } from "../lib/image";
+import { Image, THUMBNAIL_SIZE } from "../lib/image";
 import { ColumnSizing, DEFAULT_COLUMN_WIDTH, GUTTER_SIZE } from "../lib/resize";
 
 const VERTICAL_OVERSCAN_SIZE = DEFAULT_COLUMN_WIDTH * 10;
@@ -108,6 +108,13 @@ class ImageGrid extends React.Component<ImageGridProps> {
       this.props.columnSizing.width
     );
 
+    // Srcset is the image with the actual image width, and optionally the thumbnail if it is defined
+    const srcset = [];
+    if (i.thumbnail && i.thumbnail != "") {
+      srcset.push(`${encodeURI(i.thumbnail)} ${THUMBNAIL_SIZE}w`);
+    }
+    srcset.push(`${encodeURI(path)} ${i.width}w`);
+
     return (
       <div style={style} key={key}>
         {this.props.selection.includes(path) && (
@@ -121,6 +128,8 @@ class ImageGrid extends React.Component<ImageGridProps> {
         )}
         <img
           src={encodeURI(path)}
+          srcSet={srcset.join(", ")}
+          sizes={`${this.props.columnSizing.width}px`}
           width={width}
           height={height}
           onClick={() => this.props.imageOnClick(path)}
