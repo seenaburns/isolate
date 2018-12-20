@@ -20,6 +20,7 @@ import Toolbar from "./components/toolbar";
 import scrollbar from "./lib/scrollbar";
 import nightmode from "./lib/nightmode";
 import { Image, dimensions } from "./lib/image";
+import { Daemon } from "./lib/daemon";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
@@ -42,6 +43,8 @@ interface AppState {
   modal?: string;
 
   columnSizing: ColumnSizing;
+
+  daemon?: Daemon;
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -67,6 +70,13 @@ class App extends React.Component<AppProps, AppState> {
 
   componentDidMount() {
     this.cd("");
+
+    electron.ipcRenderer.on("daemon-did-init", (event: any, daemon: Daemon) => {
+      console.log("Daemon initialized, setting app config");
+      this.setState({
+        daemon: daemon
+      });
+    });
   }
 
   componentDidUpdate(prevProps: AppProps, prevState: AppState) {

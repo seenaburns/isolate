@@ -93,7 +93,7 @@ type Server struct {
 }
 
 type imageResponse struct {
-	AbsolutePath  string `json:"absolutePath"`
+	AbsolutePath  string `json:"path"`
 	ThumbnailPath string `json:"thumbnail"`
 	Width         int    `json:"width"`
 	Height        int    `json:"height"`
