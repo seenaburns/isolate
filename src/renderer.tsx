@@ -218,7 +218,12 @@ async function listDirWithDaemon(
 
   if (daemon) {
     const daemonContents = await Daemon.listDir(daemon, path);
-    daemonContents.forEach(i => images.set(i.path, i));
+    daemonContents.forEach(i => {
+      // Only override if file exists on disk
+      if (images.get(i.path)) {
+        images.set(i.path, i);
+      }
+    });
   }
 
   return {
