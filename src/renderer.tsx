@@ -96,6 +96,12 @@ class App extends React.Component<AppProps, AppState> {
             activeRequest: undefined,
             selection: []
           }));
+
+          // Chromium seems to hold a copy of every image in the webframe cache. This can
+          // cause the memory used to balloon, looking alarming to users.
+          // webFrame.clearCache() unloads these images, dropping memory at the cost of
+          // directory load time.
+          electron.webFrame.clearCache();
         },
         err => {
           this.setState(state => ({
@@ -235,7 +241,7 @@ async function list(
     .filter(f => files.includes(f.path))
     .map(f => ({
       path: f.path,
-      thumbnail: "/Users/seena/Desktop/thumbnail.png", // f.thumbnailPath,
+      thumbnail: f.thumbnailPath, // "/Users/seena/Desktop/thumbnail.png", // f.thumbnailPath,
       width: f.width,
       height: f.height
     }));
