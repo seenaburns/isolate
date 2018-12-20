@@ -13,7 +13,6 @@ import { SSL_OP_EPHEMERAL_RSA } from "constants";
 let globalData: any = global;
 
 let mainWindow: any;
-let backgroundWorker: any;
 globalData.global = {
   root_dir: "",
   files: []
@@ -69,31 +68,6 @@ function createWindow() {
   mainWindow.on("closed", function() {
     mainWindow = null;
   });
-
-  return new Promise((resolve, reject) => {
-    mainWindow.webContents.on("did-finish-load", () => {
-      resolve();
-    });
-  });
-}
-
-function createBackgroundWorker() {
-  backgroundWorker = new BrowserWindow();
-  backgroundWorker.hide();
-  backgroundWorker.loadURL(
-    url.format({
-      pathname: path.join(__dirname, "..", "src", "worker.html"),
-      protocol: "file:",
-      slashes: true
-    })
-  );
-  // backgroundWorker.webContents.openDevTools();
-
-  return new Promise((resolve, reject) => {
-    backgroundWorker.webContents.on("did-finish-load", () => {
-      resolve();
-    });
-  });
 }
 
 function init() {
@@ -105,9 +79,7 @@ function init() {
   globalData.global.root_dir = root_dir;
   globalData.global.night_mode = config["night_mode"] || false;
 
-  createBackgroundWorker().then(() => {
-    createWindow();
-  });
+  createWindow();
 }
 
 app.on("ready", init);
@@ -134,11 +106,4 @@ app.inject_menu = function(m: any) {
 // process, so add a simple wrapper on app
 app.showItemInFolder = function(path: string) {
   electron.shell.showItemInFolder(path);
-};
-
-app.sendToBackground = function(channel: string, msg: any) {
-  if (backgroundWorker) {
-    console.log(`Sending '${channel}' '${msg}'`);
-    backgroundWorker.webContents.send(channel, msg);
-  }
 };

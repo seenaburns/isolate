@@ -2,7 +2,51 @@ const fs = require("fs");
 const nodePath = require("path");
 const crypto = require("crypto");
 
+import { Image, dimensions } from "./image";
 import { Dirent, Stats } from "fs";
+
+export interface DirectoryContents {
+  dirs: string[];
+  images: Image[];
+}
+
+// TODO: async/await syntax instead of nested promises
+// TODO: filter unrecognized extensions to reduce errors
+export async function list(path: string): Promise<DirectoryContents> {
+  const contents = await listDir(path);
+  const dirs = [".."].concat(contents.dirs);
+  const files = await nonFatalAll(
+    "fetching image dimensions",
+    contents.files.map(f => {
+      const absPath = nodePath.join(path, f);
+      return dimensions(absPath).then(dim => ({
+        path: absPath,
+        width: dim.width,
+        height: dim.height
+      }));
+    })
+  );
+
+  return {
+    dirs: dirs,
+    images: files
+  };
+}
+
+async function nonFatalAll<T>(name: string, ps: Promise<T>[]): Promise<T[]> {
+  const all = await Promise.all(
+    ps.map(p =>
+      p.then(
+        x => x,
+        err => {
+          console.error("Failed running", name, err);
+          return null;
+        }
+      )
+    )
+  );
+  return all.filter(x => x);
+}
 
 export function listDir(
   path: string
