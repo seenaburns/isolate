@@ -4,7 +4,9 @@ set -euo pipefail
 
 mkdir -p build/out/
 
+RED='\033[0;31m'
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 OVERWRITE='\e[1A'
 
@@ -16,6 +18,18 @@ finished() {
     echo -en "\e[1A"
     echo -e "⚡  ${GREEN}$*${NC}"
 }
+
+if ! command -v go > /dev/null ;
+then
+    echo -e "${RED}ERROR: golang-go not available, building daemon will fail${NC}\n"
+    exit 1
+fi
+
+GOVERSION=$(go version)
+if [[ "$GOVERSION" != *1.11* ]];
+then
+    echo -e "${YELLOW}WARNING: golang-go version '${GOVERSION}', only tested with 1.11 ${NC}\n"
+fi
 
 step="BUILDING GO DAEMON (ISOLATED)"
 starting "$step"
