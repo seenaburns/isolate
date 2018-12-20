@@ -6,3 +6,4 @@ other
 build/
 lib/bs/
 *.bs.js
+src/isolated/isolated
