@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Mode } from "../renderer";
+import nightmode from "../lib/nightmode";
 
 interface ToolbarProps {
   // State
@@ -36,6 +37,9 @@ export default class Toolbar extends React.Component<ToolbarProps> {
         </a>
         <a href="#" onClick={() => this.props.zoom(false)}>
           zout
+        </a>
+        <a href="#" onClick={() => nightmode.toggle()}>
+          nightmode
         </a>
       </div>
     );

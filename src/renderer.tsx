@@ -15,6 +15,8 @@ import {
 } from "./lib/resize";
 import Modal from "./components/modal";
 import Toolbar from "./components/toolbar";
+import scrollbar from "./lib/scrollbar";
+import nightmode from "./lib/nightmode";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
@@ -175,5 +177,10 @@ function toggleSelection(selection: string[], path: string) {
   selection.push(path);
   return selection;
 }
+
+console.log(global.night_mode, global.root_dir);
+
+nightmode.set(global.night_mode);
+scrollbar.init(global.night_mode);
 
 ReactDOM.render(<App />, document.getElementById("root"));
