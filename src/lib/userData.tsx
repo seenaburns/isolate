@@ -4,7 +4,8 @@ const fs = require("fs");
 
 export default {
   SetKey: SetKey,
-  Get: Get
+  Get: Get,
+  userDataPath: userDataPath
 };
 
 // Updates json data at userData/filename with key: value, then writes

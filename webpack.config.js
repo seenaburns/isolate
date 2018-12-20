@@ -1,12 +1,12 @@
 const path = require("path");
 
-module.exports = [
-  {
+function target(entry, output, overrides) {
+  const opts = {
     mode: "none",
-    entry: "./src/renderer.tsx",
+    entry: entry,
     output: {
       path: path.resolve(__dirname, "build"),
-      filename: "renderer.js"
+      filename: output
     },
     module: {
       rules: [
@@ -22,30 +22,23 @@ module.exports = [
     },
     resolve: {
       extensions: [".tsx", ".tx", ".js"]
+    }
+  };
+
+  return Object.assign(opts, overrides);
+}
+
+module.exports = [
+  target("./src/renderer.tsx", "renderer.js", {
+    externals: {
+      sqlite3: "commonjs sqlite3"
     },
     target: "electron-renderer"
-  },
-  {
-    mode: "none",
-    entry: "./src/main.tsx",
-    output: {
-      path: path.resolve(__dirname, "build"),
-      filename: "main.js"
-    },
-    module: {
-      rules: [
-        {
-          test: /\.tsx?$/,
-          use: "ts-loader"
-        }
-      ]
-    },
-    resolve: {
-      extensions: [".tsx", ".tx", ".js"]
-    },
+  }),
+  target("./src/main.tsx", "main.js", {
     node: {
       __dirname: false
     },
     target: "electron-main"
-  }
+  })
 ];

@@ -17,6 +17,7 @@ import Modal from "./components/modal";
 import Toolbar from "./components/toolbar";
 import scrollbar from "./lib/scrollbar";
 import nightmode from "./lib/nightmode";
+import { Database, openDatabase } from "./lib/db";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
@@ -26,7 +27,9 @@ export enum Mode {
   Selection
 }
 
-interface AppProps {}
+interface AppProps {
+  database: Database;
+}
 
 interface AppState {
   errors: string[];
@@ -183,4 +186,11 @@ console.log(global.night_mode, global.root_dir);
 nightmode.set(global.night_mode);
 scrollbar.init(global.night_mode);
 
-ReactDOM.render(<App />, document.getElementById("root"));
+openDatabase().then(
+  db => {
+    ReactDOM.render(<App database={db} />, document.getElementById("root"));
+  },
+  error => {
+    console.log(error);
+  }
+);
