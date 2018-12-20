@@ -9,7 +9,7 @@ const url = require("url");
 const { spawn } = require("child_process");
 
 import userData, { THUMBNAIL_DIR } from "./lib/userData";
-import { Daemon } from "./lib/daemon";
+import { DaemonConfig } from "./lib/daemon";
 
 let globalData: any = global;
 globalData.global = {
@@ -126,7 +126,7 @@ app.showItemInFolder = function(path: string) {
 };
 
 // Asynchronously spawn daemon, resolve promise once finished initializing
-function spawnDaemon(port: number): Promise<Daemon> {
+function spawnDaemon(port: number): Promise<DaemonConfig> {
   return new Promise((resolve, reject) => {
     console.log("Init: spawning daemon");
     let initialized = false;

@@ -2,7 +2,7 @@ import { Image } from "./image";
 
 const nodePath = require("path");
 
-export interface Daemon {
+export interface DaemonConfig {
   port: number;
 }
 
@@ -10,7 +10,7 @@ export default {
   listDir: listDir
 };
 
-function listDir(daemon: Daemon, path: string): Promise<Image[]> {
+function listDir(daemon: DaemonConfig, path: string): Promise<Image[]> {
   // TODO: Support windows
   let pathWithoutLeadingSlash = path;
   if (path.startsWith(nodePath.sep)) {
@@ -19,13 +19,13 @@ function listDir(daemon: Daemon, path: string): Promise<Image[]> {
 
   return fetch(
     `http://localhost:${daemon.port}/list/${encodeURI(pathWithoutLeadingSlash)}`
-  ).then(
-    response => {
+  )
+    .then(response => {
       return response.json();
-    },
-    err => {
+    })
+    .then(json => json.images)
+    .catch(err => {
       console.error("Error when listing directory in daemon", path, err);
       return [];
-    }
-  );
+    });
 }

@@ -20,7 +20,7 @@ import Toolbar from "./components/toolbar";
 import scrollbar from "./lib/scrollbar";
 import nightmode from "./lib/nightmode";
 import { Image, dimensions } from "./lib/image";
-import { Daemon } from "./lib/daemon";
+import Daemon, { DaemonConfig } from "./lib/daemon";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
@@ -44,7 +44,7 @@ interface AppState {
 
   columnSizing: ColumnSizing;
 
-  daemon?: Daemon;
+  daemon?: DaemonConfig;
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -71,12 +71,15 @@ class App extends React.Component<AppProps, AppState> {
   componentDidMount() {
     this.cd("");
 
-    electron.ipcRenderer.on("daemon-did-init", (event: any, daemon: Daemon) => {
-      console.log("Daemon initialized, setting app config");
-      this.setState({
-        daemon: daemon
-      });
-    });
+    electron.ipcRenderer.on(
+      "daemon-did-init",
+      (event: any, daemon: DaemonConfig) => {
+        console.log("Daemon initialized, setting app config");
+        this.setState({
+          daemon: daemon
+        });
+      }
+    );
   }
 
   componentDidUpdate(prevProps: AppProps, prevState: AppState) {
@@ -93,7 +96,7 @@ class App extends React.Component<AppProps, AppState> {
     const newPath = cdPath(this.state.path, path);
     console.log("cd", this.state.path, "->", newPath);
 
-    const req = list(newPath).then(
+    const req = listDirWithDaemon(newPath, this.state.daemon).then(
       contents => {
         this.setState(state => ({
           path: newPath,
@@ -203,3 +206,23 @@ nightmode.set(global.night_mode);
 scrollbar.init(global.night_mode);
 
 ReactDOM.render(<App />, document.getElementById("root"));
+
+async function listDirWithDaemon(
+  path: string,
+  daemon?: DaemonConfig
+): Promise<DirectoryContents> {
+  const fsContents = await list(path);
+
+  const images: Map<string, Image> = new Map();
+  fsContents.images.forEach(i => images.set(i.path, i));
+
+  if (daemon) {
+    const daemonContents = await Daemon.listDir(daemon, path);
+    daemonContents.forEach(i => images.set(i.path, i));
+  }
+
+  return {
+    dirs: fsContents.dirs,
+    images: Array.from(images.values())
+  };
+}
