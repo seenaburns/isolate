@@ -112,7 +112,7 @@ class App extends React.Component<AppProps, AppState> {
         }
       )
       .then(() => {
-        updateDirMetadata(this.props.database, newPath);
+        electron.remote.app.sendToBackground("list", newPath);
       })
       .then(
         () => {},
@@ -215,9 +215,10 @@ openDatabase().then(
   }
 );
 
-// setTimeout(() => {
-//   electron.remote.app.sendToBackground("channel", "test message");
-// }, 2000);
+setTimeout(() => {
+  console.log("sending message");
+  electron.remote.app.sendToBackground("channel", "test message");
+}, 2000);
 
 export interface DirectoryContents {
   dirs: string[];

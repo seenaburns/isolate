@@ -41,5 +41,12 @@ module.exports = [
       __dirname: false
     },
     target: "electron-main"
+  }),
+  target("./src/worker.tsx", "worker.js", {
+    externals: {
+      sharp: "commonjs sharp",
+      sqlite3: "commonjs sqlite3"
+    },
+    target: "electron-renderer"
   })
 ];
