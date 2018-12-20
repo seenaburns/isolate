@@ -4,26 +4,25 @@ const BrowserWindow = electron.BrowserWindow;
 
 const path = require("path");
 const fs = require("fs");
+const net = require("net");
 const url = require("url");
-const os = require("os");
+const { spawn } = require("child_process");
 
 import userData, { THUMBNAIL_DIR } from "./lib/userData";
-import { SSL_OP_EPHEMERAL_RSA } from "constants";
 
 let globalData: any = global;
-
-let mainWindow: any;
 globalData.global = {
   root_dir: "",
   files: []
 };
 
-function error(e: string) {
-  console.error("\x1b[31m%s\x1b[0m", e);
-  process.exit(1);
-}
+let mainWindow: any;
 
-function createWindow() {
+let daemonProcess: any;
+let lastStderr: string;
+let shuttingDown = false;
+
+function createWindow(): Promise<void> {
   // Avoid flashing if nightmode is active by reading setting, setting background color before
   // window is even created
   let bg = "#ffffff";
@@ -68,6 +67,13 @@ function createWindow() {
   mainWindow.on("closed", function() {
     mainWindow = null;
   });
+
+  return new Promise((resolve, reject) => {
+    mainWindow.webContents.on("did-finish-load", () => {
+      console.log("Init: main window loaded");
+      resolve();
+    });
+  });
 }
 
 function init() {
@@ -79,7 +85,17 @@ function init() {
   globalData.global.root_dir = root_dir;
   globalData.global.night_mode = config["night_mode"] || false;
 
-  createWindow();
+  createWindow()
+    .then(getAvailablePort)
+    .then(spawnDaemon)
+    .then(config =>
+      mainWindow.webContents.send("daemon-did-init", {
+        port: config.port
+      })
+    )
+    .catch(err => {
+      console.log("Initialization failed:", err);
+    });
 }
 
 app.on("ready", init);
@@ -97,6 +113,8 @@ app.on("activate", function() {
   }
 });
 
+app.on("quit", killDaemon);
+
 const { Menu } = require("electron");
 app.inject_menu = function(m: any) {
   Menu.setApplicationMenu(Menu.buildFromTemplate(m));
@@ -107,3 +125,71 @@ app.inject_menu = function(m: any) {
 app.showItemInFolder = function(path: string) {
   electron.shell.showItemInFolder(path);
 };
+
+// Asynchronously spawn daemon, resolve promise once finished initializing
+function spawnDaemon(
+  port: number
+): Promise<{
+  port: number;
+}> {
+  return new Promise((resolve, reject) => {
+    console.log("Init: spawning daemon");
+    let initialized = false;
+
+    const userDataPath = app.getPath("userData");
+    if (userDataPath == "") {
+      reject(new Error("UserDataPath empty"));
+      return;
+    }
+
+    daemonProcess = spawn(path.join(__dirname, "isolated"), [
+      "-appdir",
+      userDataPath,
+      "-port",
+      port
+    ]);
+
+    daemonProcess.stdout.on("data", (data: string) => {
+      if (!initialized) {
+        initialized = true;
+        console.log("Init: spawned daemon");
+        resolve({ port: port });
+      }
+      console.log(`daemon stdout: ${data}`);
+    });
+
+    daemonProcess.stderr.on("data", (data: string) => {
+      lastStderr = `${data}`;
+      console.log(`daemon stderr: ${data}`);
+    });
+
+    daemonProcess.on("close", (code: number | null) => {
+      if (code || !shuttingDown) {
+        throw new Error(
+          `Daemon unexpectedly exited\nLast log line: "${lastStderr}"`
+        );
+      }
+      console.log(`daemon exited with code ${code}`);
+    });
+  });
+}
+
+function killDaemon() {
+  shuttingDown = true;
+  if (daemonProcess) {
+    daemonProcess.kill();
+    console.log("Daemon killed status: ", daemonProcess.killed);
+  }
+}
+
+function getAvailablePort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.listen(0);
+    server.on("listening", function() {
+      const port = server.address().port;
+      server.close();
+      resolve(port);
+    });
+  });
+}
