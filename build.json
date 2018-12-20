@@ -15,7 +15,7 @@
   },
   "mac": {
     "category": "image",
-    "target": ["dmg"],
+    "target": ["dir"],
     "icon": "assets/logo.icns"
   },
   "win": {

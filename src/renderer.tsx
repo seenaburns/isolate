@@ -18,6 +18,7 @@ import Toolbar from "./components/toolbar";
 import scrollbar from "./lib/scrollbar";
 import nightmode from "./lib/nightmode";
 import { Database, openDatabase } from "./lib/db";
+import { listDirMessage } from "./lib/worker-message";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
@@ -187,11 +188,11 @@ nightmode.set(global.night_mode);
 scrollbar.init(global.night_mode);
 
 // Initialize background worker
-const worker = new Worker("../build/worker.js");
-worker.onmessage = e => {
-  console.log("Got message from worker", e.data);
-};
-worker.postMessage("message from client");
+// const worker = new Worker("../build/worker.js");
+// worker.onmessage = e => {
+//   console.log("Got message from worker", e.data);
+// };
+// worker.postMessage("message from client");
 
 openDatabase().then(
   db => {
@@ -202,7 +203,6 @@ openDatabase().then(
   }
 );
 
-// navigator.serviceWorker.register("../build/worker.js", { scope: "../build/" });
-// navigator.serviceWorker.addEventListener("message", function(event) {
-//   console.log("Client received Message: " + event.data);
-// });
+setTimeout(() => {
+  electron.remote.app.sendToBackground("channel", "test message");
+}, 2000);

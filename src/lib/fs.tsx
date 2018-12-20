@@ -33,7 +33,7 @@ export function list(path: string): Promise<DirectoryContents> {
   });
 }
 
-function listDir(
+export function listDir(
   path: string
 ): Promise<{
   dirs: string[];

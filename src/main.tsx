@@ -12,6 +12,7 @@ import userData from "./lib/userData";
 let globalData: any = global;
 
 let mainWindow: any;
+let backgroundWorker: any;
 globalData.global = {
   root_dir: "",
   files: []
@@ -61,6 +62,19 @@ function createWindow() {
   });
 }
 
+function createBackgroundWorker() {
+  backgroundWorker = new BrowserWindow();
+  // backgroundWindow.hide();
+  backgroundWorker.loadURL(
+    url.format({
+      pathname: path.join(__dirname, "..", "src", "worker.html"),
+      protocol: "file:",
+      slashes: true
+    })
+  );
+  backgroundWorker.webContents.openDevTools();
+}
+
 function init() {
   const config = userData.Get("settings.json");
   let root_dir = config["root_dir"];
@@ -71,6 +85,7 @@ function init() {
   globalData.global.night_mode = config["night_mode"] || false;
 
   createWindow();
+  createBackgroundWorker();
 }
 
 app.on("ready", init);
@@ -83,7 +98,7 @@ app.on("window-all-closed", function() {
 });
 
 app.on("activate", function() {
-  if (mainWindow === null) {
+  if (!mainWindow) {
     createWindow();
   }
 });
@@ -97,4 +112,10 @@ app.inject_menu = function(m: any) {
 // process, so add a simple wrapper on app
 app.showItemInFolder = function(path: string) {
   electron.shell.showItemInFolder(path);
+};
+
+app.sendToBackground = function(channel: string, msg: any) {
+  if (backgroundWorker) {
+    backgroundWorker.webContents.send(channel, msg);
+  }
 };
