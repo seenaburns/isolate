@@ -116,7 +116,7 @@ class ImageGrid extends React.Component<ImageGridProps> {
     srcset.push(`${encodeURI(path)} ${i.width}w`);
 
     return (
-      <div style={style} key={key}>
+      <div className={"iw"} style={style} key={key}>
         {this.props.selection.includes(path) && (
           <div
             className="selected"
