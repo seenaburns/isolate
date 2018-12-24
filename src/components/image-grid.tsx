@@ -8,20 +8,6 @@ import encodePath from "../lib/encode-path";
 
 const VERTICAL_OVERSCAN_SIZE = DEFAULT_COLUMN_WIDTH * 10;
 
-export default class Images extends React.Component<ImageGridProps> {
-  render() {
-    if (this.props.images.length == 0) {
-      return null;
-    }
-    return (
-      <div>
-        <h2>Files</h2>
-        <ImageGrid {...this.props} />
-      </div>
-    );
-  }
-}
-
 interface ImageGridProps {
   images: Image[];
   columnSizing: ColumnSizing;
@@ -40,7 +26,7 @@ interface ImageGridProps {
 // React-virtualized provides:
 // - convenient api for a masonry grid with predefined sizings (server generated)
 // - lazy loading for large folders
-class ImageGrid extends React.Component<ImageGridProps> {
+export default class ImageGrid extends React.Component<ImageGridProps> {
   columnHeights: number[] = [];
   collectionRef: any;
 

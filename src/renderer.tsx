@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 
 const nodePath = require("path");
 
-import Images from "./components/image-grid";
+import ImageGrid from "./components/image-grid";
 import Directories from "./components/directories";
 import Loading from "./components/loading";
 import Errors from "./components/errors";
@@ -183,7 +183,7 @@ class App extends React.Component<AppProps, AppState> {
           setMode={(mode: Mode) => this.setState({ mode: mode })}
           cd={this.cd.bind(this)}
         />
-        <Images
+        <ImageGrid
           images={this.state.contents.images}
           columnSizing={this.state.columnSizing}
           onResize={this.resize.bind(this)}
