@@ -3,7 +3,7 @@ toolbar-padding = 20px
 nav-height = 148px
 nav-height-collapsed = 0px
 
-popup-transition = 0.2s ease-out
+@require 'popup.styl'
 
 .main-header {
   width: 100%;
@@ -145,73 +145,6 @@ input {
   // overlap 1px border on toolbar
   // windows seems very sensitive to loosing hover when mouse passes over border
   margin-top: -1px;
-}
-
-.popup-container {
-  width: 130px;
-  transition:
-    opacity popup-transition,
-    height popup-transition;
-  position: absolute;
-  bottom: 0;
-  margin-bottom: toolbar-height;
-  margin-left: -50px;
-  padding-bottom: 15px;
-}
-.popup-container.enabled {
-  opacity: 1;
-
-  .popup {
-    top: 0px;
-  }
-}
-.popup-container.disabled {
-  opacity: 0;
-  pointer-events: none;
-
-  .popup {
-    top: 10px;
-  }
-}
-
-.popup {
-  position: relative;
-  transition: top popup-transition;
-  box-shadow: 1px 3px 8px rgba(0,0,0,0.2);
-  margin: 15px 15px 0px;
-}
-
-/* .popup before and after constructs a triangle arrow beneath the popup, with a box shadow
- * :after contains a 6px box that is rotated 45 degs, and placed beneath the window with a shadow
- *   because this renders under the popup box itself, it is occulded by .popup's shadow
- * :before renders a triangle with a border, but above both, so that it appears as one contiguous
- *   shape
- */
-.popup:after{
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  height: 6px;
-  width: 6px;
-  margin-left: -3px;
-  margin-bottom: -3px;
-  z-index: -1;
-  box-shadow: 1px 3px 8px rgba(0,0,0,0.2);
-  transform: rotate(45deg);
-}
-.popup:before{
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  pointer-events: none;
-  border-color: rgba(0,0,0,0);
-  border-width: 6px;
-  margin-left: -6px;
 }
 
 .menu-item {
