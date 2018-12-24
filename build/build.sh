@@ -46,5 +46,5 @@ finished "$step"
 
 step="BUILDING WEBPACK"
 starting "$step"
-npx webpack --config build/webpack.config.js
+npx webpack --config build/webpack.config.js --progress
 # Webpack prints a lot so don't bother finishing
