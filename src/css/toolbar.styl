@@ -9,6 +9,9 @@ popup-transition = 0.2s ease-out
   width: 100%;
   position: fixed;
   bottom: 0;
+  background: var(--bg);
+  color: var(--fg);
+  z-index: 1;
 
   h3 {
     margin: 0px;
@@ -32,7 +35,6 @@ popup-transition = 0.2s ease-out
       padding-left: toolbar-padding;
       flex: 0 1 75%;
     }
-
 
     .right {
       height: toolbar-height;
@@ -86,12 +88,21 @@ popup-transition = 0.2s ease-out
   }
 }
 
+.toolbar .center a:hover {
+  color: var(--fg-faded);
+}
+
+.toolbar {
+  border-top: 1px solid var(--fg-faded);
+}
+
 nav.disabled {
-    height: nav-height-collapsed;
+  height: nav-height-collapsed;
 }
 
 nav.enabled {
   height: nav-height;
+  border-top: 1px solid var(--fg-faded);
 }
 
 nav ul {
@@ -212,3 +223,5 @@ input {
 .menu-item:hover {
   cursor: pointer;
 }
+
+

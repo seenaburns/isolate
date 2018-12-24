@@ -175,11 +175,14 @@ class App extends React.Component<AppProps, AppState> {
         )}
         <Errors errors={this.state.errors} />
         <Toolbar
+          dirs={this.state.contents.dirs}
+          imageCount={this.state.contents.images.length}
+          pwd={this.state.path}
           mode={this.state.mode}
           zoom={this.zoom.bind(this)}
           setMode={(mode: Mode) => this.setState({ mode: mode })}
+          cd={this.cd.bind(this)}
         />
-        <Directories dirs={this.state.contents.dirs} cd={this.cd.bind(this)} />
         <Images
           images={this.state.contents.images}
           columnSizing={this.state.columnSizing}

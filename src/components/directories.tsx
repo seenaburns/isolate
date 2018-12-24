@@ -1,27 +1,78 @@
 import React from "react";
 
-export default class Directories extends React.Component<{
-  dirs: string[];
-  cd: (path: string) => void;
-}> {
-  renderDir(path: string) {
-    return (
-      <a href="#" onClick={() => this.props.cd(path)}>
-        {path}
-      </a>
-    );
+interface Props {
+  title: string;
+  items: {
+    display: string;
+    action: () => void;
+  }[];
+  enabled: boolean;
+  setEnabled?: (enabled: boolean) => void;
+}
+
+interface State {
+  filter: string;
+}
+
+export default class Directories extends React.Component<Props, State> {
+  inputRef: any;
+
+  state = {
+    filter: ""
+  };
+
+  constructor(props: Props) {
+    super(props);
+    this.inputRef = React.createRef();
+  }
+
+  onChange(e: Event) {
+    e.preventDefault();
+    const target = e.target as HTMLInputElement;
+    this.setState({
+      filter: target.value
+    });
   }
 
   render() {
+    const className = this.props.enabled ? "enabled" : "disabled";
+
+    const queries = this.state.filter.split(" ");
+    const filtered = this.props.items.filter(i =>
+      queries.some(query =>
+        i.display.toLowerCase().includes(query.toLowerCase())
+      )
+    );
+
     return (
-      <div>
-        <h2>Directories</h2>
-        <ul>
-          {this.props.dirs.map(p => {
-            return <li key={`li-dir-${p}`}>{this.renderDir(p)}</li>;
-          })}
+      <nav className={className}>
+        <div className="title">
+          <h3>{this.props.title}</h3>
+          <input
+            type="text"
+            className="filter"
+            placeholder="Type to filter..."
+            onChange={this.onChange.bind(this)}
+            ref={this.inputRef}
+          />
+          {this.props.setEnabled && (
+            <div className="close">
+              <a href="#" onClick={() => this.props.setEnabled(false)}>
+                close
+              </a>
+            </div>
+          )}
+        </div>
+        <ul id="dirs">
+          {filtered.map(i => (
+            <li key={`li-dirs-${i.display}`}>
+              <a href="#" onClick={() => i.action()}>
+                {i.display}
+              </a>
+            </li>
+          ))}
         </ul>
-      </div>
+      </nav>
     );
   }
 }

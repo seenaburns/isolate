@@ -51,6 +51,7 @@ body {
 
 body {
   --fg: fg
+  --fg-faded: fg-faded
   --bg: bg
   --modal-fg: modal-fg
   --modal-fg-bright: modal-fg-bright
@@ -58,6 +59,7 @@ body {
 
 body.nightmode {
   --fg: nightmode-fg
+  --fg-faded: nightmode-fg-faded
   --bg: nightmode-bg
   --modal-fg: nightmode-modal-fg
   --modal-fg-bright: nightmode-modal-fg-bright
@@ -65,12 +67,21 @@ body.nightmode {
 
 a {
   color: var(--fg)
+  // Seems necessary for geometricPercision text rendering, maybe because of transitions
+  // https://stackoverflow.com/questions/32724159/issues-with-geometricprecision-in-chrome
+  backface-visibility: hidden;
 }
 
 .loading {
   position: fixed;
   width: 50px;
   margin: 20 auto;
+}
+
+input {
+  background: var(--bg);
+  color: var(--fg);
+  border-bottom: 1px solid var(--fg);
 }
 
 // Selected images get amber overlay
