@@ -45,6 +45,15 @@ cat src/css/main.styl | npx stylus > build/out/style.css
 finished "$step"
 
 step="BUILDING WEBPACK"
-starting "$step"
-npx webpack --config build/webpack.config.js --progress
-# Webpack prints a lot so don't bother finishing
+hashfile="build/out/hash"
+if [[ $(cat $hashfile) == $(find src/ -type f -iname '*.tsx' | xargs shasum -a 256) ]];
+then
+    starting "$step"
+    finished "$step (NO CHANGES, SEE $hashfile)"
+else
+    starting "$step"
+    find src/ -type f -iname '*.tsx' | xargs shasum -a 256 > $hashfile
+    npx webpack --config build/webpack.config.js --progress
+    # Webpack prints a lot so don't bother finishing
+fi
+
