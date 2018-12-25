@@ -11,7 +11,7 @@ nav-height-collapsed = 0px
   bottom: 0;
   background: var(--bg);
   color: var(--fg);
-  z-index: 1;
+  z-index: 1
 
   h3 {
     margin: 0px;
@@ -24,6 +24,8 @@ nav-height-collapsed = 0px
     height: toolbar-height;
     width: 100%;
     display: flex;
+    position: absolute
+    bottom: 0
 
     h3 {
       line-height: toolbar-height;
@@ -62,11 +64,14 @@ nav-height-collapsed = 0px
     }
   }
 
-  nav {
+  .nav {
     overflow: hidden;
-    transition: height 0.15s ease-out;
     border-top: 0px; // clear to stop double border fuzziness when collapsed
     padding: 0px 20px 0px;
+    position: absolute
+    bottom: toolbar-height
+    width: 100%
+    background: var(--bg);
 
     .title {
       height: 20px;
@@ -93,15 +98,30 @@ nav-height-collapsed = 0px
 }
 
 .toolbar {
+  background: var(--bg)
   border-top: 1px solid var(--fg-faded);
 }
 
-nav.disabled {
-  height: nav-height-collapsed;
+.nav {
+  transform: translateY(100%);
+  height: nav-height;
 }
 
-nav.enabled {
-  height: nav-height;
+@keyframes naventer {
+  100% { transform: translateY(0%); }
+}
+
+@keyframes navexit {
+  0% { transform: translateY(0%); }
+  100% { transform: translateY(100%); }
+}
+
+.nav.disabled {
+  animation: navexit 0.15s forwards;
+}
+
+.nav.enabled {
+  animation: naventer 0.15s forwards;
   border-top: 1px solid var(--fg-faded);
 }
 

@@ -6,7 +6,6 @@ interface Props {
     display: string;
     action: () => void;
   }[];
-  enabled: boolean;
   setEnabled?: (enabled: boolean) => void;
 }
 
@@ -35,8 +34,6 @@ export default class Directories extends React.Component<Props, State> {
   }
 
   render() {
-    const className = this.props.enabled ? "enabled" : "disabled";
-
     const queries = this.state.filter.split(" ");
     const filtered = this.props.items.filter(i =>
       queries.some(query =>
@@ -45,7 +42,7 @@ export default class Directories extends React.Component<Props, State> {
     );
 
     return (
-      <nav className={className}>
+      <nav>
         <div className="title">
           <h3>{this.props.title}</h3>
           <input
@@ -55,13 +52,11 @@ export default class Directories extends React.Component<Props, State> {
             onChange={this.onChange.bind(this)}
             ref={this.inputRef}
           />
-          {this.props.setEnabled && (
-            <div className="close">
-              <a href="#" onClick={() => this.props.setEnabled(false)}>
-                close
-              </a>
-            </div>
-          )}
+          <div className="close">
+            <a href="#" onClick={() => this.props.setEnabled(false)}>
+              close
+            </a>
+          </div>
         </div>
         <ul id="dirs">
           {filtered.map(i => (

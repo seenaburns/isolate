@@ -2,6 +2,7 @@ import React from "react";
 
 import { Mode } from "../renderer";
 import Directories from "./directories";
+import Animated from "./animated";
 
 const nodePath = require("path");
 
@@ -56,15 +57,20 @@ export default class Toolbar extends React.Component<
 
   render() {
     const directories = (
-      <Directories
-        title="Navigate"
-        items={this.props.dirs.map(d => ({
-          display: d,
-          action: () => this.props.cd(d)
-        }))}
+      <Animated
+        durationMs={150}
+        className={"nav"}
         enabled={this.state.menuEnabled}
-        setEnabled={this.setMenuEnabled.bind(this)}
-      />
+      >
+        <Directories
+          title="Navigate"
+          items={this.props.dirs.map(d => ({
+            display: d,
+            action: () => this.props.cd(d)
+          }))}
+          setEnabled={this.setMenuEnabled.bind(this)}
+        />
+      </Animated>
     );
 
     let basename = this.props.pwd.split(nodePath.sep).pop();
