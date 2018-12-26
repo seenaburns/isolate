@@ -53,7 +53,13 @@ export default class Directories extends React.Component<Props, State> {
             ref={this.inputRef}
           />
           <div className="close">
-            <a href="#" onClick={() => this.props.setEnabled(false)}>
+            <a
+              href="#"
+              onClick={e => {
+                e.preventDefault();
+                this.props.setEnabled(false);
+              }}
+            >
               close
             </a>
           </div>

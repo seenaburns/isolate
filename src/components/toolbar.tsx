@@ -86,11 +86,23 @@ export default class Toolbar extends React.Component<
             <h3>{`${basename} (${this.props.imageCount})`}</h3>
           </div>
           <div className="center">
-            <a href="#" onClick={() => this.props.zoom(false)}>
+            <a
+              href="#"
+              onClick={e => {
+                e.preventDefault();
+                this.props.zoom(false);
+              }}
+            >
               -
             </a>
             Zoom
-            <a href="#" onClick={() => this.props.zoom(true)}>
+            <a
+              href="#"
+              onClick={e => {
+                e.preventDefault();
+                this.props.zoom(true);
+              }}
+            >
               +
             </a>
           </div>
