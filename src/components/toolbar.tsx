@@ -32,19 +32,14 @@ export default class Toolbar extends React.Component<
     menuEnabled: true
   };
 
-  renderModeControls() {
-    if (this.props.mode == Mode.Selection) {
-      return (
-        <a href="#" onClick={() => this.props.setMode(Mode.Modal)}>
-          Cancel
-        </a>
-      );
-    }
-    return (
-      <a href="#" onClick={() => this.props.setMode(Mode.Selection)}>
-        Edit
-      </a>
-    );
+  componentDidMount() {
+    document.addEventListener("keydown", e => {
+      const notInput = document.activeElement.tagName !== "INPUT";
+      if (e.key === "n" && notInput) {
+        e.preventDefault();
+        this.setMenuEnabled(true);
+      }
+    });
   }
 
   setMenuEnabled(enabled: boolean) {
