@@ -52,13 +52,13 @@ export default class Animated extends React.Component<Props, State> {
   }
 
   render() {
-    // if (this.state.enabled) {
-    const className = this.props.enabled
-      ? `${this.props.className} enabled`
-      : `${this.props.className} disabled`;
-    return <div className={className}>{this.props.children}</div>;
-    // } else {
-    //   return null;
-    // }
+    if (this.state.enabled) {
+      const className = this.props.enabled
+        ? `${this.props.className} enabled`
+        : `${this.props.className} disabled`;
+      return <div className={className}>{this.props.children}</div>;
+    } else {
+      return null;
+    }
   }
 }
