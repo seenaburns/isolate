@@ -47,10 +47,6 @@ export default class Toolbar extends React.Component<
     );
   }
 
-  onMouse(enabled: boolean) {
-    this.setState({ menuEnabled: enabled });
-  }
-
   setMenuEnabled(enabled: boolean) {
     this.setState({ menuEnabled: enabled });
   }
@@ -79,10 +75,13 @@ export default class Toolbar extends React.Component<
     }
 
     return (
-      <header className="main-header" onMouseLeave={() => console.log("TODO")}>
+      <header
+        className="main-header"
+        onMouseLeave={() => this.setMenuEnabled(false)}
+      >
         {directories}
         <div className="toolbar">
-          <div className="left" onMouseEnter={() => this.onMouse(true)}>
+          <div className="left" onMouseEnter={() => this.setMenuEnabled(true)}>
             <h3>{`${basename} (${this.props.imageCount})`}</h3>
           </div>
           <div className="center">
