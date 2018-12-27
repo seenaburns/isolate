@@ -16,13 +16,16 @@ interface State {
 export default class Directories extends React.Component<Props, State> {
   inputRef: any;
 
-  state = {
-    filter: ""
-  };
-
   constructor(props: Props) {
     super(props);
+    this.state = {
+      filter: ""
+    };
     this.inputRef = React.createRef();
+  }
+
+  componentDidMount() {
+    this.inputRef.current.focus();
   }
 
   onChange(e: Event) {
@@ -67,7 +70,14 @@ export default class Directories extends React.Component<Props, State> {
         <ul id="dirs">
           {filtered.map(i => (
             <li key={`li-dirs-${i.display}`}>
-              <a href="#" onClick={() => i.action()}>
+              <a
+                href="#"
+                onClick={e => {
+                  e.preventDefault();
+                  this.inputRef.current.focus();
+                  i.action();
+                }}
+              >
                 {i.display}
               </a>
             </li>
