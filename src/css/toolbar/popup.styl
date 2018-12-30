@@ -1,37 +1,77 @@
-popup-transition = 0.2s ease-out
+popup-transition = 0.2s ease-out forwards
+
+.more {
+  display: inline-block;
+  height: toolbar-height;
+  line-height: toolbar-height;
+  padding: 0px 20px;
+
+  // overlap 1px border on toolbar
+  // windows seems very sensitive to loosing hover when mouse passes over border
+  margin-top: -1px;
+}
 
 .popup-container {
   width: 130px;
-  transition:
-    opacity popup-transition,
-    height popup-transition;
   position: absolute;
   bottom: 0;
   margin-bottom: toolbar-height;
   margin-left: -50px;
   padding-bottom: 15px;
 }
+
+.popup {
+  background: var(--bg)
+  position: relative;
+  box-shadow: 1px 3px 8px rgba(0,0,0,0.2);
+  margin: 15px 15px 0px;
+}
+
+.menu-item {
+  border-top: 1px solid var(--fg-faded);
+  text-align: center;
+  line-height: 26px;
+}
+
+.menu-item:hover {
+  background: var(--fg-faded)
+  cursor: pointer;
+}
+
+@keyframes containerenter {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes containerexit {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes popupenter {
+  0% { top: 10px; }
+  100% { top: 0px; }
+}
+
+@keyframes popupexit {
+  0% { top: 0px; }
+  100% { top: 10px; }
+}
+
 .popup-container.enabled {
-  opacity: 1;
+  animation: containerenter popup-transition;
 
   .popup {
-    top: 0px;
+    animation: popupenter popup-transition;
   }
 }
 .popup-container.disabled {
-  opacity: 0;
+  animation: containerexit popup-transition;
   pointer-events: none;
 
   .popup {
-    top: 10px;
+    animation: popupexit popup-transition;
   }
-}
-
-.popup {
-  position: relative;
-  transition: top popup-transition;
-  box-shadow: 1px 3px 8px rgba(0,0,0,0.2);
-  margin: 15px 15px 0px;
 }
 
 /* .popup before and after constructs a triangle arrow beneath the popup, with a box shadow

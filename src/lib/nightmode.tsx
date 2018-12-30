@@ -19,6 +19,8 @@ function set(enabled: boolean): void {
     document.querySelector("body").classList.remove("nightmode");
   }
 
+  scrollbar.setNightmode(enabled);
+
   userData.SetKey("night_mode", enabled, "settings.json");
 }
 

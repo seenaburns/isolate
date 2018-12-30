@@ -3,6 +3,8 @@ import React from "react";
 import { Mode } from "../renderer";
 import Directories from "./directories";
 import Animated from "./animated";
+import PopupMenu from "./popup";
+import nightmode from "../lib/nightmode";
 
 const nodePath = require("path");
 
@@ -65,6 +67,13 @@ export default class Toolbar extends React.Component<
       </Animated>
     );
 
+    const menuItems = [
+      {
+        display: "Nightmode",
+        action: () => nightmode.toggle()
+      }
+    ];
+
     let pwd = this.props.path.replace(this.props.root, "");
     if (pwd === "") {
       pwd = "/";
@@ -101,7 +110,9 @@ export default class Toolbar extends React.Component<
               +
             </a>
           </div>
-          <div className="right" />
+          <div className="right">
+            <PopupMenu items={menuItems} />
+          </div>
           <input type="text" className="search" placeholder="Search..." />
         </div>
       </header>
