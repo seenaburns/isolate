@@ -44,6 +44,30 @@ export default class Toolbar extends React.Component<
     this.setMode = this.setMode.bind(this);
   }
 
+  componentDidMount() {
+    document.addEventListener("keydown", e => {
+      const notInput = document.activeElement.tagName !== "INPUT";
+      if (notInput) {
+        if (e.key === "n") {
+          e.preventDefault();
+          this.setMenuEnabled(true);
+        }
+        if (this.props.mode === Mode.Modal && e.key === "e") {
+          console.log("edit hotkey");
+          this.setMode(Mode.Selection)(e);
+        }
+        if (this.props.mode === Mode.Selection && e.key === "m") {
+          console.log("move hotkey");
+          this.setMode(Mode.Move)(e);
+        }
+        if (this.props.mode !== Mode.Modal && e.key === "Escape") {
+          console.log("cancel hotkey");
+          this.setMode(Mode.Modal)(e);
+        }
+      }
+    });
+  }
+
   zoom(zoomIn: boolean) {
     return (event: React.MouseEvent<HTMLAnchorElement>) => {
       event.preventDefault();
@@ -52,20 +76,19 @@ export default class Toolbar extends React.Component<
   }
 
   setMode(mode: Mode) {
-    return (event: React.MouseEvent<HTMLAnchorElement>) => {
-      event.preventDefault();
+    return (event?: React.MouseEvent<HTMLAnchorElement> | KeyboardEvent) => {
+      if (event) {
+        event.preventDefault();
+      }
+
+      if (mode === Mode.Move) {
+        this.setMenuEnabled(true);
+      } else if (mode === Mode.Modal || mode === Mode.Selection) {
+        this.setMenuEnabled(false);
+      }
+
       this.props.setMode(mode);
     };
-  }
-
-  componentDidMount() {
-    document.addEventListener("keydown", e => {
-      const notInput = document.activeElement.tagName !== "INPUT";
-      if (e.key === "n" && notInput) {
-        e.preventDefault();
-        this.setMenuEnabled(true);
-      }
-    });
   }
 
   setMenuEnabled(enabled: boolean) {
@@ -94,10 +117,7 @@ export default class Toolbar extends React.Component<
     const menuItems = [
       {
         display: "Move",
-        action: () => {
-          this.props.setMode(Mode.Selection);
-          this.setMenuEnabled(false);
-        }
+        action: () => this.setMode(Mode.Selection)(null)
       },
       {
         display: "Nightmode",
@@ -115,24 +135,10 @@ export default class Toolbar extends React.Component<
   renderMoveControls() {
     return (
       <div className="edit">
-        <a
-          href="#"
-          onClick={e => {
-            e.preventDefault();
-            this.setMode(Mode.Move)(e);
-            this.setMenuEnabled(true);
-          }}
-        >
+        <a href="#" onClick={this.setMode(Mode.Move)}>
           Move
         </a>
-        <a
-          href="#"
-          onClick={e => {
-            e.preventDefault();
-            this.setMode(Mode.Modal)(e);
-            this.setMenuEnabled(false);
-          }}
-        >
+        <a href="#" onClick={this.setMode(Mode.Modal)}>
           Cancel
         </a>
       </div>
