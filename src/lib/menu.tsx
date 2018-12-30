@@ -65,7 +65,7 @@ function UpdateMenu() {
       submenu: [
         {
           label: "Zoom In",
-          accelerator: "CmdOrCtrl+Plus",
+          accelerator: "CmdOrCtrl+=",
           click: functions.ZoomIn
         },
         {
