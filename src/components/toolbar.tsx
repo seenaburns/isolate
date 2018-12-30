@@ -9,7 +9,8 @@ const nodePath = require("path");
 interface ToolbarProps {
   dirs: string[];
   imageCount: number;
-  pwd: string;
+  path: string;
+  root: string;
 
   // State
   mode: Mode;
@@ -64,9 +65,9 @@ export default class Toolbar extends React.Component<
       </Animated>
     );
 
-    let basename = this.props.pwd.split(nodePath.sep).pop();
-    if (!basename) {
-      basename = "/";
+    let pwd = this.props.path.replace(this.props.root, "");
+    if (pwd === "") {
+      pwd = "/";
     }
 
     return (
@@ -77,7 +78,7 @@ export default class Toolbar extends React.Component<
         {directories}
         <div className="toolbar">
           <div className="left" onMouseEnter={() => this.setMenuEnabled(true)}>
-            <h3>{`${basename} (${this.props.imageCount})`}</h3>
+            <h3>{`${pwd} (${this.props.imageCount})`}</h3>
           </div>
           <div className="center">
             <a

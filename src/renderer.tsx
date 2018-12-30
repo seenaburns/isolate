@@ -217,7 +217,8 @@ class App extends React.Component<AppProps, AppState> {
         <Toolbar
           dirs={this.state.contents.dirs}
           imageCount={this.state.contents.images.length}
-          pwd={this.state.path}
+          path={this.state.path}
+          root={this.state.root}
           mode={this.state.mode}
           zoom={this.zoom.bind(this)}
           setMode={(mode: Mode) => this.setState({ mode: mode })}
