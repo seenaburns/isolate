@@ -194,7 +194,7 @@ class App extends React.Component<AppProps, AppState> {
     if (this.state.root === "") {
       return (
         <div className="dragndrop">
-          <img src="assets/icon_512x512.png" />
+          <img src="../assets/icon_512x512.png" />
           <p>{"Drag & drop a folder to get started"}</p>
         </div>
       );
