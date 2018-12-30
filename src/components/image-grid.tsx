@@ -56,7 +56,7 @@ export default class ImageGrid extends React.Component<ImageGridProps> {
 
   render() {
     return (
-      <div>
+      <div className="image-grid">
         <AutoSizer disableHeight onResize={this.props.onResize}>
           {({ width }: any) => (
             <WindowScroller>
