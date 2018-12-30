@@ -1,7 +1,6 @@
 import userData from "./userData";
 import scrollbar from "./scrollbar";
-
-const process = require("process");
+import menu from "./menu";
 
 export default {
   set: set,
@@ -20,6 +19,8 @@ function set(enabled: boolean): void {
   }
 
   scrollbar.setNightmode(enabled);
+  menu.Options.NightMode = enabled;
+  menu.UpdateMenu();
 
   userData.SetKey("night_mode", enabled, "settings.json");
 }

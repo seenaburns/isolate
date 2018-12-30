@@ -1,10 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-const nodePath = require("path");
-
 import ImageGrid from "./components/image-grid";
-import Directories from "./components/directories";
 import Loading from "./components/loading";
 import Errors from "./components/errors";
 import { cdPath, list, DirectoryContents } from "./lib/fs";
@@ -19,9 +16,10 @@ import Modal from "./components/modal";
 import Toolbar from "./components/toolbar";
 import scrollbar from "./lib/scrollbar";
 import nightmode from "./lib/nightmode";
-import { Image, dimensions } from "./lib/image";
+import { Image } from "./lib/image";
 import Daemon, { DaemonConfig } from "./lib/daemon";
 import userData from "./lib/userData";
+import Menu from "./components/menu";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
@@ -230,6 +228,11 @@ class App extends React.Component<AppProps, AppState> {
           onResize={this.resize.bind(this)}
           imageOnClick={this.imageOnClick.bind(this)}
           selection={this.state.selection}
+        />
+        <Menu
+          modalPath={this.state.modal}
+          nightmodeEnabled={false}
+          zoom={this.zoom.bind(this)}
         />
       </div>
     );
