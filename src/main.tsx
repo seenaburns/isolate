@@ -137,7 +137,7 @@ function spawnDaemon(port: number): Promise<DaemonConfig> {
       return;
     }
 
-    daemonProcess = spawn(path.join(__dirname, "isolated"), [
+    daemonProcess = spawn(pathToIsolated(), [
       "-appdir",
       userDataPath,
       "-port",
@@ -187,4 +187,19 @@ function getAvailablePort(): Promise<number> {
       resolve(port);
     });
   });
+}
+
+// Hide away ugly branches that figure out where isolated is located
+// dev: __dirname (build/out/) + "isolated"
+// osx prebuilt: isolate.app/Contents/build/out/isolated
+// linux prebuilt: ???
+// windows prebuilt: ???
+function pathToIsolated() {
+  const resourcePath = (process as any).resourcesPath;
+
+  // Proxy check to see if in prebuilt app
+  if (__dirname.includes("app.asar")) {
+    return path.join(resourcePath, "../build/out", "isolated");
+  }
+  return path.join(__dirname, "isolated");
 }

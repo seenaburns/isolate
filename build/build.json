@@ -10,8 +10,9 @@
     "build/**/*.js",
     "build/**/*.css"
   ],
+  "extraFiles": ["build/out/isolated"],
   "directories": {
-    "output": "build/"
+    "output": "build/out/"
   },
   "mac": {
     "category": "image",
