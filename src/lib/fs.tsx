@@ -14,7 +14,6 @@ export interface DirectoryContents {
 // TODO: filter unrecognized extensions to reduce errors
 export async function list(path: string): Promise<DirectoryContents> {
   const contents = await listDir(path);
-  const dirs = [".."].concat(contents.dirs);
   const files = await nonFatalAll(
     "fetching image dimensions",
     contents.files.map(f => {
@@ -28,7 +27,7 @@ export async function list(path: string): Promise<DirectoryContents> {
   );
 
   return {
-    dirs: dirs,
+    dirs: contents.dirs,
     images: files
   };
 }

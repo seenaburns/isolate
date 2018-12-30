@@ -111,6 +111,10 @@ class App extends React.Component<AppProps, AppState> {
 
     const req = listDirWithDaemon(newPath, this.state.daemon).then(
       contents => {
+        if (newPath !== this.state.root) {
+          contents.dirs = [".."].concat(contents.dirs);
+        }
+
         this.setState(state => ({
           path: newPath,
           contents: contents,
