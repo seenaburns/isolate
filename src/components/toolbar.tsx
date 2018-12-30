@@ -6,7 +6,7 @@ import Animated from "./animated";
 import PopupMenu from "./popup";
 import nightmode from "../lib/nightmode";
 import { fstat } from "fs";
-import { directoryWalk, trimRelativeToRoot, unsafeMove } from "../lib/fs";
+import { directoryWalk, trimRelativeToRoot, unsafeMoveAll } from "../lib/fs";
 
 const nodePath = require("path");
 
@@ -160,8 +160,10 @@ export default class Toolbar extends React.Component<
           items={dirs.map(d => ({
             display: trimRelativeToRoot(d, this.props.root),
             action: () => {
-              this.props.selection.forEach(f => unsafeMove(f, d));
               this.props.setMode(Mode.Modal);
+              unsafeMoveAll(this.props.selection, d).then(() => {
+                this.props.cd("");
+              });
             }
           }))}
           setEnabled={this.setMenuEnabled.bind(this)}

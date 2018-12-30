@@ -192,3 +192,7 @@ export async function unsafeMove(path: string, dest: string) {
     });
   });
 }
+
+export async function unsafeMoveAll(paths: string[], dest: string) {
+  return nonFatalAll("unsafeMoveAll", paths.map(p => unsafeMove(p, dest)));
+}
