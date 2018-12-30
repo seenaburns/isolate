@@ -71,6 +71,7 @@ export default class Directories extends React.Component<Props, State> {
     this.setState({
       filter: ""
     });
+    this.focusInput();
     item.action();
   }
 
