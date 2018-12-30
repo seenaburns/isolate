@@ -21,6 +21,7 @@ import scrollbar from "./lib/scrollbar";
 import nightmode from "./lib/nightmode";
 import { Image, dimensions } from "./lib/image";
 import Daemon, { DaemonConfig } from "./lib/daemon";
+import userData from "./lib/userData";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
@@ -36,6 +37,7 @@ interface AppState {
   errors: string[];
   activeRequest?: Promise<void>;
 
+  root: string;
   path: string;
   contents: DirectoryContents;
   selection: string[];
@@ -52,6 +54,7 @@ class App extends React.Component<AppProps, AppState> {
     errors: [],
 
     path: global.root_dir,
+    root: global.root_dir,
     contents: {
       dirs: [],
       images: []
@@ -70,6 +73,16 @@ class App extends React.Component<AppProps, AppState> {
 
   componentDidMount() {
     this.cd("");
+
+    document.ondragover = e => {
+      e.preventDefault();
+    };
+
+    document.ondrop = document.body.ondrop = e => {
+      e.preventDefault();
+      const f = e.dataTransfer.files[0] as any;
+      this.setRoot(f.path);
+    };
 
     electron.ipcRenderer.on(
       "daemon-did-init",
@@ -125,6 +138,20 @@ class App extends React.Component<AppProps, AppState> {
     });
   }
 
+  setRoot(path: string) {
+    console.log("Root", this.state.root, "to", path);
+    userData.SetKey("root_dir", path, "settings.json");
+    this.setState(
+      {
+        path: path,
+        root: path
+      },
+      () => {
+        this.cd("");
+      }
+    );
+  }
+
   resize(dim: { height: number; width: number }) {
     console.log("Resize", dim.height, dim.width);
 
@@ -164,6 +191,15 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   render() {
+    if (this.state.root === "") {
+      return (
+        <div className="dragndrop">
+          <img src="assets/icon_512x512.png" />
+          <p>{"Drag & drop a folder to get started"}</p>
+        </div>
+      );
+    }
+
     return (
       <div>
         {this.state.activeRequest && <Loading />}
