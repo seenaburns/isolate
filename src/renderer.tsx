@@ -26,7 +26,8 @@ let global = electron.remote.getGlobal("global");
 
 export enum Mode {
   Modal,
-  Selection
+  Selection,
+  Move
 }
 
 interface AppProps {}
@@ -95,10 +96,7 @@ class App extends React.Component<AppProps, AppState> {
 
   componentDidUpdate(prevProps: AppProps, prevState: AppState) {
     // Clear selection if exiting out of mode
-    if (
-      prevState.mode == Mode.Selection &&
-      prevState.mode !== this.state.mode
-    ) {
+    if (this.state.mode === Mode.Modal && prevState.mode !== this.state.mode) {
       this.setState({ selection: [] });
     }
   }
@@ -217,6 +215,7 @@ class App extends React.Component<AppProps, AppState> {
           imageCount={this.state.contents.images.length}
           path={this.state.path}
           root={this.state.root}
+          selection={this.state.selection}
           mode={this.state.mode}
           zoom={this.zoom.bind(this)}
           setMode={(mode: Mode) => this.setState({ mode: mode })}

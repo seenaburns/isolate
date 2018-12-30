@@ -59,7 +59,7 @@ export default class Directories extends React.Component<Props, State> {
       return this.props.items;
     }
     return this.props.items.filter(i =>
-      queries.some(query =>
+      queries.every(query =>
         i.display.toLowerCase().includes(query.toLowerCase())
       )
     );
