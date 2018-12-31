@@ -83,6 +83,17 @@ class App extends React.Component<AppProps, AppState> {
       this.setRoot(f.path);
     };
 
+    document.addEventListener("keydown", e => {
+      if (this.state.modal) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          this.setState({
+            modal: undefined
+          });
+        }
+      }
+    });
+
     electron.ipcRenderer.on(
       "daemon-did-init",
       (event: any, daemon: DaemonConfig) => {
