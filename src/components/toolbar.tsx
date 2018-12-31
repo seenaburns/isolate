@@ -36,11 +36,14 @@ export default class Toolbar extends React.Component<
   ToolbarProps,
   ToolbarState
 > {
+  searchRef: any;
+
   constructor(props: ToolbarProps) {
     super(props);
     this.state = {
       menuEnabled: true
     };
+    this.searchRef = React.createRef();
 
     this.zoom = this.zoom.bind(this);
     this.setMode = this.setMode.bind(this);
@@ -131,11 +134,7 @@ export default class Toolbar extends React.Component<
       }
     ];
 
-    return (
-      <div className="right">
-        <PopupMenu items={menuItems} />
-      </div>
-    );
+    return <PopupMenu items={menuItems} />;
   }
 
   renderMoveControls() {
@@ -203,6 +202,7 @@ export default class Toolbar extends React.Component<
             onClick={e => {
               e.preventDefault();
               this.props.setSearch(undefined);
+              this.searchRef.current.value = "";
             }}
           >
             Cancel
@@ -241,6 +241,7 @@ export default class Toolbar extends React.Component<
               type="text"
               className="search"
               placeholder="Search..."
+              ref={this.searchRef}
               onKeyDown={e => {
                 if (e.key === "Enter") {
                   e.preventDefault();
