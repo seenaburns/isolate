@@ -1,5 +1,7 @@
 @require 'popup.styl'
 
+nav-animation = 0.15s ease-out forwards
+
 .main-header {
   width: 100%;
   position: fixed;
@@ -112,11 +114,11 @@
 }
 
 .nav.disabled {
-  animation: navexit 0.15s forwards;
+  animation: navexit nav-animation;
 }
 
 .nav.enabled {
-  animation: naventer 0.15s forwards;
+  animation: naventer nav-animation;
   border-top: 1px solid var(--fg-faded);
 }
 
