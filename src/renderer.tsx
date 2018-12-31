@@ -7,9 +7,9 @@ import Errors from "./components/errors";
 import {
   cdPath,
   list,
+  searchFiles,
   DirectoryContents,
-  directoryWalk,
-  searchFiles
+  fetchDimensionsWhenUnknown
 } from "./lib/fs";
 import {
   resize,
@@ -29,12 +29,18 @@ import Menu from "./components/menu";
 import shuffle from "./lib/shuffle";
 
 const electron = require("electron");
+const nodePath = require("path");
 let global = electron.remote.getGlobal("global");
 
 export enum Mode {
   Modal,
   Selection,
   Move
+}
+
+interface Contents {
+  dirs: string[];
+  images: Image[];
 }
 
 interface AppProps {}
@@ -45,7 +51,7 @@ interface AppState {
 
   root: string;
   path: string;
-  contents: DirectoryContents;
+  contents: Contents;
 
   selection: string[];
   mode: Mode;
@@ -339,24 +345,34 @@ ReactDOM.render(<App />, document.getElementById("root"));
 async function listDirWithDaemon(
   path: string,
   daemon?: DaemonConfig
-): Promise<DirectoryContents> {
-  const fsContents = await list(path);
+): Promise<Contents> {
+  const imagesByPath: Map<string, Partial<Image>> = new Map();
 
-  const images: Map<string, Image> = new Map();
-  fsContents.images.forEach(i => images.set(i.path, i));
+  // List directory contents from disk
+  const fsContents: DirectoryContents = await list(path);
+  const fsImages: string[] = fsContents.files.map(f => nodePath.join(path, f));
+  fsImages.forEach(i =>
+    imagesByPath.set(i, {
+      path: i
+    })
+  );
 
+  // Query daemon for precomputed values
   if (daemon) {
-    const daemonContents = await Daemon.listDir(daemon, path);
-    daemonContents.forEach(i => {
+    const daemonImages: Image[] = await Daemon.listDir(daemon, path);
+    daemonImages.forEach(i => {
       // Only override if file exists on disk
-      if (images.get(i.path)) {
-        images.set(i.path, i);
+      if (imagesByPath.get(i.path)) {
+        imagesByPath.set(i.path, i);
       }
     });
   }
 
+  // Fill dimensions for any files that daemon does not know about
+  const partialImages: Partial<Image>[] = Array.from(imagesByPath.values());
+  const images: Image[] = await fetchDimensionsWhenUnknown(partialImages);
   return {
     dirs: fsContents.dirs,
-    images: Array.from(images.values())
+    images: images
   };
 }

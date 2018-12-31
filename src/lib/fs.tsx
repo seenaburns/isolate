@@ -4,57 +4,16 @@ const crypto = require("crypto");
 
 import { Image, dimensions } from "./image";
 import { Dirent, Stats } from "fs";
-import { isDeepStrictEqual } from "util";
-import { number } from "prop-types";
+import nonFatalAll from "./non-fatal-all";
 
 export interface DirectoryContents {
   dirs: string[];
-  images: Image[];
-}
-
-// TODO: async/await syntax instead of nested promises
-// TODO: filter unrecognized extensions to reduce errors
-export async function list(path: string): Promise<DirectoryContents> {
-  const contents = await listDir(path);
-  const files = await nonFatalAll(
-    "fetching image dimensions",
-    contents.files.map(f => {
-      const absPath = nodePath.join(path, f);
-      return dimensions(absPath).then(dim => ({
-        path: absPath,
-        width: dim.width,
-        height: dim.height
-      }));
-    })
-  );
-
-  return {
-    dirs: contents.dirs,
-    images: files
-  };
-}
-
-async function nonFatalAll<T>(name: string, ps: Promise<T>[]): Promise<T[]> {
-  const all = await Promise.all(
-    ps.map(p =>
-      p.then(
-        x => x,
-        err => {
-          console.error("Failed running", name, err);
-          return null;
-        }
-      )
-    )
-  );
-  return all.filter(x => x);
-}
-
-export function listDir(
-  path: string
-): Promise<{
-  dirs: string[];
   files: string[];
-}> {
+}
+
+// List dirs and files under path
+// Returns relative paths (only the filename/dirname)
+export function list(path: string): Promise<DirectoryContents> {
   return new Promise((resolve, reject) => {
     fs.readdir(
       path,
@@ -72,6 +31,32 @@ export function listDir(
     );
   });
 }
+
+// Given a list of images with partial metadata, fetch the dimensions for any
+// images that do not have them. If fetching image dimensions fails, log, but
+// skip
+export async function fetchDimensionsWhenUnknown(
+  partialImages: Partial<Image>[]
+): Promise<Image[]> {
+  const knownDimensions = partialImages.filter(
+    i => i.width && i.height
+  ) as Image[];
+  const unknownDimensions = partialImages.filter(i => !(i.width && i.height));
+
+  const fetched: Image[] = await nonFatalAll(
+    "fetching image dimensions",
+    unknownDimensions.map(i =>
+      dimensions(i.path).then(dim => ({
+        path: i.path,
+        width: dim.width,
+        height: dim.height
+      }))
+    )
+  );
+
+  return knownDimensions.concat(fetched);
+}
+
 // Return new path joining currentPath + subdir
 // If subdir == "..", return up one level
 export function cdPath(currentPath: string, subdir: string): string {
@@ -98,39 +83,31 @@ export function stat(path: string): Promise<Stats> {
   });
 }
 
-export function hash(path: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const hash = crypto.createHash("sha1");
-    const stream = fs.createReadStream(path);
-    stream.on("error", (err: Error) => reject(err));
-    stream.on("data", (chunk: any) => hash.update(chunk));
-    stream.on("end", () => {
-      resolve(hash.digest("hex"));
-    });
-  });
-}
-
 // cached version of actual directory walk
-interface DirectoryWalkContents {
-  dirs: string[];
-  files: string[];
-}
-let directoryWalkCache: DirectoryWalkContents;
+let directoryWalkCache: {
+  root: string;
+  contents: DirectoryContents;
+};
 
-export function directoryWalk(path: string): DirectoryWalkContents {
-  if (directoryWalkCache) {
-    return directoryWalkCache;
+export function directoryWalk(root: string): DirectoryContents {
+  if (directoryWalkCache && directoryWalkCache.root === root) {
+    return directoryWalkCache.contents;
   }
 
-  directoryWalkCache = recDirectoryWalk(path, 5);
-  return directoryWalkCache;
+  const contents = recDirectoryWalk(root, 5);
+  directoryWalkCache = {
+    root: root,
+    contents: contents
+  };
+
+  return contents;
 }
 
 function recDirectoryWalk(
   path: string,
   remainingDepth: number
-): DirectoryWalkContents {
-  const contents: DirectoryWalkContents = {
+): DirectoryContents {
+  const contents: DirectoryContents = {
     dirs: [],
     files: []
   };
