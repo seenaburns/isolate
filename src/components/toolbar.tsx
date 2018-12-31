@@ -16,6 +16,7 @@ interface ToolbarProps {
   path: string;
   root: string;
   selection: string[];
+  search?: string;
 
   // State
   mode: Mode;
@@ -24,6 +25,7 @@ interface ToolbarProps {
   cd: (path: string) => void;
   zoom: (zoomIn: boolean) => void;
   setMode: (mode: Mode) => void;
+  setSearch: (query?: string) => void;
 }
 
 interface ToolbarState {
@@ -93,6 +95,10 @@ export default class Toolbar extends React.Component<
 
   setMenuEnabled(enabled: boolean) {
     this.setState({ menuEnabled: enabled });
+  }
+
+  isSearching() {
+    return this.props.search && this.props.search !== "";
   }
 
   renderZoom() {
@@ -188,6 +194,30 @@ export default class Toolbar extends React.Component<
     );
   }
 
+  renderPwd() {
+    if (this.isSearching()) {
+      return (
+        <h3>
+          <a
+            href="#"
+            onClick={e => {
+              e.preventDefault();
+              this.props.setSearch(undefined);
+            }}
+          >
+            Cancel
+          </a>
+        </h3>
+      );
+    }
+
+    return (
+      <h3>{`${trimRelativeToRoot(this.props.path, this.props.root)} (${
+        this.props.imageCount
+      })`}</h3>
+    );
+  }
+
   render() {
     return (
       <header
@@ -198,18 +228,27 @@ export default class Toolbar extends React.Component<
           }
         }}
       >
-        {this.renderDirectories()}
+        {!this.isSearching() && this.renderDirectories()}
         <div className="toolbar">
           <div className="left" onMouseEnter={() => this.setMenuEnabled(true)}>
-            <h3>{`${trimRelativeToRoot(this.props.path, this.props.root)} (${
-              this.props.imageCount
-            })`}</h3>
+            {this.renderPwd()}
           </div>
           <div className="center">{this.renderZoom()}</div>
           <div className="right">
             {!this.isModeMoving() && this.renderPopup()}
             {this.isModeMoving() && this.renderMoveControls()}
-            <input type="text" className="search" placeholder="Search..." />
+            <input
+              type="text"
+              className="search"
+              placeholder="Search..."
+              onKeyDown={e => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const target = e.target as HTMLInputElement;
+                  this.props.setSearch(target.value);
+                }
+              }}
+            />
           </div>
         </div>
       </header>

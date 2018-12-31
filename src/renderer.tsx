@@ -4,7 +4,13 @@ import ReactDOM from "react-dom";
 import ImageGrid from "./components/image-grid";
 import Loading from "./components/loading";
 import Errors from "./components/errors";
-import { cdPath, list, DirectoryContents } from "./lib/fs";
+import {
+  cdPath,
+  list,
+  DirectoryContents,
+  directoryWalk,
+  searchFiles
+} from "./lib/fs";
 import {
   resize,
   zoom,
@@ -42,6 +48,7 @@ interface AppState {
   selection: string[];
   mode: Mode;
   modalIndex?: number;
+  search?: string;
 
   columnSizing: ColumnSizing;
 
@@ -198,6 +205,26 @@ class App extends React.Component<AppProps, AppState> {
     return undefined;
   }
 
+  search(query?: string) {
+    if (!query || query === "") {
+      this.setState({
+        search: undefined
+      });
+      this.cd("");
+      return;
+    }
+
+    searchFiles(query, this.state.root).then(images => {
+      this.setState({
+        search: query,
+        contents: {
+          dirs: [],
+          images: images
+        }
+      });
+    });
+  }
+
   render() {
     if (this.state.root === "") {
       return (
@@ -224,10 +251,12 @@ class App extends React.Component<AppProps, AppState> {
           path={this.state.path}
           root={this.state.root}
           selection={this.state.selection}
+          search={this.state.search}
           mode={this.state.mode}
           zoom={this.zoom.bind(this)}
           setMode={(mode: Mode) => this.setState({ mode: mode })}
           cd={this.cd.bind(this)}
+          setSearch={this.search.bind(this)}
         />
         <ImageGrid
           images={this.state.contents.images}
