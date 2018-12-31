@@ -332,6 +332,8 @@ console.log(global.night_mode, global.root_dir);
 nightmode.set(global.night_mode);
 scrollbar.init(global.night_mode);
 
+document.querySelector("body").classList.add(process.platform);
+
 ReactDOM.render(<App />, document.getElementById("root"));
 
 async function listDirWithDaemon(

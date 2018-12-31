@@ -115,3 +115,47 @@ input {
 .image-grid {
   padding: 0px image-gap toolbar-height;
 }
+
+// Platform specific styling
+
+// Frameless Electron windows aren’t draggable.
+
+/* Default / On MacOS
+ * On MacOS, making everything draggable works works: everything in the window
+ * can be used as a drag handle, but elements still register mouse events
+ */
+body {
+  -webkit-app-region: drag;
+
+  .main-header {
+    -webkit-app-region: drag;
+  }
+
+  .draggable-top {
+    display: none;
+  }
+}
+
+/*
+ * On Windows, it's either but not both. Therefore, we make everything undraggable
+ * and enable for a thin region at the top
+ */
+body.win32 {
+  -webkit-app-region: no-drag;
+
+  .main-header {
+    -webkit-app-region: no-drag;
+  }
+
+  .draggable-top {
+    -webkit-app-region: drag;
+    position: fixed;
+    width: 100%;
+    display: block;
+  }
+
+  .draggable-top {
+    top: 0;
+    height: 12px;
+  }
+}
