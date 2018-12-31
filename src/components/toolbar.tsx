@@ -26,6 +26,7 @@ interface ToolbarProps {
   zoom: (zoomIn: boolean) => void;
   setMode: (mode: Mode) => void;
   setSearch: (query?: string) => void;
+  toggleShuffle: () => void;
 }
 
 interface ToolbarState {
@@ -127,6 +128,10 @@ export default class Toolbar extends React.Component<
       {
         display: "Move",
         action: () => this.setMode(Mode.Selection)(null)
+      },
+      {
+        display: "Shuffle",
+        action: () => this.props.toggleShuffle()
       },
       {
         display: "Nightmode",

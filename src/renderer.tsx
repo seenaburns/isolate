@@ -26,6 +26,7 @@ import { Image } from "./lib/image";
 import Daemon, { DaemonConfig } from "./lib/daemon";
 import userData from "./lib/userData";
 import Menu from "./components/menu";
+import shuffle from "./lib/shuffle";
 
 const electron = require("electron");
 let global = electron.remote.getGlobal("global");
@@ -45,14 +46,15 @@ interface AppState {
   root: string;
   path: string;
   contents: DirectoryContents;
+
   selection: string[];
   mode: Mode;
   modalIndex?: number;
-
   // Search
   // Enabled if search is defined and not empty
   search?: string;
   searchResults: Image[];
+  shuffledResults?: Image[]; // enabled if non-empty
 
   columnSizing: ColumnSizing;
 
@@ -70,17 +72,16 @@ class App extends React.Component<AppProps, AppState> {
       images: []
     },
 
+    selection: [],
+    mode: Mode.Modal,
+    searchResults: [],
+
     columnSizing: {
       count: 1,
       width: DEFAULT_COLUMN_WIDTH,
       minimumColumnWidth: DEFAULT_COLUMN_WIDTH,
       containerWidth: 0
-    },
-
-    selection: [],
-    mode: Mode.Modal,
-
-    searchResults: []
+    }
   };
 
   componentDidMount() {
@@ -124,12 +125,14 @@ class App extends React.Component<AppProps, AppState> {
           contents.dirs = [".."].concat(contents.dirs);
         }
 
-        this.setState(state => ({
+        this.clearSearch();
+        this.clearShuffle();
+        this.setState({
           path: newPath,
           contents: contents,
           activeRequest: undefined,
           selection: []
-        }));
+        });
 
         // Chromium seems to hold a copy of every image in the webframe cache. This can
         // cause the memory used to balloon, looking alarming to users.
@@ -204,27 +207,28 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   modalPath() {
-    const i = this.images()[this.state.modalIndex];
+    const i = this.images(this.state)[this.state.modalIndex];
     if (i) {
       return i.path;
     }
     return undefined;
   }
 
-  images(): Image[] {
-    if (this.state.search && this.state.search !== "") {
-      return this.state.searchResults;
+  images(state: AppState): Image[] {
+    if (state.shuffledResults) {
+      return state.shuffledResults;
     }
 
-    return this.state.contents.images;
+    if (state.search && state.search !== "") {
+      return state.searchResults;
+    }
+
+    return state.contents.images;
   }
 
   search(query?: string) {
     if (!query || query === "") {
-      this.setState({
-        search: undefined,
-        searchResults: []
-      });
+      this.clearSearch();
       this.cd("");
       return;
     }
@@ -234,6 +238,31 @@ class App extends React.Component<AppProps, AppState> {
         search: query,
         searchResults: images
       });
+    });
+  }
+
+  clearSearch() {
+    this.setState({
+      search: undefined,
+      searchResults: []
+    });
+  }
+
+  toggleShuffle() {
+    this.setState(state => {
+      if (state.shuffledResults) {
+        this.clearShuffle();
+      }
+
+      return {
+        shuffledResults: shuffle(this.images(this.state))
+      };
+    });
+  }
+
+  clearShuffle() {
+    this.setState({
+      shuffledResults: undefined
     });
   }
 
@@ -247,19 +276,21 @@ class App extends React.Component<AppProps, AppState> {
       );
     }
 
+    console.log(this.images(this.state));
+
     return (
       <div>
         {this.state.activeRequest && <Loading />}
         <Modal
           index={this.state.modalIndex}
-          images={this.images().map(i => i.path)}
+          images={this.images(this.state).map(i => i.path)}
           setIndex={(i: number) => this.setState({ modalIndex: i })}
           close={() => this.setState({ modalIndex: undefined })}
         />
         <Errors errors={this.state.errors} />
         <Toolbar
           dirs={this.state.contents.dirs}
-          imageCount={this.images().length}
+          imageCount={this.images(this.state).length}
           path={this.state.path}
           root={this.state.root}
           selection={this.state.selection}
@@ -269,9 +300,10 @@ class App extends React.Component<AppProps, AppState> {
           setMode={(mode: Mode) => this.setState({ mode: mode })}
           cd={this.cd.bind(this)}
           setSearch={this.search.bind(this)}
+          toggleShuffle={this.toggleShuffle.bind(this)}
         />
         <ImageGrid
-          images={this.images()}
+          images={this.images(this.state)}
           columnSizing={this.state.columnSizing}
           onResize={this.resize.bind(this)}
           imageOnClick={this.imageOnClick.bind(this)}
