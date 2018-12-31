@@ -48,7 +48,11 @@ interface AppState {
   selection: string[];
   mode: Mode;
   modalIndex?: number;
+
+  // Search
+  // Enabled if search is defined and not empty
   search?: string;
+  searchResults: Image[];
 
   columnSizing: ColumnSizing;
 
@@ -74,7 +78,9 @@ class App extends React.Component<AppProps, AppState> {
     },
 
     selection: [],
-    mode: Mode.Modal
+    mode: Mode.Modal,
+
+    searchResults: []
   };
 
   componentDidMount() {
@@ -198,17 +204,26 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   modalPath() {
-    const i = this.state.contents.images[this.state.modalIndex];
+    const i = this.images()[this.state.modalIndex];
     if (i) {
       return i.path;
     }
     return undefined;
   }
 
+  images(): Image[] {
+    if (this.state.search && this.state.search !== "") {
+      return this.state.searchResults;
+    }
+
+    return this.state.contents.images;
+  }
+
   search(query?: string) {
     if (!query || query === "") {
       this.setState({
-        search: undefined
+        search: undefined,
+        searchResults: []
       });
       this.cd("");
       return;
@@ -217,10 +232,7 @@ class App extends React.Component<AppProps, AppState> {
     searchFiles(query, this.state.root).then(images => {
       this.setState({
         search: query,
-        contents: {
-          dirs: [],
-          images: images
-        }
+        searchResults: images
       });
     });
   }
@@ -240,14 +252,14 @@ class App extends React.Component<AppProps, AppState> {
         {this.state.activeRequest && <Loading />}
         <Modal
           index={this.state.modalIndex}
-          images={this.state.contents.images.map(i => i.path)}
+          images={this.images().map(i => i.path)}
           setIndex={(i: number) => this.setState({ modalIndex: i })}
           close={() => this.setState({ modalIndex: undefined })}
         />
         <Errors errors={this.state.errors} />
         <Toolbar
           dirs={this.state.contents.dirs}
-          imageCount={this.state.contents.images.length}
+          imageCount={this.images().length}
           path={this.state.path}
           root={this.state.root}
           selection={this.state.selection}
@@ -259,7 +271,7 @@ class App extends React.Component<AppProps, AppState> {
           setSearch={this.search.bind(this)}
         />
         <ImageGrid
-          images={this.state.contents.images}
+          images={this.images()}
           columnSizing={this.state.columnSizing}
           onResize={this.resize.bind(this)}
           imageOnClick={this.imageOnClick.bind(this)}
