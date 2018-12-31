@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "pack": "electron-builder --config build/build.json --dir",
-    "dist": "npm run build && electron-builder --config build/build.json",
+    "dist-osx": "./build/build.sh --os=darwin --prod && electron-builder --config build/build.json",
+    "dist-linix": "./build/build.sh --os=linux --prod && electron-builder --config build/build.json",
+    "dist-windows": "./build/build.sh --os=windows --prod && electron-builder --config build/build.json",
     "build": "./build/build.sh",
     "start": "npm run build && electron . "
   },

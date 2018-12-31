@@ -2,6 +2,37 @@
 
 set -euo pipefail
 
+WEBPACK_DEV_CONFIG="build/webpack.dev.js"
+WEBPACK_PROD_CONFIG="build/webpack.prod.js"
+WEBPACK_CONFIG="$WEBPACK_DEV_CONFIG"
+
+hashfile="build/out/hash"
+
+while test $# -gt 0; do
+    case "$1" in
+        -h|--help)
+            echo "build.sh - wrapper script for building isolate"
+            echo ""
+            echo "flags:"
+            echo "--prod                    production webpack build (dev is default)"
+            echo "--os=OS                   cross compile daemon for another build (accepted: 'linux', 'windows', 'darwin')"
+            exit 0
+            ;;
+        --prod)
+            WEBPACK_CONFIG="$WEBPACK_PROD_CONFIG"
+            rm "$hashfile"
+            shift
+            ;;
+        --os*)
+            export GOOS=`echo $1 | sed -e 's/^[^=]*=//g'`
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
 mkdir -p build/out/
 
 RED='\033[0;31m'
@@ -45,7 +76,6 @@ cat src/css/main.styl | npx stylus > build/out/style.css
 finished "$step"
 
 step="BUILDING WEBPACK"
-hashfile="build/out/hash"
 if [[ $(cat $hashfile) == $(find src/ -type f -iname '*.tsx' | xargs shasum -a 256) ]];
 then
     starting "$step"
@@ -53,7 +83,7 @@ then
 else
     starting "$step"
     find src/ -type f -iname '*.tsx' | xargs shasum -a 256 > $hashfile
-    npx webpack --config build/webpack.config.js --progress
+    npx webpack --config "$WEBPACK_CONFIG" --progress
     # Webpack prints a lot so don't bother finishing
 fi
 
