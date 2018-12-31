@@ -41,7 +41,7 @@ interface AppState {
   contents: DirectoryContents;
   selection: string[];
   mode: Mode;
-  modal?: string;
+  modalIndex?: number;
 
   columnSizing: ColumnSizing;
 
@@ -82,17 +82,6 @@ class App extends React.Component<AppProps, AppState> {
       const f = e.dataTransfer.files[0] as any;
       this.setRoot(f.path);
     };
-
-    document.addEventListener("keydown", e => {
-      if (this.state.modal) {
-        if (e.key === "Escape") {
-          e.preventDefault();
-          this.setState({
-            modal: undefined
-          });
-        }
-      }
-    });
 
     electron.ipcRenderer.on(
       "daemon-did-init",
@@ -190,15 +179,23 @@ class App extends React.Component<AppProps, AppState> {
     this.setState(state => {
       if (state.mode === Mode.Modal) {
         return {
-          modal: path,
+          modalIndex: state.contents.images.findIndex(i => i.path === path),
           selection: state.selection
         };
       }
       return {
         selection: toggleSelection(state.selection, path),
-        modal: state.modal
+        modalIndex: state.modalIndex
       };
     });
+  }
+
+  modalPath() {
+    const i = this.state.contents.images[this.state.modalIndex];
+    if (i) {
+      return i.path;
+    }
+    return undefined;
   }
 
   render() {
@@ -214,12 +211,12 @@ class App extends React.Component<AppProps, AppState> {
     return (
       <div>
         {this.state.activeRequest && <Loading />}
-        {this.state.modal && (
-          <Modal
-            image={this.state.modal}
-            close={() => this.setState({ modal: undefined })}
-          />
-        )}
+        <Modal
+          index={this.state.modalIndex}
+          images={this.state.contents.images.map(i => i.path)}
+          setIndex={(i: number) => this.setState({ modalIndex: i })}
+          close={() => this.setState({ modalIndex: undefined })}
+        />
         <Errors errors={this.state.errors} />
         <Toolbar
           dirs={this.state.contents.dirs}
@@ -240,7 +237,7 @@ class App extends React.Component<AppProps, AppState> {
           selection={this.state.selection}
         />
         <Menu
-          modalPath={this.state.modal}
+          modalPath={this.modalPath()}
           nightmodeEnabled={false}
           zoom={this.zoom.bind(this)}
         />

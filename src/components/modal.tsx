@@ -3,7 +3,9 @@ import React from "react";
 import encodePath from "../lib/encode-path";
 
 interface ModalProps {
-  image: string;
+  index?: number; // index into images, undefined if modal is not open
+  images: string[];
+  setIndex: (index: number) => void;
   close: () => void;
 }
 
@@ -26,7 +28,40 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
     zoomed: false
   };
 
+  componentDidMount() {
+    document.addEventListener("keydown", e => {
+      if (this.isModalOpen()) {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          this.props.close();
+        } else if (e.key === "ArrowLeft") {
+          this.advance(-1);
+        } else if (e.key === "ArrowRight") {
+          this.advance(1);
+        }
+      }
+    });
+  }
+
+  isModalOpen() {
+    return this.props.index !== undefined;
+  }
+
+  advance(step: number) {
+    let newIndex = (this.props.index + step) % this.props.images.length;
+    if (newIndex < 0) {
+      newIndex = this.props.images.length - 1;
+    }
+    this.props.setIndex(newIndex);
+  }
+
   render() {
+    if (!this.isModalOpen()) {
+      return null;
+    }
+
+    const image = this.props.images[this.props.index];
+
     let containerClasses = "modal-container";
     if (this.state.zoomed) {
       containerClasses += " modal-zoomed";
@@ -62,7 +97,7 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
             <div className="viewer-metadata">
               <span id="viewer-description" />
               <span id="viewer-src">
-                <a href="#">{this.props.image}</a>
+                <a href="#">{image}</a>
               </span>
             </div>
           </header>
@@ -71,7 +106,7 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
             className="modal-content"
             onClick={() => this.props.close()}
           >
-            <img src={encodePath(this.props.image)} />
+            <img src={encodePath(image)} />
           </div>
         </div>
       </div>
