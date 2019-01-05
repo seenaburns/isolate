@@ -179,7 +179,7 @@ class App extends React.Component<AppProps, AppState> {
 
     this.setState(state => ({
       columnSizing: resize(
-        dim.width,
+        dim.width - GUTTER_SIZE * 2, // assumes gutter on side borders of image grid
         state.columnSizing.minimumColumnWidth,
         GUTTER_SIZE
       )
