@@ -64,7 +64,15 @@ export default class Toolbar extends React.Component<
         if (this.props.mode === Mode.Selection && e.key === "m") {
           this.setMode(Mode.Move)(e);
         }
-        if (this.props.mode !== Mode.Modal && e.key === "Escape") {
+      }
+
+      // Even if in input escape should:
+      // Go from Move -> Selection
+      // Go from Selection -> Modal
+      if (e.key === "Escape") {
+        if (this.props.mode === Mode.Move) {
+          this.setMode(Mode.Selection)(e);
+        } else if (this.props.mode === Mode.Selection) {
           this.setMode(Mode.Modal)(e);
         }
       }
