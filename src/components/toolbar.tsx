@@ -59,15 +59,12 @@ export default class Toolbar extends React.Component<
           this.setMenuEnabled(true);
         }
         if (this.props.mode === Mode.Modal && e.key === "e") {
-          console.log("edit hotkey");
           this.setMode(Mode.Selection)(e);
         }
         if (this.props.mode === Mode.Selection && e.key === "m") {
-          console.log("move hotkey");
           this.setMode(Mode.Move)(e);
         }
         if (this.props.mode !== Mode.Modal && e.key === "Escape") {
-          console.log("cancel hotkey");
           this.setMode(Mode.Modal)(e);
         }
       }

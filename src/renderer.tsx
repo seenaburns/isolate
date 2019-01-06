@@ -282,8 +282,6 @@ class App extends React.Component<AppProps, AppState> {
       );
     }
 
-    console.log(this.images(this.state));
-
     return (
       <div>
         {this.state.activeRequest && <Loading />}
