@@ -38,6 +38,10 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
           this.advance(-1);
         } else if (e.key === "ArrowRight") {
           this.advance(1);
+        } else if (e.key === "z") {
+          this.setState(state => ({
+            zoomed: !state.zoomed
+          }));
         }
       }
     });
