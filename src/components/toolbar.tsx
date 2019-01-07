@@ -53,7 +53,13 @@ export default class Toolbar extends React.Component<
   componentDidMount() {
     document.addEventListener("keydown", e => {
       const notInput = document.activeElement.tagName !== "INPUT";
-      if (notInput) {
+      const noModifier = !(
+        e.getModifierState("Alt") ||
+        e.getModifierState("Control") ||
+        e.getModifierState("Meta") ||
+        e.getModifierState("Shift")
+      );
+      if (notInput && noModifier) {
         if (e.key === "n") {
           e.preventDefault();
           this.setMenuEnabled(true);
