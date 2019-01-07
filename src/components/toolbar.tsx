@@ -174,7 +174,8 @@ export default class Toolbar extends React.Component<
           title="Navigate"
           items={this.props.dirs.map(d => ({
             display: d,
-            action: () => this.props.cd(d)
+            action: () => this.props.cd(d),
+            preventDefaultEvent: false
           }))}
           setEnabled={this.setMenuEnabled.bind(this)}
         />
@@ -191,7 +192,8 @@ export default class Toolbar extends React.Component<
               unsafeMoveAll(this.props.selection, d).then(() => {
                 this.props.cd("");
               });
-            }
+            },
+            preventDefaultEvent: true
           }))}
           setEnabled={this.setMenuEnabled.bind(this)}
         />

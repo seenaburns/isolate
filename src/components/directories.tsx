@@ -3,6 +3,7 @@ import React from "react";
 interface Item {
   display: string;
   action: () => void;
+  preventDefaultEvent: boolean;
 }
 
 interface Props {
@@ -38,7 +39,7 @@ export default class Directories extends React.Component<Props, State> {
     if (e.key === "Enter") {
       const filtered = this.filteredItems();
       if (filtered.length > 0) {
-        this.selectItem(filtered[0]);
+        this.selectItem(e, filtered[0]);
       }
     } else if (e.key === "Escape") {
       this.props.setEnabled(false);
@@ -65,7 +66,13 @@ export default class Directories extends React.Component<Props, State> {
     );
   }
 
-  selectItem(item: Item) {
+  selectItem(
+    event: React.MouseEvent<HTMLAnchorElement> | KeyboardEvent,
+    item: Item
+  ) {
+    if (item.preventDefaultEvent) {
+      event.preventDefault();
+    }
     this.filteredItems();
     this.inputRef.current.value = "";
     this.setState({
@@ -104,7 +111,7 @@ export default class Directories extends React.Component<Props, State> {
         <ul id="dirs">
           {filtered.map(i => (
             <li key={`li-dirs-${i.display}`}>
-              <a href="#" onClick={() => this.selectItem(i)}>
+              <a href="#" onClick={e => this.selectItem(e, i)}>
                 {i.display}
               </a>
             </li>
