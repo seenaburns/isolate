@@ -26,12 +26,9 @@ let shuttingDown = false;
 function createWindow(): Promise<void> {
   // Avoid flashing if nightmode is active by reading setting, setting background color before
   // window is even created
-  let bg = "#ffffff";
   const nightModeSetting = userData.Get("settings.json")["night_mode"];
-  const nightMode = nightModeSetting != undefined && nightModeSetting;
-  if (nightMode) {
-    bg = "#1c1c21";
-  }
+  const nightMode = nightModeSetting !== undefined ? nightModeSetting : true;
+  const bg = nightMode ? "1c1c21" : "#ffffff";
 
   const thumbnailDir = userData.userDataPath(THUMBNAIL_DIR);
   if (!fs.existsSync(thumbnailDir)) {
@@ -80,11 +77,15 @@ function createWindow(): Promise<void> {
 function init() {
   const config = userData.Get("settings.json");
   let root_dir = config["root_dir"];
-  if (root_dir == undefined) {
+  if (root_dir === undefined) {
     root_dir = "";
   }
+  let nightMode = config["night_mode"];
+  if (nightMode === undefined) {
+    nightMode = true;
+  }
   globalData.global.root_dir = root_dir;
-  globalData.global.night_mode = config["night_mode"] || false;
+  globalData.global.night_mode = nightMode;
 
   createWindow()
     .then(getAvailablePort)
