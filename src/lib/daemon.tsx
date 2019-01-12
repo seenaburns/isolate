@@ -18,7 +18,13 @@ function listDir(daemon: DaemonConfig, path: string): Promise<Image[]> {
   }
 
   return fetch(
-    `http://localhost:${daemon.port}/list/${encodeURI(pathWithoutLeadingSlash)}`
+    `http://localhost:${daemon.port}/list/${encodeURI(
+      pathWithoutLeadingSlash
+    )}`,
+    {
+      // Disable cache otherwise electron/chrome will indefinitely save responses on disk
+      cache: "no-store"
+    }
   )
     .then(response => {
       return response.json();
