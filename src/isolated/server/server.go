@@ -47,18 +47,21 @@ func (s *Server) ListDirHandler(w http.ResponseWriter, r *http.Request) {
 
 	pathEscaped := strings.TrimPrefix(r.URL.Path, "/list/")
 	requestPath, err := url.PathUnescape(pathEscaped)
-	log.Printf("Path: %q %q", pathEscaped, requestPath)
 	if err != nil {
-		log.Fatal(err)
+		err = errors.Wrapf(err, "dirPathFromUrl(%q)", r.URL.Path)
+		log.Printf("[ERROR] %v", err)
+		http.Error(w, err.Error(), 400)
 	}
+	dirPath := path.Join("/", requestPath)
+	log.Printf("List %q %q", r.URL.Path, dirPath)
 
-	// TODO: make windows compatible
-	dir := path.Join("/", requestPath)
-	s.ToUpdateDirQueue <- dir
+	s.ToUpdateDirQueue <- dirPath
 
-	knownFiles, err := database.GetDir(ctx, s.Database, dir)
+	knownFiles, err := database.GetDir(ctx, s.Database, dirPath)
 	if err != nil {
-		log.Printf("[ERROR] GetDir(%q): %v", dir, err)
+		err = errors.Wrapf(err, "GetDir(%q)", dirPath)
+		log.Printf("[ERROR] %v", err)
+		http.Error(w, err.Error(), 500)
 	}
 
 	response := listResponse{[]imageResponse{}}
@@ -73,7 +76,9 @@ func (s *Server) ListDirHandler(w http.ResponseWriter, r *http.Request) {
 
 	json, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
-		log.Fatal(err)
+		err = errors.Wrapf(err, "json.Marshal(%+v)", response)
+		log.Printf("[ERROR] %v", err)
+		http.Error(w, err.Error(), 500)
 	}
 
 	fmt.Fprintf(w, string(json))
