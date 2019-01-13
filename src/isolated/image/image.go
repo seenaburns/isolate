@@ -1,19 +1,17 @@
 package image
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"fmt"
 	stdlib_image "image"
 	"image/jpeg"
 	_ "image/png"
-	"io"
 	"os"
 	"path"
-	"time"
 
 	"github.com/nfnt/resize"
 	"github.com/pkg/errors"
+
+	"isolated/fs"
 )
 
 const THUMBNAIL_WIDTH = 300
@@ -37,32 +35,6 @@ func Dimensions(imageAbsolutePath string) (w int, h int, err error) {
 	return image.Width, image.Height, nil
 }
 
-func Hash(imageAbsolutePath string) (string, error) {
-	file, err := os.Open(imageAbsolutePath)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-
-	hash := sha1.New()
-	_, err = io.Copy(hash, file)
-	if err != nil {
-		return "", err
-	}
-
-	hashBytes := hash.Sum(nil)
-	return hex.EncodeToString(hashBytes), nil
-}
-
-func ModifiedTime(imageAbsolutePath string) (time.Time, error) {
-	info, err := os.Stat(imageAbsolutePath)
-	if err != nil {
-		return time.Time{}, err
-	}
-
-	return info.ModTime(), nil
-}
-
 func WriteThumbnail(imageAbsolutePath string, destinationPath string) error {
 	file, err := os.Open(imageAbsolutePath)
 	if err != nil {
@@ -78,7 +50,11 @@ func WriteThumbnail(imageAbsolutePath string, destinationPath string) error {
 	thumb := resize.Resize(THUMBNAIL_WIDTH, 0, img, resize.NearestNeighbor)
 
 	// Check if thumb already exists
-	if FileExists(destinationPath) {
+	_, exists, err := fs.Stat(destinationPath)
+	if err != nil {
+		return errors.Wrapf(err, "CheckPath")
+	}
+	if exists {
 		return fmt.Errorf("Thumbnail destination already exists (%q)", destinationPath)
 	}
 
@@ -90,13 +66,4 @@ func WriteThumbnail(imageAbsolutePath string, destinationPath string) error {
 
 	err = jpeg.Encode(out, thumb, nil)
 	return errors.Wrapf(err, "jpeg.Encode")
-}
-
-func FileExists(path string) bool {
-	if _, err := os.Stat(path); err != nil {
-		if os.IsNotExist(err) {
-			return false
-		}
-	}
-	return true
 }
