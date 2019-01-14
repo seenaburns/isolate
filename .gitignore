@@ -4,3 +4,5 @@ other
 .DS_Store
 src/isolated/isolated
 out/
+test/image-generator/image-generator
+test/image-generator/out
