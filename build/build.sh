@@ -50,7 +50,7 @@ finished() {
     echo -e "⚡  ${GREEN}$*${NC}"
 }
 
-if ! command -v go > /dev/null ;
+if ! hash go > /dev/null ;
 then
     echo -e "${RED}ERROR: golang-go not available, building daemon will fail${NC}\n"
     exit 1
