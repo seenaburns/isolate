@@ -91,7 +91,9 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   componentDidMount() {
-    this.cd("");
+    if (this.state.root !== "") {
+      this.cd("");
+    }
 
     document.ondragover = e => {
       e.preventDefault();
