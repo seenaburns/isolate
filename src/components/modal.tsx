@@ -47,6 +47,19 @@ export default class Modal extends React.Component<ModalProps, ModalState> {
     });
   }
 
+  componentDidUpdate(prevProps: ModalProps) {
+    if (prevProps.index !== undefined && this.props.index === undefined) {
+      // Closing
+      document.querySelector("body").style.overflow = "visible";
+    } else if (
+      prevProps.index === undefined &&
+      this.props.index !== undefined
+    ) {
+      // Opening
+      document.querySelector("body").style.overflow = "hidden";
+    }
+  }
+
   isModalOpen() {
     return this.props.index !== undefined;
   }
