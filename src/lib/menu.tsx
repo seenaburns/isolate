@@ -1,5 +1,6 @@
 const electron = require("electron");
 const app = electron.remote.app;
+const process = require("process");
 
 const options = {
   ModalOpen: false,
@@ -44,7 +45,10 @@ function UpdateMenu() {
         { type: "separator" },
         {
           label: "Open Dev Tools",
-          accelerator: "CmdOrCtrl+Option+I",
+          accelerator:
+            process.platform === "win32"
+              ? "CmdOrCtrl+Shift+I"
+              : "CmdOrCtrl+Option+I",
           click: electron.remote.getCurrentWindow().webContents.openDevTools
         },
         {
