@@ -154,7 +154,7 @@ func (s *Server) updateImageMetadata(ctx context.Context, imagePath string) erro
 	thumbDest := path.Join(s.ThumbnailDir, fmt.Sprintf("%s.jpg", hash))
 	_, exists, err := fs.Stat(thumbDest)
 	// Todo: handle if exists
-	if !exists && err != nil {
+	if !exists && err == nil {
 		log.Printf("Writing thumbnail for %q to %q", imagePath, thumbDest)
 		err := image.WriteThumbnail(imagePath, thumbDest)
 		if err != nil {
