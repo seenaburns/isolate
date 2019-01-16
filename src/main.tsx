@@ -167,6 +167,8 @@ function spawnDaemon(port: number): Promise<DaemonConfig> {
       }
       console.log(`daemon exited with code ${code}`);
     });
+
+    console.log("Init: daemon PID:", daemonProcess.pid);
   });
 }
 
