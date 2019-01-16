@@ -10,7 +10,7 @@
     "build/**/*.js",
     "build/**/*.css"
   ],
-  "extraFiles": ["build/out/isolated"],
+  "extraFiles": ["build/out/isolated*"],
   "directories": {
     "output": "build/out/"
   },
