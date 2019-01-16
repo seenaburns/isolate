@@ -8,6 +8,8 @@ WEBPACK_CONFIG="$WEBPACK_DEV_CONFIG"
 
 hashfile="build/out/hash"
 
+export GOOS=""
+
 while test $# -gt 0; do
     case "$1" in
         -h|--help)
@@ -66,7 +68,14 @@ step="BUILDING GO DAEMON (ISOLATED)"
 starting "$step"
 (
     cd src/isolated/
-    go build -o ../../build/out/isolated
+    if [[ "$GOOS" == "windows" ]];
+    then
+        # use mingw-w64 to cross compile windows
+        # only tested on linux cross compiling for windows
+        CC=x86_64-w64-mingw32-gcc-posix CGO_ENABLED=1 go build -o ../../build/out/isolated.exe
+    else
+        go build -o ../../build/out/isolated
+    fi
 )
 finished "$step"
 
