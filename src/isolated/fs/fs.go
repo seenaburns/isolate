@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"time"
+	"regexp"
 
 	"github.com/pkg/errors"
 )
@@ -48,4 +49,12 @@ func ModifiedTime(path string) (time.Time, error) {
 	}
 
 	return info.ModTime(), nil
+}
+
+func IsWindowsPath(path string) bool {
+	if match, _ := regexp.MatchString(`^.:\\`, path); match {
+		return true
+	}
+
+	return false
 }

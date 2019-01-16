@@ -9,7 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -52,7 +52,14 @@ func (s *Server) ListDirHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[ERROR] %v", err)
 		http.Error(w, err.Error(), 400)
 	}
-	dirPath := path.Join("/", requestPath)
+
+	// Path url cannot start with even escaped path
+	// Add back if unix path
+	dirPath := requestPath
+	if !fs.IsWindowsPath(dirPath) {
+		dirPath = filepath.Join("/", requestPath)
+	}
+
 	log.Printf("List %q %q", r.URL.Path, dirPath)
 
 	s.ToUpdateDirQueue <- dirPath
@@ -107,7 +114,7 @@ func (s *Server) Updater(ctx context.Context, thumbnailDir string) {
 
 		for _, f := range files {
 			if !f.IsDir() && image.Supported(f.Name()) {
-				absPath := path.Join("/", dir, f.Name())
+				absPath := filepath.Join(dir, f.Name())
 
 				// Update file if
 				// 1. not in database
@@ -119,7 +126,8 @@ func (s *Server) Updater(ctx context.Context, thumbnailDir string) {
 				} else {
 					modTime, err := fs.ModifiedTime(absPath)
 					if err != nil {
-						log.Printf("[ERROR] %s: %v", f.Name(), err)
+						err = errors.Wrapf(err, "fs.ModifiedTime(%q)", absPath)
+						log.Printf("[ERROR] %v", err)
 						continue
 					}
 
@@ -131,9 +139,9 @@ func (s *Server) Updater(ctx context.Context, thumbnailDir string) {
 				if shouldUpdate {
 					err := s.updateImageMetadata(ctx, absPath)
 					if err != nil {
-						log.Printf("ERROR: %v", err)
+						err = errors.Wrapf(err, "updateImageMetadata(%q)", absPath)
+						log.Printf("[ERROR] %v", absPath, err)
 					}
-
 				}
 			}
 		}
@@ -151,7 +159,7 @@ func (s *Server) updateImageMetadata(ctx context.Context, imagePath string) erro
 		return errors.Wrapf(err, "Hash(%q, %q)", imagePath)
 	}
 
-	thumbDest := path.Join(s.ThumbnailDir, fmt.Sprintf("%s.jpg", hash))
+	thumbDest := filepath.Join(s.ThumbnailDir, fmt.Sprintf("%s.jpg", hash))
 	_, exists, err := fs.Stat(thumbDest)
 	// Todo: handle if exists
 	if !exists && err == nil {

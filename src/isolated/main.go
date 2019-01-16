@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
 
 	"isolated/database"
 	"isolated/fs"
@@ -40,8 +40,8 @@ func main() {
 		}
 	}
 
-	databasePath := path.Join(*appDir, DATABASE_FILENAME)
-	thumbnailDir := path.Join(*appDir, THUMNAIL_DIRECTORY)
+	databasePath := filepath.Join(*appDir, DATABASE_FILENAME)
+	thumbnailDir := filepath.Join(*appDir, THUMNAIL_DIRECTORY)
 
 	err := os.MkdirAll(thumbnailDir, 0755)
 	if err != nil {
