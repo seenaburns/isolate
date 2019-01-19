@@ -17,13 +17,13 @@
   "mac": {
     "category": "image",
     "target": ["dir"],
-    "icon": "assets/logo.icns"
+    "icon": "assets/icon.icns"
   },
   "win": {
     "target": ["portable"],
-    "icon": "assets/logo.icns"
+    "icon": "assets/icon.icns"
   },
   "linux": {
-    "icon": "assets/logo.iconset/icon_256x256.png"
+    "icon": "assets/icon.iconset/icon_256x256.png"
   }
 }
