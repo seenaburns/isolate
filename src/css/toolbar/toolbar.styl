@@ -1,0 +1,154 @@
+@require 'popup.styl'
+
+nav-animation = 0.15s ease-out forwards
+
+.main-header {
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  background: var(--bg);
+  color: var(--fg);
+  z-index: 1
+
+  h3 {
+    margin: 0px;
+    padding: 0px;
+    font-weight: normal;
+    font-size: 14px;
+  }
+
+  .toolbar {
+    height: toolbar-height;
+    width: 100%;
+    display: flex;
+    position: absolute
+    bottom: 0
+
+    h3 {
+      line-height: toolbar-height;
+      float: left;
+    }
+
+    .left {
+      height: toolbar-height;
+      padding-left: toolbar-padding;
+      flex: 0 1 75%;
+    }
+
+    .right {
+      height: toolbar-height;
+      padding-right: toolbar-padding;
+      line-height: toolbar-height;
+      flex: 1 0 25%;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .center {
+      margin: 0 auto;
+      position: absolute;
+      right: 50%;
+      transform: translate(50%, 0);
+      padding: 0px 20px;
+      line-height: toolbar-height;
+
+      a {
+        height: toolbar-height;
+        display: inline-block;
+        text-decoration: none;
+        padding: 0px 10px;
+      }
+    }
+  }
+
+  .nav {
+    overflow: hidden;
+    border-top: 0px; // clear to stop double border fuzziness when collapsed
+    padding: 0px 20px 0px;
+    position: absolute
+    bottom: toolbar-height
+    width: 100%
+    background: var(--bg);
+
+    .title {
+      height: 20px;
+      margin: 8px 0px;
+    }
+
+    .close {
+      float: right;
+    }
+
+    h3 {
+      float: left;
+    }
+
+    input {
+      float: left;
+      margin-left: 20px;
+    }
+  }
+}
+
+.toolbar .center a:hover {
+  color: var(--fg-faded);
+}
+
+.toolbar {
+  background: var(--bg)
+  border-top: 1px solid var(--fg-faded);
+}
+
+.nav {
+  transform: translateY(100%);
+  height: nav-height;
+}
+
+@keyframes naventer {
+  100% { transform: translateY(0%); }
+}
+
+@keyframes navexit {
+  0% { transform: translateY(0%); }
+  100% { transform: translateY(100%); }
+}
+
+.nav.disabled {
+  animation: navexit nav-animation;
+}
+
+.nav.enabled {
+  animation: naventer nav-animation;
+  border-top: 1px solid var(--fg-faded);
+}
+
+nav ul {
+  max-height: 100px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+}
+
+input {
+  font-size: inherit;
+  font-family: inherit;
+  border: none;
+  outline: none;
+}
+
+.search {
+  display: inline-block;
+  margin: 8px;
+  height: line-height;
+}
+
+.edit {
+  margin-left: 20px;
+
+  a {
+    margin-right: 20px;
+  }
+}

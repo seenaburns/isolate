@@ -1,8 +1,8 @@
 node_modules/
 package-lock.json
-compiled/
 other
 .DS_Store
-build/
-lib/bs/
-*.bs.js
+src/isolated/isolated
+out/
+test/image-generator/image-generator
+test/image-generator/out

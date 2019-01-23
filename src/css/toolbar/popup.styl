@@ -1,0 +1,108 @@
+popup-transition = 0.2s ease-out forwards
+
+.more {
+  display: inline-block;
+  height: toolbar-height;
+  line-height: toolbar-height;
+  padding: 0px 20px;
+
+  // overlap 1px border on toolbar
+  // windows seems very sensitive to loosing hover when mouse passes over border
+  margin-top: -1px;
+}
+
+.popup-container {
+  width: 130px;
+  position: absolute;
+  bottom: 0;
+  margin-bottom: toolbar-height;
+  margin-left: -50px;
+  padding-bottom: 15px;
+}
+
+.popup {
+  background: var(--bg)
+  position: relative;
+  box-shadow: 1px 3px 8px rgba(0,0,0,0.2);
+  margin: 15px 15px 0px;
+}
+
+.menu-item {
+  border-top: 1px solid var(--fg-faded);
+  text-align: center;
+  line-height: 26px;
+}
+
+.menu-item:hover {
+  background: var(--fg-faded)
+  cursor: pointer;
+}
+
+@keyframes containerenter {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes containerexit {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes popupenter {
+  0% { top: 10px; }
+  100% { top: 0px; }
+}
+
+@keyframes popupexit {
+  0% { top: 0px; }
+  100% { top: 10px; }
+}
+
+.popup-container.enabled {
+  animation: containerenter popup-transition;
+
+  .popup {
+    animation: popupenter popup-transition;
+  }
+}
+.popup-container.disabled {
+  animation: containerexit popup-transition;
+  pointer-events: none;
+
+  .popup {
+    animation: popupexit popup-transition;
+  }
+}
+
+/* .popup before and after constructs a triangle arrow beneath the popup, with a box shadow
+ * :after contains a 6px box that is rotated 45 degs, and placed beneath the window with a shadow
+ *   because this renders under the popup box itself, it is occulded by .popup's shadow
+ * :before renders a triangle with a border, but above both, so that it appears as one contiguous
+ *   shape
+ */
+.popup:after{
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  height: 6px;
+  width: 6px;
+  margin-left: -3px;
+  margin-bottom: -3px;
+  z-index: -1;
+  box-shadow: 1px 3px 8px rgba(0,0,0,0.2);
+  transform: rotate(45deg);
+}
+.popup:before{
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  pointer-events: none;
+  border-color: rgba(0,0,0,0);
+  border-width: 6px;
+  margin-left: -6px;
+}

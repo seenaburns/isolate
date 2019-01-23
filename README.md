@@ -1,19 +1,25 @@
 # Isolate
 
 ![isolate](https://user-images.githubusercontent.com/2801344/44303858-96caca00-a300-11e8-8402-1b5834c03eb6.png)
-Isolate is a lightweight image browser for local files.
 
-Isolate works off of your local file system: you get started by dragging and dropping a folder onto the application window. After that, you can navigate to subfolders, search for filenames and open images in full res. Not having to go over the internet [keeps things much faster than other tools like Pinterest.](https://twitter.com/seenaburns/status/950054230852694016)
+Isolate is a lightweight tool for viewing and organizing your art reference and inspiration with ease.
+
+Isolate works off of your local file system: you get started by dragging and dropping a folder onto the application window. After that, you can browse, search, reorganize and view images in full res. Not having to go over the internet [keeps things much faster than other tools like Pinterest.](https://twitter.com/seenaburns/status/950054230852694016)
 
 #### Great things about Isolate
 
-- **No BS**: Isolate isn't a social tool, there's no sharing, notifications, discovery. It just does its job and stays out of your way.
 - **Quick**: Both in workflow and snappiness, Isolate is meant for the power users
 - **Manage your images how you like**: Isolate just reflects your directory structure, you get to organize things how you see fit (even with nested folders)
+- **No BS**: Isolate isn't a social tool. There's no sharing, notifications, discovery. It just does its job and stays out of your way.
 
 ## Install
 
-See [releases](https://github.com/seenaburns/Isolate/releases) for prebuilt applications, or `npm install && npm start` after cloning
+Download | [macOS (app)](https://github.com/seenaburns/isolate/releases/download/v2.0.2/isolate-2.0.2.dmg) | [windows (unpacked .exe)](https://github.com/seenaburns/isolate/releases/download/v2.0.2/isolate.2.0.2.exe) | [linux (.appImage)](https://github.com/seenaburns/isolate/releases/download/v2.0.2/isolate-2.0.2-x86_64.AppImage)
+-------- | --------------- | --------------------------- | ---------------------------
+
+See [build/](build/) for how to build from source.
+
+**Note**: v3 is in development! Building from source (master) is less stable than the releases.
 
 ## Screenshots
 

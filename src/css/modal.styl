@@ -1,6 +1,6 @@
 .modal-back {
   position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
+  z-index: 2; /* Sit on top */
   left: 0;
   top: 0;
   width: 100%;
@@ -11,19 +11,13 @@
 }
 
 .modal-content {
-/* position: relative; */
-/* margin: auto; */
   display: flex;
-/* align-items: center; */
-/* justify-content: center; */
-/* overflow-x: auto; */
   outline: none;
 }
 
 .modal-content img {
-/* position: relative; */
   margin: auto;
-  background: url("../assets/checker-square.png");
+  background: url("../../assets/checker-square.png");
 }
 
 .modal-zoomed {
@@ -38,6 +32,13 @@
   }
   #zoom {
     display: none;
+  }
+
+  header {
+    color: rgba(0,0,0,0)
+  }
+  header:hover {
+    color: var(--modal-fg);
   }
 }
 
@@ -58,6 +59,10 @@
   }
   #zoom {
     display: block;
+  }
+
+  header {
+    color: var(--modal-fg);
   }
 }
 
@@ -99,6 +104,7 @@
 
   span:hover, span:focus {
     cursor: pointer;
+    color: var(--modal-fg-bright);
   }
 }
 

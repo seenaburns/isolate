@@ -1,0 +1,29 @@
+{
+  "appId": "com.seenaburns.isolate",
+  "files": [
+    "index.html",
+    "index.js",
+    "src/**/*",
+    "assets/icon_512x512.png",
+    "assets/checker-square.png",
+    "assets/fonts/Inconsolata/*.ttf",
+    "build/**/*.js",
+    "build/**/*.css"
+  ],
+  "extraFiles": ["build/out/isolated*"],
+  "directories": {
+    "output": "build/out/"
+  },
+  "mac": {
+    "category": "image",
+    "target": ["dir"],
+    "icon": "assets/icon.icns"
+  },
+  "win": {
+    "target": ["portable"],
+    "icon": "assets/icon.icns"
+  },
+  "linux": {
+    "icon": "assets/icon.iconset/icon_256x256.png"
+  }
+}
