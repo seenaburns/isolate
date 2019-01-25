@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -77,7 +76,6 @@ type File struct {
 
 func getFiles(ctx context.Context, client *sql.DB, where string, args ...interface{}) ([]*File, error) {
 	query := fmt.Sprintf("SELECT hash, modified, path, height, width, thumbnailPath FROM files WHERE %s", where)
-	log.Printf("[QUERY] query=%q args=%v", query, args)
 
 	rows, err := client.QueryContext(ctx, query, args...)
 	if err != nil {

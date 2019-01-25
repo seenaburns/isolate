@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -17,6 +16,7 @@ import (
 	"isolated/database"
 	"isolated/fs"
 	"isolated/image"
+	"isolated/log"
 )
 
 type Server struct {
@@ -49,7 +49,7 @@ func (s *Server) ListDirHandler(w http.ResponseWriter, r *http.Request) {
 	requestPath, err := url.PathUnescape(pathEscaped)
 	if err != nil {
 		err = errors.Wrapf(err, "dirPathFromUrl(%q)", r.URL.Path)
-		log.Printf("[ERROR] %v", err)
+		log.Errorf("%v", err)
 		http.Error(w, err.Error(), 400)
 	}
 
@@ -60,14 +60,14 @@ func (s *Server) ListDirHandler(w http.ResponseWriter, r *http.Request) {
 		dirPath = filepath.Join("/", requestPath)
 	}
 
-	log.Printf("List %q %q", r.URL.Path, dirPath)
+	log.Infof("List %q %q", r.URL.Path, dirPath)
 
 	s.ToUpdateDirQueue <- dirPath
 
 	knownFiles, err := database.GetDir(ctx, s.Database, dirPath)
 	if err != nil {
 		err = errors.Wrapf(err, "GetDir(%q)", dirPath)
-		log.Printf("[ERROR] %v", err)
+		log.Errorf("%v", err)
 		http.Error(w, err.Error(), 500)
 	}
 
@@ -84,7 +84,7 @@ func (s *Server) ListDirHandler(w http.ResponseWriter, r *http.Request) {
 	json, err := json.MarshalIndent(response, "", "  ")
 	if err != nil {
 		err = errors.Wrapf(err, "json.Marshal(%+v)", response)
-		log.Printf("[ERROR] %v", err)
+		log.Errorf("%v", err)
 		http.Error(w, err.Error(), 500)
 	}
 
@@ -93,17 +93,20 @@ func (s *Server) ListDirHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) Updater(ctx context.Context, thumbnailDir string) {
 	for dir := range s.ToUpdateDirQueue {
-		log.Printf("Updating directory: %s", dir)
+		log.Infof("Updating directory: %s", dir)
 
 		files, err := ioutil.ReadDir(dir)
 		if err != nil {
-			err = fmt.Errorf("ReadDir(%q): %+v", dir, err)
-			log.Fatal(err)
+			err = errors.Wrapf(err, "ReadDir(%q)", dir)
+			log.Errorf("%v", err)
+			continue
 		}
 
 		knownFiles, err := database.GetDir(ctx, s.Database, dir)
 		if err != nil {
-			log.Fatalf("[ERROR] GetDir(%q): %v", dir, err)
+			err = errors.Wrapf(err, "database.GetDir(%q)", dir)
+			log.Errorf("%v", err)
+			continue
 		}
 
 		// TODO: this should map to an array of files
@@ -127,7 +130,7 @@ func (s *Server) Updater(ctx context.Context, thumbnailDir string) {
 					modTime, err := fs.ModifiedTime(absPath)
 					if err != nil {
 						err = errors.Wrapf(err, "fs.ModifiedTime(%q)", absPath)
-						log.Printf("[ERROR] %v", err)
+						log.Errorf("%v", err)
 						continue
 					}
 
@@ -140,7 +143,8 @@ func (s *Server) Updater(ctx context.Context, thumbnailDir string) {
 					err := s.updateImageMetadata(ctx, absPath)
 					if err != nil {
 						err = errors.Wrapf(err, "updateImageMetadata(%q)", absPath)
-						log.Printf("[ERROR] %v", absPath, err)
+						log.Errorf("%v", err)
+						continue
 					}
 				}
 			}
@@ -151,19 +155,19 @@ func (s *Server) Updater(ctx context.Context, thumbnailDir string) {
 func (s *Server) updateImageMetadata(ctx context.Context, imagePath string) error {
 	modTime, err := fs.ModifiedTime(imagePath)
 	if err != nil {
-		return errors.Wrapf(err, "ModifiedTime(%q, %q)", imagePath)
+		return errors.Wrapf(err, "ModifiedTime(%q)", imagePath)
 	}
 
 	hash, err := fs.Hash(imagePath)
 	if err != nil {
-		return errors.Wrapf(err, "Hash(%q, %q)", imagePath)
+		return errors.Wrapf(err, "Hash(%q)", imagePath)
 	}
 
 	thumbDest := filepath.Join(s.ThumbnailDir, fmt.Sprintf("%s.jpg", hash))
 	_, exists, err := fs.Stat(thumbDest)
 	// Todo: handle if exists
 	if !exists && err == nil {
-		log.Printf("Writing thumbnail for %q to %q", imagePath, thumbDest)
+		log.Infof("Writing thumbnail for %q to %q", imagePath, thumbDest)
 		err := image.WriteThumbnail(imagePath, thumbDest)
 		if err != nil {
 			return errors.Wrapf(err, "WriteThumbanil(%q, %q)", imagePath, thumbDest)
