@@ -7,7 +7,7 @@ export default async function nonFatalAll<T>(
       p.then(
         x => x,
         err => {
-          console.error("Failed running", name, err);
+          console.warn("Failed running", name, err);
           return null;
         }
       )

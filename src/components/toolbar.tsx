@@ -109,7 +109,6 @@ export default class Toolbar extends React.Component<
   }
 
   setMenuEnabled(enabled: boolean) {
-    console.log("Setting menu", enabled);
     this.setState({ menuEnabled: enabled });
   }
 

@@ -10,6 +10,7 @@ const { spawn } = require("child_process");
 
 import userData, { THUMBNAIL_DIR } from "./lib/userData";
 import { DaemonConfig } from "./lib/daemon";
+import { LogSeverity, Log } from "./lib/log";
 
 let globalData: any = global;
 globalData.global = {
@@ -94,7 +95,7 @@ function init() {
       mainWindow.webContents.send("daemon-did-init", daemonConfig)
     )
     .catch(err => {
-      console.log("Initialization failed:", err);
+      console.error("Initialization failed:", err);
     });
 }
 
@@ -148,15 +149,17 @@ function spawnDaemon(port: number): Promise<DaemonConfig> {
     daemonProcess.stdout.on("data", (data: string) => {
       if (!initialized) {
         initialized = true;
-        console.log("Init: spawned daemon");
+        logAndForward(LogSeverity.Info, "Init: spawned daemon");
         resolve({ port: port });
       }
-      console.log(`daemon stdout: ${data}`);
+      logAndForward(LogSeverity.Info, `(daemon stdout) ${data}`);
     });
 
     daemonProcess.stderr.on("data", (data: string) => {
       lastStderr = `${data}`;
-      console.log(`daemon stderr: ${data}`);
+
+      const msg = `(daemon stderr) ${data}`;
+      logAndForward(severityFromLog(msg), msg);
     });
 
     daemonProcess.on("close", (code: number | null) => {
@@ -165,10 +168,10 @@ function spawnDaemon(port: number): Promise<DaemonConfig> {
           `Daemon unexpectedly exited\nLast log line: "${lastStderr}"`
         );
       }
-      console.log(`daemon exited with code ${code}`);
+      logAndForward(LogSeverity.Info, `daemon exited with code ${code}`);
     });
 
-    console.log("Init: daemon PID:", daemonProcess.pid);
+    logAndForward(LogSeverity.Info, `Init: daemon PID: ${daemonProcess.pid}`);
   });
 }
 
@@ -176,7 +179,10 @@ function killDaemon() {
   shuttingDown = true;
   if (daemonProcess) {
     daemonProcess.kill();
-    console.log("Daemon killed status: ", daemonProcess.killed);
+    logAndForward(
+      LogSeverity.Info,
+      `Daemon killed status: ${daemonProcess.killed}`
+    );
   }
 }
 
@@ -205,4 +211,33 @@ function pathToIsolated() {
     return path.join(resourcePath, "../build/out", "isolated");
   }
   return path.join(__dirname, "isolated");
+}
+
+function severityFromLog(msg: string): LogSeverity {
+  if (msg.includes("ERROR:")) {
+    return LogSeverity.Error;
+  }
+
+  if (msg.includes("FATAL:")) {
+    return LogSeverity.Fatal;
+  }
+
+  return LogSeverity.Info;
+}
+
+// Forward logs to renderer process, so they can be printed in the console
+// Main process logs are not easily accessible once packaged
+function logAndForward(severity: LogSeverity, msg: string) {
+  if (severity === LogSeverity.Info) {
+    console.log(msg);
+  } else {
+    console.error(msg);
+  }
+
+  if (mainWindow) {
+    mainWindow.webContents.send("forwarded-log", {
+      severity: severity,
+      msg: msg
+    });
+  }
 }

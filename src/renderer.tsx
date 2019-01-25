@@ -27,6 +27,7 @@ import Daemon, { DaemonConfig } from "./lib/daemon";
 import userData from "./lib/userData";
 import Menu from "./components/menu";
 import shuffle from "./lib/shuffle";
+import { LogSeverity, Log } from "./lib/log";
 
 const electron = require("electron");
 const nodePath = require("path");
@@ -344,6 +345,14 @@ console.log(global.night_mode, global.root_dir);
 
 nightmode.set(global.night_mode);
 scrollbar.init(global.night_mode);
+
+electron.ipcRenderer.on("forwarded-log", (event: any, log: Log) => {
+  if (log.severity === LogSeverity.Info) {
+    console.log(log.msg);
+  } else {
+    console.error(log.msg);
+  }
+});
 
 document.querySelector("body").classList.add(process.platform);
 
