@@ -109,6 +109,7 @@ export default class Toolbar extends React.Component<
   }
 
   setMenuEnabled(enabled: boolean) {
+    console.log("Setting menu", enabled);
     this.setState({ menuEnabled: enabled });
   }
 
@@ -188,7 +189,7 @@ export default class Toolbar extends React.Component<
           items={dirs.map(d => ({
             display: trimRelativeToRoot(d, this.props.root),
             action: () => {
-              this.props.setMode(Mode.Modal);
+              this.setMode(Mode.Modal)(null);
               unsafeMoveAll(this.props.selection, d).then(() => {
                 this.props.cd("");
               });
