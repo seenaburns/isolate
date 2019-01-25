@@ -275,11 +275,22 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   render() {
+    const menu = (
+      <Menu
+        modalPath={this.modalPath()}
+        nightmodeEnabled={false}
+        zoom={this.zoom.bind(this)}
+      />
+    );
+
     if (this.state.root === "") {
       return (
-        <div className="dragndrop">
-          <img src="../assets/icon_512x512.png" />
-          <p>{"Drag & drop a folder to get started"}</p>
+        <div>
+          <div className="dragndrop">
+            <img src="../assets/icon_512x512.png" />
+            <p>{"Drag & drop a folder to get started"}</p>
+          </div>
+          {menu}
         </div>
       );
     }
@@ -315,11 +326,7 @@ class App extends React.Component<AppProps, AppState> {
           imageOnClick={this.imageOnClick.bind(this)}
           selection={this.state.selection}
         />
-        <Menu
-          modalPath={this.modalPath()}
-          nightmodeEnabled={false}
-          zoom={this.zoom.bind(this)}
-        />
+        {menu}
       </div>
     );
   }
